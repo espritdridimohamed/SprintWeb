@@ -1,0 +1,15 @@
+<div class="page-header">
+  <div>
+    <div class="page-title">Tableau de bord</div>
+    <div class="page-subtitle">Vue personnalisée pour {{ roleConfig.label }}</div>
+  </div>
+  <button class="primary-btn">Nouvelle action</button>
+</div>
+
+<div class="grid-4">
+  <app-kpi-card *ngFor="let kpi of roleConfig.kpis" [item]="kpi"></app-kpi-card>
+</div>
+
+<div class="dashboard-panels">
+  <app-section-card *ngFor="let panel of roleConfig.panels" [panel]="panel"></app-section-card>
+</div>

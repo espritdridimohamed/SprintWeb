@@ -1,0 +1,8 @@
+<div class="kpi-card" [class]="item.tone || 'neutral'">
+  <div class="kpi-header">
+    <div class="kpi-label">{{ item.label }}</div>
+    <div class="kpi-icon"><span class="material-symbols-outlined">{{ getIcon(item.icon) }}</span></div>
+  </div>
+  <div class="kpi-value">{{ item.value }}</div>
+  <div class="kpi-trend" *ngIf="item.trend">{{ item.trend }}</div>
+</div>

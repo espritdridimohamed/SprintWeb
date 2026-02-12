@@ -1,0 +1,21 @@
+/* Support-specific styles (shared classes in global styles.scss) */
+
+.chat {
+  display: grid;
+  gap: 10px;
+}
+
+.chat-bubble {
+  background: var(--card);
+  padding: 12px 14px;
+  border-radius: 14px;
+  max-width: 80%;
+  font-size: 13px;
+  border: 1px solid var(--card-border);
+}
+
+.chat-bubble.reply {
+  background: rgba(107, 159, 62, 0.1);
+  border-color: rgba(107, 159, 62, 0.2);
+  margin-left: auto;
+}

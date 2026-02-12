@@ -1,0 +1,26 @@
+<div class="role-page">
+  <div class="role-card">
+    <div class="role-header">
+      <div class="role-icon-main"><span class="material-symbols-outlined">energy_savings_leaf</span></div>
+      <h1>Choisir votre rôle</h1>
+      <p>L'interface et le dashboard s'adaptent automatiquement selon votre profil.</p>
+    </div>
+
+    <div class="role-grid">
+      <button
+        class="role-item"
+        *ngFor="let role of roles"
+        (click)="selectRole(role.key)">
+        <div class="role-item-icon">
+          <span class="material-symbols-outlined">{{ roleIcons[role.key] }}</span>
+        </div>
+        <div class="role-title">{{ role.label }}</div>
+        <div class="role-sub">{{ role.orgLabel }}</div>
+        <div class="role-tags">
+          <span class="tag">Dashboard dédié</span>
+          <span class="tag">Modules filtrés</span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>

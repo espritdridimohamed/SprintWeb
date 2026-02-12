@@ -1,0 +1,26 @@
+/* Agri-specific styles (shared classes in global styles.scss) */
+
+.map-card {
+  min-height: 280px;
+}
+
+.map-placeholder {
+  margin-top: 16px;
+  height: 200px;
+}
+
+.list-card ul {
+  margin: 14px 0 0;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.list-card li {
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  font-size: 13px;
+}

@@ -1,0 +1,14 @@
+<div class="app-shell">
+  <app-sidebar
+    [roleLabel]="roleConfig.label"
+    [orgLabel]="roleConfig.orgLabel"
+    [navItems]="roleConfig.nav">
+  </app-sidebar>
+
+  <div class="app-main">
+    <app-topbar [roleLabel]="roleConfig.label" [orgLabel]="roleConfig.orgLabel"></app-topbar>
+    <main class="app-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+<div class="section-card" [class]="panel.accent || 'leaf'">
+  <div class="section-header">
+    <div>
+      <div class="section-title">{{ panel.title }}</div>
+      <div class="section-sub" *ngIf="panel.subtitle">{{ panel.subtitle }}</div>
+    </div>
+    <button class="ghost-btn">Voir</button>
+  </div>
+
+  <div class="section-list">
+    <div class="section-item" *ngFor="let item of panel.items">{{ item }}</div>
+  </div>
+</div>
