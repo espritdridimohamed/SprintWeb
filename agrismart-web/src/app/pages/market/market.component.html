@@ -1,44 +1,554 @@
+<!-- Role Selector (Demo purposes) -->
+<div class="role-selector">
+  <button [class.active]="userRole === 'producteur'" (click)="switchRole('producteur')" class="role-btn">
+    <span class="material-symbols-outlined">agriculture</span>
+    Producteur
+  </button>
+  <button [class.active]="userRole === 'cooperative'" (click)="switchRole('cooperative')" class="role-btn">
+    <span class="material-symbols-outlined">groups</span>
+    Coopérative
+  </button>
+  <button [class.active]="userRole === 'admin'" (click)="switchRole('admin')" class="role-btn">
+    <span class="material-symbols-outlined">admin_panel_settings</span>
+    Admin
+  </button>
+  <button [class.active]="userRole === 'viewer'" (click)="switchRole('viewer')" class="role-btn">
+    <span class="material-symbols-outlined">visibility</span>
+    Viewer
+  </button>
+</div>
+
+<!-- Page Header -->
 <div class="page-header">
   <div>
     <div class="page-title">Agro-Marché</div>
-    <div class="page-subtitle">Offres groupées, transactions et tendances de prix</div>
-  </div>
-  <button class="primary-btn">Publier une offre</button>
-</div>
-
-<div class="grid-3">
-  <div class="card">
-    <div class="card-title">Offres actives</div>
-    <div class="stat-value">68</div>
-    <div class="stat-label">+12 cette semaine</div>
-  </div>
-  <div class="card">
-    <div class="card-title">Transactions groupées</div>
-    <div class="stat-value">24</div>
-    <div class="stat-label">en cours</div>
-  </div>
-  <div class="card">
-    <div class="card-title">Indice prix</div>
-    <div class="stat-value">+6.4%</div>
-    <div class="stat-label">vs mois dernier</div>
-  </div>
-</div>
-
-<div class="grid-2 section-gap">
-  <div class="card">
-    <div class="card-title">Tendances par produit</div>
-    <div class="list">
-      <div class="list-item">Tomates · +8%</div>
-      <div class="list-item">Blé · +4%</div>
-      <div class="list-item">Olives · -2%</div>
+    <div class="page-subtitle">
+      <span *ngIf="userRole === 'producteur'">Gérez vos offres et suivez les prix du marché</span>
+      <span *ngIf="userRole === 'cooperative'">Offres groupées, transactions et négociations collectives</span>
+      <span *ngIf="userRole === 'admin'">Supervision et paramétrage du marché</span>
+      <span *ngIf="userRole === 'viewer'">Statistiques et tendances du marché</span>
     </div>
   </div>
+  <div class="page-actions">
+    <button *ngIf="userRole === 'producteur'" class="primary-btn" (click)="openOfferModal()">
+      <span class="material-symbols-outlined">add</span>
+      Publier une offre
+    </button>
+    <button *ngIf="userRole === 'producteur'" class="ghost-btn" (click)="openPriceAlertModal()">
+      <span class="material-symbols-outlined">notifications</span>
+      Alertes prix
+    </button>
+    <button *ngIf="userRole === 'cooperative'" class="primary-btn" (click)="openGroupedOfferModal()">
+      <span class="material-symbols-outlined">inventory_2</span>
+      Créer offre groupée
+    </button>
+  </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid-3">
+  <div class="card stat-card">
+    <div class="stat-icon">
+      <span class="material-symbols-outlined">local_offer</span>
+    </div>
+    <div>
+      <div class="card-title">Offres actives</div>
+      <div class="stat-value">{{ stats.activeOffers }}</div>
+      <div class="stat-label">+12 cette semaine</div>
+    </div>
+  </div>
+
+  <div class="card stat-card" *ngIf="userRole === 'cooperative' || userRole === 'admin'">
+    <div class="stat-icon cooperative">
+      <span class="material-symbols-outlined">handshake</span>
+    </div>
+    <div>
+      <div class="card-title">Transactions groupées</div>
+      <div class="stat-value">{{ stats.groupedTransactions }}</div>
+      <div class="stat-label">en cours</div>
+    </div>
+  </div>
+
+  <div class="card stat-card" *ngIf="userRole === 'producteur' || userRole === 'viewer'">
+    <div class="stat-icon success">
+      <span class="material-symbols-outlined">trending_up</span>
+    </div>
+    <div>
+      <div class="card-title">Indice prix</div>
+      <div class="stat-value">+{{ stats.priceIndex }}%</div>
+      <div class="stat-label">vs mois dernier</div>
+    </div>
+  </div>
+
+  <div class="card stat-card" *ngIf="userRole === 'cooperative'">
+    <div class="stat-icon revenue">
+      <span class="material-symbols-outlined">payments</span>
+    </div>
+    <div>
+      <div class="card-title">Revenus totaux</div>
+      <div class="stat-value">{{ formatCurrency(stats.totalRevenue) }}</div>
+      <div class="stat-label">Marge: {{ stats.averageMargin }}%</div>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCTEUR VIEW -->
+<div *ngIf="userRole === 'producteur'" class="section-gap">
+  <div class="grid-2">
+    <!-- My Offers -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Mes offres</div>
+        <span class="badge">{{ myOffers.length }}</span>
+      </div>
+      <div class="offers-list">
+        <div *ngFor="let offer of myOffers" class="offer-item">
+          <div class="offer-main">
+            <div class="offer-product">
+              <span class="material-symbols-outlined">eco</span>
+              <strong>{{ offer.product }}</strong>
+            </div>
+            <div class="offer-details">
+              <span>{{ offer.quantity }} {{ offer.unit }}</span>
+              <span class="separator">•</span>
+              <span>{{ formatCurrency(offer.price) }}/{{ offer.unit }}</span>
+              <span class="separator">•</span>
+              <span class="tag-quality">{{ offer.quality }}</span>
+            </div>
+          </div>
+          <span class="status-badge" [ngClass]="getStatusClass(offer.status)">
+            {{ offer.status === 'pending' ? 'En attente' : offer.status === 'validated' ? 'Validée' : 'Vendue' }}
+          </span>
+        </div>
+        <div *ngIf="myOffers.length === 0" class="empty-state">
+          <span class="material-symbols-outlined">inbox</span>
+          <p>Aucune offre publiée</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price Alerts -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Alertes de prix</div>
+        <button class="icon-btn" (click)="openPriceAlertModal()">
+          <span class="material-symbols-outlined">add</span>
+        </button>
+      </div>
+      <div class="alerts-list">
+        <div *ngFor="let alert of priceAlerts" class="alert-item">
+          <div class="alert-icon">
+            <span class="material-symbols-outlined">notifications_active</span>
+          </div>
+          <div class="alert-content">
+            <strong>{{ alert.product }}</strong>
+            <span class="alert-condition">
+              {{ alert.type === 'above' ? 'Au-dessus de' : 'En-dessous de' }} {{ formatCurrency(alert.threshold) }}
+            </span>
+          </div>
+          <span class="alert-status active">Active</span>
+        </div>
+        <div *ngIf="priceAlerts.length === 0" class="empty-state">
+          <span class="material-symbols-outlined">notifications_off</span>
+          <p>Aucune alerte configurée</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Market Prices -->
+  <div class="card section-gap">
+    <div class="card-header">
+      <div class="card-title">Prix du marché</div>
+      <div class="filters">
+        <select [(ngModel)]="selectedProduct" class="filter-select">
+          <option value="all">Tous les produits</option>
+          <option *ngFor="let product of products" [value]="product">{{ product }}</option>
+        </select>
+        <select [(ngModel)]="selectedRegion" class="filter-select">
+          <option value="all">Toutes les régions</option>
+          <option *ngFor="let region of regions" [value]="region">{{ region }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="price-table">
+      <div class="price-row header">
+        <div>Produit</div>
+        <div>Région</div>
+        <div>Prix actuel</div>
+        <div>Tendance</div>
+      </div>
+      <div *ngFor="let price of filteredPriceData" class="price-row">
+        <div class="price-product">
+          <span class="material-symbols-outlined">eco</span>
+          {{ price.product }}
+        </div>
+        <div>{{ price.region }}</div>
+        <div class="price-value">{{ formatCurrency(price.currentPrice) }}/kg</div>
+        <div class="price-trend" [ngClass]="getTrendClass(price.trend)">
+          <span class="material-symbols-outlined">
+            {{ price.trend >= 0 ? 'trending_up' : 'trending_down' }}
+          </span>
+          {{ price.trend >= 0 ? '+' : '' }}{{ price.trend.toFixed(1) }}%
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COOPERATIVE VIEW -->
+<div *ngIf="userRole === 'cooperative'" class="section-gap">
+  <!-- Grouped Offers -->
   <div class="card">
-    <div class="card-title">Offres groupées</div>
-    <div class="list">
-      <div class="list-item">Pack semences · 4 coopératives</div>
-      <div class="list-item">Fertilisants bio · 2 coopératives</div>
-      <div class="list-item">Irrigation goutte à goutte · 3 coopératives</div>
+    <div class="card-header">
+      <div class="card-title">Offres groupées</div>
+      <button class="icon-btn" (click)="openGroupedOfferModal()">
+        <span class="material-symbols-outlined">add</span>
+      </button>
+    </div>
+    <div class="grouped-offers-grid">
+      <div *ngFor="let offer of groupedOffers" class="grouped-offer-card">
+        <div class="grouped-offer-header">
+          <span class="material-symbols-outlined">inventory_2</span>
+          <h4>{{ offer.name }}</h4>
+        </div>
+        <div class="grouped-offer-stats">
+          <div class="stat-item">
+            <span class="material-symbols-outlined">group</span>
+            <span>{{ offer.producers }} producteurs</span>
+          </div>
+          <div class="stat-item">
+            <span class="material-symbols-outlined">scale</span>
+            <span>{{ offer.totalQuantity }} kg</span>
+          </div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(offer.status)">{{ offer.status }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sales Dashboard -->
+  <div class="grid-2 section-gap">
+    <div class="card">
+      <div class="card-title">Transactions récentes</div>
+      <div class="transactions-list">
+        <div *ngFor="let transaction of transactions" class="transaction-item">
+          <div class="transaction-icon">
+            <span class="material-symbols-outlined">receipt_long</span>
+          </div>
+          <div class="transaction-content">
+            <strong>{{ transaction.type }}</strong>
+            <span class="transaction-date">{{ formatDate(transaction.date) }}</span>
+          </div>
+          <div class="transaction-amount">
+            <strong>{{ formatCurrency(transaction.amount) }}</strong>
+            <span class="status-badge small" [ngClass]="getStatusClass(transaction.status)">
+              {{ transaction.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Performance</div>
+      <div class="performance-stats">
+        <div class="perf-item">
+          <div class="perf-label">Volume total</div>
+          <div class="perf-value">{{ stats.totalVolume }} tonnes</div>
+          <div class="perf-trend positive">+12% vs mois dernier</div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label">Revenus</div>
+          <div class="perf-value">{{ formatCurrency(stats.totalRevenue) }}</div>
+          <div class="perf-trend positive">+8.5% vs mois dernier</div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label">Marge moyenne</div>
+          <div class="perf-value">{{ stats.averageMargin }}%</div>
+          <div class="perf-trend neutral">Stable</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN VIEW -->
+<div *ngIf="userRole === 'admin'" class="section-gap">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Paramétrage</div>
+      <div class="admin-settings">
+        <div class="setting-item">
+          <span class="material-symbols-outlined">percent</span>
+          <div>
+            <strong>Commission plateforme</strong>
+            <span>3.5% par transaction</span>
+          </div>
+          <button class="icon-btn">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+        </div>
+        <div class="setting-item">
+          <span class="material-symbols-outlined">gavel</span>
+          <div>
+            <strong>Règles de validation</strong>
+            <span>Validation automatique > 100kg</span>
+          </div>
+          <button class="icon-btn">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+        </div>
+        <div class="setting-item">
+          <span class="material-symbols-outlined">category</span>
+          <div>
+            <strong>Catégories produits</strong>
+            <span>{{ products.length }} catégories actives</span>
+          </div>
+          <button class="icon-btn">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Supervision</div>
+      <div class="supervision-stats">
+        <div class="supervision-item">
+          <div class="supervision-icon warning">
+            <span class="material-symbols-outlined">report_problem</span>
+          </div>
+          <div>
+            <strong>3 litiges en cours</strong>
+            <span>Nécessitent une intervention</span>
+          </div>
+        </div>
+        <div class="supervision-item">
+          <div class="supervision-icon success">
+            <span class="material-symbols-outlined">check_circle</span>
+          </div>
+          <div>
+            <strong>156 transactions validées</strong>
+            <span>Ce mois-ci</span>
+          </div>
+        </div>
+        <div class="supervision-item">
+          <div class="supervision-icon info">
+            <span class="material-symbols-outlined">pending</span>
+          </div>
+          <div>
+            <strong>24 offres en attente</strong>
+            <span>Validation requise</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card section-gap">
+    <div class="card-title">Prix de référence</div>
+    <div class="reference-prices">
+      <div *ngFor="let price of priceData.slice(0, 5)" class="ref-price-item">
+        <span class="material-symbols-outlined">eco</span>
+        <div class="ref-price-content">
+          <strong>{{ price.product }}</strong>
+          <span>{{ price.region }}</span>
+        </div>
+        <div class="ref-price-value">{{ formatCurrency(price.currentPrice) }}/kg</div>
+        <button class="icon-btn">
+          <span class="material-symbols-outlined">edit</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEWER VIEW (Technicien/ONG/État) -->
+<div *ngIf="userRole === 'viewer'" class="section-gap">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Tendances par produit</div>
+      <div class="trends-chart">
+        <div *ngFor="let price of priceData" class="trend-item">
+          <div class="trend-product">
+            <span class="material-symbols-outlined">eco</span>
+            {{ price.product }}
+          </div>
+          <div class="trend-bar">
+            <div class="trend-fill" [ngClass]="getTrendClass(price.trend)" [style.width.%]="Math.abs(price.trend) * 5">
+            </div>
+          </div>
+          <div class="trend-value" [ngClass]="getTrendClass(price.trend)">
+            {{ price.trend >= 0 ? '+' : '' }}{{ price.trend.toFixed(1) }}%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Statistiques globales</div>
+      <div class="global-stats">
+        <div class="global-stat-item">
+          <span class="material-symbols-outlined">shopping_cart</span>
+          <div>
+            <div class="global-stat-value">{{ stats.activeOffers }}</div>
+            <div class="global-stat-label">Offres actives</div>
+          </div>
+        </div>
+        <div class="global-stat-item">
+          <span class="material-symbols-outlined">local_shipping</span>
+          <div>
+            <div class="global-stat-value">{{ stats.totalVolume }}</div>
+            <div class="global-stat-label">Tonnes échangées</div>
+          </div>
+        </div>
+        <div class="global-stat-item">
+          <span class="material-symbols-outlined">attach_money</span>
+          <div>
+            <div class="global-stat-value">{{ formatCurrency(stats.totalRevenue) }}</div>
+            <div class="global-stat-label">Volume d'affaires</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+
+<!-- Offer Modal (Producteur) -->
+<div *ngIf="showOfferModal" class="modal-overlay" (click)="closeOfferModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Publier une offre</h3>
+      <button class="icon-btn" (click)="closeOfferModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Produit</label>
+        <select [(ngModel)]="newOffer.product" class="form-input">
+          <option value="">Sélectionner un produit</option>
+          <option *ngFor="let product of products" [value]="product">{{ product }}</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Quantité</label>
+          <input type="number" [(ngModel)]="newOffer.quantity" class="form-input" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Unité</label>
+          <select [(ngModel)]="newOffer.unit" class="form-input">
+            <option value="kg">kg</option>
+            <option value="tonne">tonne</option>
+            <option value="unité">unité</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Prix (TND/unité)</label>
+        <input type="number" [(ngModel)]="newOffer.price" class="form-input" placeholder="0.00" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Qualité</label>
+        <select [(ngModel)]="newOffer.quality" class="form-input">
+          <option value="standard">Standard</option>
+          <option value="Bio">Bio</option>
+          <option value="Premium">Premium</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Disponibilité</label>
+        <select [(ngModel)]="newOffer.availability" class="form-input">
+          <option value="immediate">Immédiate</option>
+          <option value="1 semaine">1 semaine</option>
+          <option value="2 semaines">2 semaines</option>
+          <option value="1 mois">1 mois</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="ghost-btn" (click)="closeOfferModal()">Annuler</button>
+      <button class="primary-btn" (click)="submitOffer()">Publier l'offre</button>
+    </div>
+  </div>
+</div>
+
+<!-- Price Alert Modal -->
+<div *ngIf="showPriceAlertModal" class="modal-overlay" (click)="closePriceAlertModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Configurer une alerte de prix</h3>
+      <button class="icon-btn" (click)="closePriceAlertModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Produit</label>
+        <select [(ngModel)]="priceAlert.product" class="form-input">
+          <option value="">Sélectionner un produit</option>
+          <option *ngFor="let product of products" [value]="product">{{ product }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Type d'alerte</label>
+        <select [(ngModel)]="priceAlert.type" class="form-input">
+          <option value="above">Prix au-dessus de</option>
+          <option value="below">Prix en-dessous de</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Seuil (TND/kg)</label>
+        <input type="number" [(ngModel)]="priceAlert.threshold" class="form-input" placeholder="0.00" step="0.1">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="ghost-btn" (click)="closePriceAlertModal()">Annuler</button>
+      <button class="primary-btn" (click)="submitPriceAlert()">Créer l'alerte</button>
+    </div>
+  </div>
+</div>
+
+<!-- Grouped Offer Modal (Cooperative) -->
+<div *ngIf="showGroupedOfferModal" class="modal-overlay" (click)="closeGroupedOfferModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Créer une offre groupée</h3>
+      <button class="icon-btn" (click)="closeGroupedOfferModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nom de l'offre</label>
+        <input type="text" class="form-input" placeholder="Ex: Pack semences printemps">
+      </div>
+      <div class="form-group">
+        <label>Producteurs participants</label>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox"> Ferme Martin
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox"> Domaine Sud
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox"> Coop Nord
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea class="form-input" rows="3" placeholder="Détails de l'offre groupée..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="ghost-btn" (click)="closeGroupedOfferModal()">Annuler</button>
+      <button class="primary-btn" (click)="closeGroupedOfferModal()">Créer l'offre</button>
     </div>
   </div>
 </div>
