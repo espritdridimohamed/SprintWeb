@@ -114,6 +114,7 @@ a {
 }
 
 @media (max-width: 900px) {
+
 	.grid-4,
 	.grid-3,
 	.grid-2 {
@@ -184,4 +185,60 @@ a {
 
 .material-symbols-outlined {
 	font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ── Additional utility classes for Market & Planning ── */
+
+.primary-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+
+	.material-symbols-outlined {
+		font-size: 18px;
+	}
+
+	&.small {
+		padding: 6px 12px;
+		font-size: 12px;
+
+		.material-symbols-outlined {
+			font-size: 16px;
+		}
+	}
+
+	&:hover {
+		background: var(--accent-dark);
+		transform: translateY(-1px);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
+}
+
+.ghost-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+
+	.material-symbols-outlined {
+		font-size: 18px;
+	}
+
+	&:hover {
+		background: var(--card);
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+}
+
+.tag {
+	display: inline-block;
+}
+
+.page-actions {
+	.material-symbols-outlined {
+		font-size: 18px;
+	}
 }
