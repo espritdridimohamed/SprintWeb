@@ -1,52 +1,215 @@
+<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
 <div class="page-header">
   <div>
-    <div class="page-title">Gestion Agricole</div>
-    <div class="page-subtitle">Suivi des parcelles et données capteurs</div>
-  </div>
-  <div class="page-actions">
-    <button class="ghost-btn">Filtres</button>
-    <button class="primary-btn">Nouvelle parcelle</button>
-  </div>
-</div>
-
-<div class="grid-4">
-  <div class="card">
-    <div class="stat-label">Total parcelles</div>
-    <div class="stat-value">142</div>
-    <div class="stat-label">+8 cette semaine</div>
-  </div>
-  <div class="card">
-    <div class="stat-label">Surface totale</div>
-    <div class="stat-value">425 ha</div>
-    <div class="stat-label">Région Nord</div>
-  </div>
-  <div class="card">
-    <div class="stat-label">Parcelles en alerte</div>
-    <div class="stat-value">8</div>
-    <div class="stat-label">3 critiques</div>
-  </div>
-  <div class="card">
-    <div class="stat-label">Capteurs actifs</div>
-    <div class="stat-value">456</div>
-    <div class="stat-label">98% en ligne</div>
-  </div>
-</div>
-
-<div class="grid-2 section-gap">
-  <div class="card map-card">
-    <div class="card-title">Carte des parcelles</div>
-    <div class="map-placeholder">
-      <span class="material-symbols-outlined" style="font-size: 32px; opacity: 0.5;">map</span>
-      <div>Vue cartographique interactive</div>
+    <div class="page-title">
+      <span class="material-symbols-outlined page-icon">
+        {{ role === 'technicien' ? 'agriculture' : 'groups' }}
+      </span>
+      {{ role === 'technicien' ? 'Gestion Agricole' : 'Coopérative Agricole' }}
+    </div>
+    <div class="page-subtitle">
+      {{ role === 'technicien'
+        ? 'Suivi de vos parcelles et données terrain en temps réel'
+        : 'Vue d\'ensemble des membres et parcelles de la coopérative' }}
     </div>
   </div>
-  <div class="card list-card">
-    <div class="card-title">Parcelles prioritaires</div>
-    <ul>
-      <li>Parcelle A-12 · Critique · Maladie détectée</li>
-      <li>Parcelle B-05 · Sain · Irrigation optimale</li>
-      <li>Parcelle C-23 · À surveiller · Humidité basse</li>
-      <li>Parcelle D-11 · Irrigation · Débit réduit</li>
-    </ul>
-  </div>
+  <button class="ghost-btn" (click)="chargerDonnees()">
+    <span class="material-symbols-outlined">refresh</span> Actualiser
+  </button>
 </div>
+
+<!-- ── KPI CARDS ───────────────────────────────────────────── -->
+<div class="grid-4">
+  <app-kpi-card *ngFor="let kpi of kpis" [item]="kpi"></app-kpi-card>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     VUE TECHNICIEN
+     ══════════════════════════════════════════════════════════ -->
+<ng-container *ngIf="role === 'technicien'">
+
+  <!-- Barre de filtres -->
+  <div class="filters-bar section-gap">
+    <div class="search-input">
+      <span class="material-symbols-outlined">search</span>
+      <input [(ngModel)]="filtreRecherche" placeholder="Rechercher une parcelle ou culture..." />
+    </div>
+    <div class="filter-tabs">
+      <button [class.active]="filtreStatut==='tous'"     (click)="filtreStatut='tous'">Toutes</button>
+      <button [class.active]="filtreStatut==='active'"   (click)="filtreStatut='active'">
+        <span class="dot active"></span> Actives
+      </button>
+      <button [class.active]="filtreStatut==='alerte'"   (click)="filtreStatut='alerte'">
+        <span class="dot alerte"></span> Alertes
+      </button>
+      <button [class.active]="filtreStatut==='inactive'" (click)="filtreStatut='inactive'">
+        <span class="dot inactive"></span> Inactives
+      </button>
+    </div>
+  </div>
+
+  <!-- Grille parcelles -->
+  <div class="grid-2 section-gap">
+    <div *ngFor="let p of parcellesFiltrees" class="card parcelle-card" [class]="'border-' + p.statut">
+
+      <!-- Header carte -->
+      <div class="parcelle-header">
+        <div class="parcelle-icon-wrap" [class]="p.statut">
+          <span class="material-symbols-outlined">landscape</span>
+        </div>
+        <div class="parcelle-title-block">
+          <div class="parcelle-nom">{{ p.nom }}</div>
+          <div class="stat-label">
+            <span class="material-symbols-outlined loc-icon">location_on</span>
+            {{ p.localisation }}
+          </div>
+        </div>
+        <span class="status-badge" [class]="p.statut">{{ statutLabel(p.statut) }}</span>
+      </div>
+
+      <!-- Divider -->
+      <div class="parcelle-divider"></div>
+
+      <!-- Stats parcelle -->
+      <div class="parcelle-stats">
+        <div class="pstat">
+          <span class="material-symbols-outlined">eco</span>
+          <div>
+            <div class="pstat-val">{{ p.culture }}</div>
+            <div class="pstat-label">Culture</div>
+          </div>
+        </div>
+        <div class="pstat">
+          <span class="material-symbols-outlined">straighten</span>
+          <div>
+            <div class="pstat-val">{{ p.superficie }} ha</div>
+            <div class="pstat-label">Superficie</div>
+          </div>
+        </div>
+        <div class="pstat">
+          <span class="material-symbols-outlined">sensors</span>
+          <div>
+            <div class="pstat-val">{{ p.noeudsIds.length }}</div>
+            <div class="pstat-label">Capteur(s)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerte si statut alerte -->
+      <div class="parcelle-alerte" *ngIf="p.statut === 'alerte'">
+        <span class="material-symbols-outlined">warning</span>
+        Humidité sol critique — irrigation requise
+      </div>
+
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="parcellesFiltrees.length === 0" class="card empty-state">
+      <span class="material-symbols-outlined">search_off</span>
+      <p>Aucune parcelle trouvée</p>
+    </div>
+  </div>
+
+</ng-container>
+
+<!-- ══════════════════════════════════════════════════════════
+     VUE COOPÉRATIVE
+     ══════════════════════════════════════════════════════════ -->
+<ng-container *ngIf="role === 'cooperative'">
+
+  <!-- Recherche -->
+  <div class="filters-bar section-gap">
+    <div class="search-input">
+      <span class="material-symbols-outlined">search</span>
+      <input [(ngModel)]="filtreRecherche" placeholder="Rechercher un membre..." />
+    </div>
+  </div>
+
+  <!-- Tableau membres -->
+  <div class="card section-gap">
+    <div class="table-header">
+      <div class="card-title">
+        <span class="material-symbols-outlined">group</span>
+        Membres de la Coopérative
+      </div>
+      <span class="membres-count">{{ membresFiltres.length }} membre(s)</span>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="agri-table">
+        <thead>
+          <tr>
+            <th>Membre</th>
+            <th>Téléphone</th>
+            <th>Ses Parcelles</th>
+            <th>Nb Parcelles</th>
+            <th>Superficie</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of membresFiltres">
+            <td>
+              <div class="membre-cell">
+                <div class="membre-avatar">{{ m.prenom[0] }}{{ m.nom[0] }}</div>
+                <div>
+                  <div class="membre-nom">{{ m.prenom }} {{ m.nom }}</div>
+                  <div class="stat-label">ID : {{ m.id }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="stat-label">{{ m.telephone }}</td>
+            <td class="parcelles-list">{{ getParcellesNoms(m.id) }}</td>
+            <td>
+              <span class="tag">{{ m.parcelles }} parcelle(s)</span>
+            </td>
+            <td><strong>{{ m.superficie }} ha</strong></td>
+            <td>
+              <span class="status-badge" [class]="m.statut">{{ statutLabel(m.statut) }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Parcelles de la coop -->
+  <div class="section-gap">
+    <div class="section-title">
+      <span class="material-symbols-outlined">location_on</span>
+      Parcelles de la Coopérative
+    </div>
+    <div class="grid-2" style="margin-top: 14px">
+      <div *ngFor="let p of parcellesFiltrees" class="card parcelle-card" [class]="'border-' + p.statut">
+        <div class="parcelle-header">
+          <div class="parcelle-icon-wrap" [class]="p.statut">
+            <span class="material-symbols-outlined">landscape</span>
+          </div>
+          <div class="parcelle-title-block">
+            <div class="parcelle-nom">{{ p.nom }}</div>
+            <div class="stat-label">{{ p.culture }} · {{ p.superficie }} ha</div>
+          </div>
+          <span class="status-badge" [class]="p.statut">{{ statutLabel(p.statut) }}</span>
+        </div>
+        <div class="parcelle-divider"></div>
+        <div class="parcelle-stats">
+          <div class="pstat">
+            <span class="material-symbols-outlined">location_on</span>
+            <div>
+              <div class="pstat-val">{{ p.localisation }}</div>
+              <div class="pstat-label">Localisation</div>
+            </div>
+          </div>
+          <div class="pstat">
+            <span class="material-symbols-outlined">sensors</span>
+            <div>
+              <div class="pstat-val">{{ p.noeudsIds.length }} nœud(s)</div>
+              <div class="pstat-label">Capteurs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</ng-container>

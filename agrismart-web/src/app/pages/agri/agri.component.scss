@@ -1,26 +1,318 @@
-/* Agri-specific styles (shared classes in global styles.scss) */
-
-.map-card {
-  min-height: 280px;
+// ── Page header ────────────────────────────────────────────
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.map-placeholder {
-  margin-top: 16px;
-  height: 200px;
-}
-
-.list-card ul {
-  margin: 14px 0 0;
-  padding-left: 0;
-  list-style: none;
-  display: grid;
-  gap: 8px;
-}
-
-.list-card li {
-  padding: 11px 14px;
+.page-icon {
+  font-size: 28px;
+  color: var(--accent);
+  background: rgba(107, 159, 62, 0.12);
+  padding: 6px;
   border-radius: 12px;
-  background: var(--card);
-  border: 1px solid var(--card-border);
+}
+
+// ── Filtres ────────────────────────────────────────────────
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1.5px solid var(--card-border);
+  border-radius: 14px;
+  padding: 9px 16px;
+  flex: 1;
+  min-width: 240px;
+  transition: border-color 0.15s;
+
+  &:focus-within { border-color: var(--accent); }
+
+  .material-symbols-outlined { color: var(--text-muted); font-size: 18px; }
+
+  input {
+    border: none;
+    outline: none;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    background: transparent;
+    width: 100%;
+    &::placeholder { color: var(--text-muted); }
+  }
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 1.5px solid var(--card-border);
+    background: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+
+    &:hover { background: #f0f4ed; border-color: var(--accent); color: var(--accent); }
+    &.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  }
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  &.active   { background: #2f9d57; }
+  &.alerte   { background: #c43e3e; }
+  &.inactive { background: #aaa; }
+}
+
+// ── Cartes parcelles ───────────────────────────────────────
+.parcelle-card {
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 24px 56px rgba(22, 42, 18, 0.12);
+  }
+
+  &.border-active   { border-left: 4px solid #2f9d57; }
+  &.border-alerte   { border-left: 4px solid #c43e3e; }
+  &.border-inactive { border-left: 4px solid #ccc; }
+}
+
+.parcelle-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.parcelle-icon-wrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+
+  &.active   { background: rgba(47, 157, 87, 0.12);  color: #2f9d57; }
+  &.alerte   { background: rgba(196, 62, 62, 0.12);  color: #c43e3e; }
+  &.inactive { background: rgba(0, 0, 0, 0.06);      color: #aaa;    }
+
+  .material-symbols-outlined { font-size: 22px; }
+}
+
+.parcelle-title-block { flex: 1; }
+
+.parcelle-nom {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.loc-icon {
+  font-size: 13px !important;
+  vertical-align: middle;
+  color: var(--accent);
+}
+
+.parcelle-divider {
+  height: 1px;
+  background: var(--card-border);
+  margin: 10px 0 14px;
+}
+
+.parcelle-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.pstat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .material-symbols-outlined {
+    font-size: 20px;
+    color: var(--accent);
+    background: rgba(107, 159, 62, 0.1);
+    padding: 6px;
+    border-radius: 10px;
+  }
+}
+
+.pstat-val   { font-size: 14px; font-weight: 700; color: var(--text); }
+.pstat-label { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+.parcelle-alerte {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(196, 62, 62, 0.08);
+  color: #c43e3e;
+  font-size: 12px;
+  font-weight: 600;
+
+  .material-symbols-outlined { font-size: 16px; }
+}
+
+// ── Status badges ──────────────────────────────────────────
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &.active, &.actif    { background: rgba(47, 157, 87, 0.12);  color: #2f9d57; }
+  &.alerte             { background: rgba(196, 62, 62, 0.12);  color: #c43e3e; }
+  &.inactive, &.inactif{ background: rgba(0, 0, 0, 0.06);      color: #888;    }
+  &.suspendu           { background: rgba(217, 130, 15, 0.12); color: #d9820f; }
+}
+
+// ── Tableau membres ────────────────────────────────────────
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  .card-title { margin-bottom: 0; }
+}
+
+.membres-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: rgba(107, 159, 62, 0.1);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.table-wrapper { overflow-x: auto; }
+
+.agri-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 13px;
+
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--card-border);
+    background: #fafcf8;
+  }
+
+  td {
+    padding: 16px;
+    border-bottom: 1px solid var(--card-border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td {
+    background: rgba(107, 159, 62, 0.04);
+    cursor: pointer;
+  }
+}
+
+.membre-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.membre-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(107, 159, 62, 0.3);
+}
+
+.membre-nom { 
+  font-weight: 700; 
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.parcelles-list {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+  max-width: 280px;
+  line-height: 1.4;
+}
+
+// ── Section title ──────────────────────────────────────────
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+
+  .material-symbols-outlined { color: var(--accent); font-size: 20px; }
+}
+
+// ── Card title ─────────────────────────────────────────────
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 14px;
+
+  .material-symbols-outlined { color: var(--accent); font-size: 20px; }
+}
+
+// ── Empty state ────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 160px;
+  color: var(--text-muted);
+  grid-column: 1 / -1;
+
+  .material-symbols-outlined { font-size: 42px; opacity: 0.3; }
+  p { font-size: 13px; }
 }
