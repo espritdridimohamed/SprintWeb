@@ -1,12 +1,11 @@
 <div class="app-shell">
-  <app-sidebar
-    [roleLabel]="roleConfig.label"
-    [orgLabel]="roleConfig.orgLabel"
-    [navItems]="roleConfig.nav">
+  <app-sidebar [roleLabel]="roleConfig.label" [orgLabel]="roleConfig.orgLabel" [navItems]="roleConfig.nav">
   </app-sidebar>
 
   <div class="app-main">
-    <app-topbar [roleLabel]="roleConfig.label" [orgLabel]="roleConfig.orgLabel"></app-topbar>
+    <app-topbar [roleLabel]="roleConfig.label" [orgLabel]="roleConfig.orgLabel"
+      [showELearning]="roleConfig.key === 'ong' || roleConfig.key === 'admin'">
+    </app-topbar>
     <main class="app-content">
       <router-outlet></router-outlet>
     </main>

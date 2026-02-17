@@ -1,0 +1,77 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Studio de Recommandations</div>
+        <div class="page-subtitle">Algorithmes de matching intelligent pour booster les compétences</div>
+    </div>
+    <div class="page-actions">
+        <button class="ghost-btn" (click)="autoMatch()">
+            <span class="material-symbols-outlined">magic_button</span>
+            Auto-Match
+        </button>
+    </div>
+</div>
+
+<div class="studio-layout">
+    <!-- Catalogue Column -->
+    <div class="catalogue-column">
+        <div class="section-title">Catalogue Formations</div>
+        <div class="search-bar">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" [(ngModel)]="searchQuery" placeholder="Rechercher une formation...">
+        </div>
+
+        <div class="training-list">
+            <div *ngFor="let training of trainings" class="training-card"
+                [class.active]="selectedTraining?.id === training.id" (click)="selectTraining(training)">
+                <div class="training-badge">{{ training.category }}</div>
+                <h3>{{ training.title }}</h3>
+                <div class="training-footer">
+                    <span><span class="material-symbols-outlined">schedule</span> {{ training.duration }}</span>
+                    <span class="match-indicator" *ngIf="selectedTraining?.id === training.id">Sélectionné</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Members Column -->
+    <div class="members-column">
+        <div *ngIf="!selectedTraining" class="empty-state">
+            <span class="material-symbols-outlined">tips_and_updates</span>
+            <p>Sélectionnez une formation pour voir les membres recommandés</p>
+        </div>
+
+        <div *ngIf="selectedTraining" class="groups-container">
+            <div *ngFor="let group of smartGroups" class="smart-group">
+                <div class="group-header">
+                    <div>
+                        <h4>{{ group.name }}</h4>
+                        <p>{{ group.description }}</p>
+                    </div>
+                    <button class="primary-btn small" (click)="propagateToGroup(group)" [disabled]="isSending">
+                        {{ isSending ? 'Envoi...' : 'Propulser' }}
+                    </button>
+                </div>
+
+                <div class="members-grid">
+                    <div *ngFor="let member of group.members" class="member-pod"
+                        [class.highlight]="member.isRecommended" [attr.data-score]="member.matchScore">
+                        <div class="pod-header">
+                            <div class="match-score" *ngIf="member.isRecommended">{{ member.matchScore }}% Match</div>
+                            <div class="avatar-small">{{ member.name.substring(0, 2).toUpperCase() }}</div>
+                        </div>
+                        <div class="member-name">{{ member.name }}</div>
+                        <div class="member-specialty">{{ member.role }}</div>
+
+                        <div class="needs-tags">
+                            <span *ngFor="let need of member.needs" class="mini-tag">{{ need }}</span>
+                        </div>
+
+                        <button class="recommend-btn" (click)="recommendToMember(member)">
+                            <span class="material-symbols-outlined">send</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

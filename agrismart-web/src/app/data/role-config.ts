@@ -51,6 +51,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
       { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
       { label: 'Formations', route: '/app/training', icon: 'training' },
+      { label: 'Recommandations', route: '/app/recommendations', icon: 'auto_awesome' },
       { label: 'Alertes', route: '/app/alerts', icon: 'alerts' },
       { label: 'Rapports', route: '/app/rapports', icon: 'reports' }
     ],
@@ -91,6 +92,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
       { label: 'Formations', route: '/app/training', icon: 'training' },
+      { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'Analyse & Impact', route: '/app/impact', icon: 'impact' }
     ],
     kpis: [
@@ -171,6 +173,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
       { label: 'Administration', route: '/app/admin', icon: 'admin' },
+      { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'IoT & Passerelles', route: '/app/iot', icon: 'iot' },
       { label: 'Logs & Audit', route: '/app/logs', icon: 'logs' },
       { label: 'Modèles IA', route: '/app/ai', icon: 'ai' }

@@ -1,0 +1,160 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">E-learning</div>
+        <div class="page-subtitle">Gestion des contenus pédagogiques et formations</div>
+    </div>
+    <button *ngIf="!isCreating" class="primary-btn dynamic-btn" (click)="startCreating()">
+        <span class="material-symbols-outlined">add_circle</span>
+        Ajouter un contenu pédagogique
+    </button>
+</div>
+
+<div class="e-learning-container" [class.empty]="!isCreating && courses.length === 0">
+    <!-- Status when not creating -->
+    <div *ngIf="!isCreating" class="dashboard-view">
+        <div class="grid-3">
+            <div class="card stat-card">
+                <div class="card-title">Cours total</div>
+                <div class="stat-value">24</div>
+            </div>
+            <div class="card stat-card">
+                <div class="card-title">Étudiants actifs</div>
+                <div class="stat-value">1,150</div>
+            </div>
+            <div class="card stat-card">
+                <div class="card-title">Taux d'achèvement</div>
+                <div class="stat-value">76%</div>
+            </div>
+        </div>
+
+        <div class="section-gap">
+            <div class="card">
+                <div class="card-header-flex">
+                    <div class="card-title">Mes contenus récemment ajoutés</div>
+                </div>
+                <div class="list">
+                    <div *ngFor="let c of courses" class="list-item course-item">
+                        <div class="course-info">
+                            <div class="course-name">{{ c.name }}</div>
+                            <div class="course-meta">{{ c.parts }} parties · {{ c.size }}</div>
+                        </div>
+                        <span class="tag">{{ c.status }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Creation Form -->
+    <div *ngIf="isCreating" class="creation-form card">
+        <div class="form-header">
+            <h3>Nouveau cours</h3>
+            <div class="actions">
+                <button class="ghost-btn" (click)="cancelCreating()">Annuler</button>
+                <button class="primary-btn" (click)="saveCourse()">Publier le cours</button>
+            </div>
+        </div>
+
+        <div class="form-body">
+            <div class="input-group">
+                <label>Titre global du cours</label>
+                <input type="text" [(ngModel)]="courseTitle" placeholder="Ex: Maîtrise de l'irrigation goutte-à-goutte">
+            </div>
+
+            <div class="parts-container">
+                <div *ngFor="let part of parts; let i = index" class="part-card">
+                    <div class="part-header">
+                        <h4>Partie {{ i + 1 }}</h4>
+                        <button *ngIf="parts.length > 1" class="icon-btn delete-btn" (click)="removePart(i)">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" [(ngModel)]="part.title"
+                            placeholder="Titre de la partie (ex: Introduction aux systèmes)">
+                    </div>
+
+                    <div class="input-group content-area">
+                        <textarea [(ngModel)]="part.content" placeholder="Contenu détaillé de la partie..."></textarea>
+                        <div class="editor-toolbar">
+                            <div class="toolbar-left">
+                                <button class="tool-btn" title="Ajouter une vidéo">
+                                    <span class="material-symbols-outlined">movie</span>
+                                </button>
+                                <button class="tool-btn" title="Ajouter un PDF">
+                                    <span class="material-symbols-outlined">picture_as_pdf</span>
+                                </button>
+                                <button class="tool-btn" title="Ajouter une image">
+                                    <span class="material-symbols-outlined">image</span>
+                                </button>
+                                <button class="tool-btn" title="Lien externe">
+                                    <span class="material-symbols-outlined">link</span>
+                                </button>
+                            </div>
+                            <div class="toolbar-right">
+                                <button class="tool-btn">
+                                    <span class="material-symbols-outlined">format_bold</span>
+                                </button>
+                                <button class="tool-btn">
+                                    <span class="material-symbols-outlined">format_list_bulleted</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="add-part-btn" (click)="addPart()">
+                <span class="material-symbols-outlined">add</span>
+                Ajouter une partie
+            </button>
+        </div>
+    </div>
+
+    <!-- Selection Popup / Modal -->
+    <div *ngIf="isPublishPopupOpen" class="modal-overlay">
+        <div class="modal-content card">
+            <div class="modal-header">
+                <h3>Diffuser le cours</h3>
+                <button class="icon-btn" (click)="closePublishPopup()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p class="modal-desc">Sélectionnez les membres qui recevront ce contenu pédagogique.</p>
+
+                <div class="selection-controls">
+                    <div class="search-box">
+                        <span class="material-symbols-outlined">search</span>
+                        <input type="text" placeholder="Rechercher un membre...">
+                    </div>
+                    <label class="select-all">
+                        <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()">
+                        <span>Tout sélectionner</span>
+                    </label>
+                </div>
+
+                <div class="members-list">
+                    <div *ngFor="let member of members" class="member-item" [class.selected]="member.selected">
+                        <label>
+                            <input type="checkbox" [(ngModel)]="member.selected" (change)="onMemberSelect()">
+                            <div class="member-info">
+                                <span class="member-name">{{ member.name }}</span>
+                                <span class="member-role">{{ member.role }}</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="ghost-btn" (click)="closePublishPopup()">Annuler</button>
+                <button class="primary-btn" (click)="confirmPublish()" [disabled]="!hasSelectedMembers">
+                    Confirmer la publication
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -5,6 +5,10 @@
   </div>
 
   <div class="topbar-actions">
+    <button *ngIf="showELearning" class="primary-btn small" (click)="goToELearning()">
+      <span class="material-symbols-outlined">school</span>
+      E-learning
+    </button>
     <div class="search">
       <span class="material-symbols-outlined search-icon">search</span>
       <input type="text" placeholder="Rechercher..." />

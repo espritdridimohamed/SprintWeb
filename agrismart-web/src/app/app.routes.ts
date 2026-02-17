@@ -17,6 +17,8 @@ import { AlertsComponent } from './pages/alerts/alerts.component';
 import { RapportsComponent } from './pages/rapports/rapports.component';
 import { IotComponent } from './pages/iot/iot.component';
 import { LogsComponent } from './pages/logs/logs.component';
+import { ELearningComponent } from './pages/elearning/elearning.component';
+import { RecommendationsComponent } from './pages/cooperative/recommendations/recommendations.component';
 
 export const routes: Routes = [
 	{ path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -41,6 +43,8 @@ export const routes: Routes = [
 			{ path: 'rapports', component: RapportsComponent },
 			{ path: 'iot', component: IotComponent },
 			{ path: 'logs', component: LogsComponent },
+			{ path: 'e-learning', component: ELearningComponent },
+			{ path: 'recommendations', component: RecommendationsComponent },
 			{ path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 		]
 	},
