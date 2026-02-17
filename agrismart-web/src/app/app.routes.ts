@@ -18,6 +18,7 @@ import { RapportsComponent } from './pages/rapports/rapports.component';
 import { IotComponent } from './pages/iot/iot.component';
 import { LogsComponent } from './pages/logs/logs.component';
 
+
 export const routes: Routes = [
 	{ path: '', redirectTo: 'login', pathMatch: 'full' },
 	{ path: 'login', component: LoginComponent },
@@ -41,8 +42,11 @@ export const routes: Routes = [
 			{ path: 'rapports', component: RapportsComponent },
 			{ path: 'iot', component: IotComponent },
 			{ path: 'logs', component: LogsComponent },
-			{ path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+			{ path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+			
 		]
 	},
-	{ path: '**', redirectTo: 'login' }
+	{ path: '**', redirectTo: 'login' },
+
+
 ];

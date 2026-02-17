@@ -1,1 +1,794 @@
-/* AI-specific styles (shared classes in global styles.scss) */
+// ==========================================
+// AGRISMART DIAGNOSTIC - IMPROVED VERSION
+// ==========================================
+// Design matching the reference mockup exactly
+// Better spacing, cleaner layout, proper responsiveness
+
+// ==========================================
+// VARIABLES
+// ==========================================
+
+$color-primary: #2d6a4f;
+$color-primary-dark: #1a4d2e;
+$color-primary-light: #52b788;
+$color-accent: #74c69d;
+$color-success: #10B981;
+$color-warning: #F59E0B;
+$color-danger: #EF4444;
+
+$color-bg-main: #f5f5f5;
+$color-bg-white: #ffffff;
+$color-bg-light: #fafafa;
+$color-text-dark: #1a1a1a;
+$color-text-medium: #666666;
+$color-text-light: #999999;
+$color-border: #e0e0e0;
+
+$color-water: #3B82F6;
+$color-temp: #EF4444;
+$color-rain: #8B5CF6;
+
+$spacing-xs: 0.5rem;
+$spacing-sm: 1rem;
+$spacing-md: 1.5rem;
+$spacing-lg: 2rem;
+$spacing-xl: 3rem;
+
+$radius-sm: 0.5rem;
+$radius-md: 0.75rem;
+$radius-lg: 1rem;
+
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ==========================================
+// RESET & BASE
+// ==========================================
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+// ==========================================
+// MAIN WRAPPER
+// ==========================================
+
+.page-wrapper {
+  background: $color-bg-main;
+  min-height: 100vh;
+}
+
+.main-container {
+  width: 100%;
+  padding: 0;
+  background: $color-bg-main;
+}
+
+// ==========================================
+// TOP HEADER
+// ==========================================
+
+.top-header {
+  background: $color-bg-white;
+  padding: $spacing-md $spacing-xl;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid $color-border;
+  box-shadow: $shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  .header-left {
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $color-text-dark;
+      margin-bottom: 0.25rem;
+    }
+
+    .page-subtitle {
+      font-size: 0.875rem;
+      color: $color-text-medium;
+    }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      background: $color-bg-light;
+      padding: $spacing-xs $spacing-md;
+      border-radius: $radius-md;
+      border: 1px solid $color-border;
+
+      .search-icon {
+        font-size: 0.875rem;
+        color: $color-text-light;
+      }
+
+      .search-input {
+        border: none;
+        background: transparent;
+        outline: none;
+        width: 200px;
+        font-size: 0.875rem;
+        color: $color-text-dark;
+
+        &::placeholder {
+          color: $color-text-light;
+        }
+      }
+    }
+
+    .icon-btn {
+      background: $color-bg-light;
+      border: 1px solid $color-border;
+      border-radius: $radius-sm;
+      padding: $spacing-xs;
+      cursor: pointer;
+      transition: $transition;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .icon {
+        font-size: 1.25rem;
+      }
+
+      &:hover {
+        background: $color-bg-white;
+        box-shadow: $shadow-sm;
+      }
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+
+      .user-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+
+        .user-name {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: $color-text-dark;
+        }
+
+        .user-role {
+          font-size: 0.75rem;
+          color: $color-text-medium;
+        }
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: $color-primary;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+    }
+  }
+}
+
+// ==========================================
+// SECONDARY NAVIGATION
+// ==========================================
+
+.secondary-nav {
+  background: $color-bg-white;
+  padding: 0 $spacing-xl;
+  display: flex;
+  gap: $spacing-lg;
+  border-bottom: 1px solid $color-border;
+  overflow-x: auto;
+
+  .nav-link {
+    padding: $spacing-md 0;
+    color: $color-text-medium;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: $transition;
+    white-space: nowrap;
+
+    &:hover {
+      color: $color-primary;
+    }
+
+    &.active {
+      color: $color-primary;
+      border-bottom-color: $color-primary;
+      font-weight: 600;
+    }
+  }
+}
+
+// ==========================================
+// CONTENT GRID
+// ==========================================
+
+.content-grid {
+  display: grid;
+  grid-template-columns:1fr 1fr;
+  gap: $spacing-xl;
+  padding: $spacing-xl;
+  max-width: 1800px;
+  margin: 0 auto;
+
+  @media (max-width: 1400px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ==========================================
+// LEFT SECTION
+// ==========================================
+
+.left-section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.quick-icons {
+  display: flex;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $color-bg-white;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+
+  .quick-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition: $transition;
+    background: $color-bg-light;
+
+    &:hover {
+      background: $color-primary-light;
+      transform: translateY(-2px);
+      box-shadow: $shadow-sm;
+    }
+
+    &.active {
+      background: $color-primary;
+      box-shadow: $shadow-md;
+    }
+  }
+}
+
+.diagnostic-main-card {
+  background: $color-bg-white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+
+  .card-header {
+    padding: $spacing-lg;
+    border-bottom: 1px solid $color-border;
+
+    .label {
+      font-size: 0.875rem;
+      color: $color-text-medium;
+      display: block;
+      margin-bottom: $spacing-xs;
+    }
+
+    .diagnostic-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: $color-text-dark;
+    }
+  }
+
+  .plant-image-container {
+    width: 100%;
+    height: 320px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+    position: relative;
+
+    .plant-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    &:hover .plant-image {
+      transform: scale(1.05);
+    }
+  }
+
+.diagnostic-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-lg;
+  border-bottom: 1px solid $color-border;
+
+  .diagnostic-info {
+    .disease-name {
+      font-size: 2rem;
+      font-weight: 700;
+      color: $color-text-dark;
+      margin-bottom: 0.25rem;
+    }
+
+    .plant-culture {
+      font-size: 1rem;
+      color: $color-text-medium;
+      margin-bottom: 0.25rem;
+    }
+
+    .diagnostic-date {
+      font-size: 0.875rem;
+      color: $color-text-light;
+    }
+  }
+
+  .diagnostic-score {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: $spacing-xs;
+
+    .score-value {
+      font-size: 3rem;
+      font-weight: 700;
+
+      &.high { color: $color-success; }
+      &.medium { color: $color-warning; }
+      &.low { color: $color-danger; }
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: $radius-md;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: white;
+      background: gray; // couleur par défaut
+      text-align: center;
+
+      &.confirmed {
+        background: $color-success; // vert pour confirmé
+      }
+    }
+  }
+}
+
+
+  .reasons-section {
+    padding: $spacing-lg;
+
+    .section-heading {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $color-text-dark;
+      margin-bottom: $spacing-md;
+    }
+
+    .reasons-list {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+    }
+
+    .reason-item {
+      display: flex;
+      align-items: flex-start;
+      gap: $spacing-sm;
+      padding: $spacing-sm;
+      background: $color-bg-light;
+      border-radius: $radius-sm;
+      transition: $transition;
+
+      .reason-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+      }
+
+      .reason-text {
+        font-size: 0.9rem;
+        color: $color-text-dark;
+        line-height: 1.5;
+      }
+
+      &:hover {
+        background: lighten($color-primary-light, 30%);
+        transform: translateX(4px);
+      }
+    }
+  }
+  
+}
+
+// ==========================================
+// RIGHT SECTION
+// ==========================================
+
+.right-section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+
+
+.sensors-container,
+.recommendations-container {
+  background: $color-bg-white;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-md;
+
+  .subsection-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $color-text-dark;
+    margin-bottom: $spacing-md;
+  }
+}
+
+.btn-validate{
+  width: 50%; // moins large
+  padding: 0.5rem 1rem; // plus fin que $spacing-md
+  background: green; // vert pour valider
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: 1rem; // un peu plus petit
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  box-shadow: $shadow-sm;
+
+  &:hover {
+    background: darken(green, 10%);
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-correct {
+  width: 50%; // moins large
+  padding: 0.5rem 1rem; // plus fin
+  background: rgb(255, 98, 0); // orange pour corriger
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  box-shadow: $shadow-sm;
+
+  &:hover {
+    background: darken(orange, 10%);
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+
+// ==========================================
+// SENSOR CARDS
+// ==========================================
+
+.sensor-cards {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.sensor-card {
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  background: $color-bg-light;
+  transition: $transition;
+
+  &:hover {
+    box-shadow: $shadow-sm;
+    border-color: $color-primary-light;
+  }
+
+  .sensor-card-header {
+    margin-bottom: $spacing-md;
+
+    .sensor-info {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+
+      .sensor-icon-large {
+        font-size: 1.5rem;
+      }
+
+      .sensor-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: $color-text-dark;
+      }
+    }
+  }
+
+  .chart-wrapper {
+    .sensor-chart {
+      width: 100%;
+      height: 120px;
+      margin-bottom: $spacing-xs;
+
+      .grid-line {
+        stroke: darken($color-border, 5%);
+        stroke-width: 0.5;
+        stroke-dasharray: 2 2;
+        opacity: 0.5;
+      }
+
+      .chart-fill {
+        opacity: 0.2;
+      }
+
+      .chart-line {
+        fill: none;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    }
+
+    .time-labels {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 $spacing-xs;
+
+      .time-label {
+        font-size: 0.75rem;
+        color: $color-text-light;
+      }
+    }
+  }
+
+  .sensor-note {
+    margin-top: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid $color-border;
+
+    .note-text {
+      font-size: 0.875rem;
+      color: $color-text-medium;
+      font-weight: 500;
+    }
+
+    .note-subtext {
+      font-size: 0.75rem;
+      color: $color-text-light;
+      margin-top: 0.25rem;
+    }
+  }
+}
+
+// ==========================================
+// RECOMMENDATIONS
+// ==========================================
+
+.recommendations-box {
+  .recommendations-list {
+    list-style-position: inside;
+    margin-bottom: $spacing-lg;
+
+    .recommendation-item {
+      padding: $spacing-sm;
+      margin-bottom: $spacing-xs;
+      background: $color-bg-light;
+      border-radius: $radius-sm;
+      font-size: 0.9rem;
+      color: $color-text-dark;
+      line-height: 1.6;
+      transition: $transition;
+
+      &:hover {
+        background: lighten($color-primary-light, 30%);
+        transform: translateX(4px);
+      }
+    }
+  }
+
+  .save-btn {
+    width: 100%;
+    padding: $spacing-md;
+    background: $color-primary;
+    color: white;
+    border: none;
+    border-radius: $radius-md;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: $transition;
+    box-shadow: $shadow-sm;
+
+    &:hover {
+      background: darken($color-primary, 10%);
+      box-shadow: $shadow-md;
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// ==========================================
+// RESPONSIVE
+// ==========================================
+
+@media (max-width: 1024px) {
+  .content-grid {
+    padding: $spacing-md;
+  }
+
+  .top-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-md;
+
+    .header-right {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .top-header {
+    padding: $spacing-md;
+
+    .header-right {
+      .search-box {
+        display: none;
+      }
+    }
+  }
+
+  .secondary-nav {
+    padding: 0 $spacing-md;
+    gap: $spacing-sm;
+  }
+
+  .content-grid {
+    padding: $spacing-sm;
+  }
+
+  .quick-icons {
+    overflow-x: auto;
+    
+    .quick-icon {
+      flex-shrink: 0;
+    }
+  }
+}
+
+// ==========================================
+// ANIMATIONS
+// ==========================================
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sensor-card,
+.diagnostic-main-card,
+.recommendations-box {
+  animation: fadeIn 0.4s ease-out;
+}
+
+// Stagger animation for sensor cards
+.sensor-card {
+  @for $i from 1 through 5 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.1}s;
+    }
+  }
+}
+.reasons-card {
+  background: $color-bg-white; // comme recommendations-box
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-md;
+  transition: $transition;
+
+  .section-heading {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $color-text-dark;
+    margin-bottom: $spacing-md;
+  }
+
+  .reasons-list {
+    margin-bottom: $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    .reason-item {
+      padding: $spacing-sm;
+      margin-bottom: $spacing-xs;
+      background: $color-bg-light; // même que recommendation-item
+      border-radius: $radius-sm;
+      font-size: 0.9rem;
+      color: $color-text-dark;
+      line-height: 1.6;
+      display: flex;
+      align-items: flex-start;
+      gap: $spacing-sm;
+      transition: $transition;
+
+      &:hover {
+        background: lighten($color-primary-light, 30%);
+        transform: translateX(4px);
+      }
+
+      .reason-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+      }
+
+      .reason-text {
+        flex: 1;
+      }
+    }
+  }
+}
