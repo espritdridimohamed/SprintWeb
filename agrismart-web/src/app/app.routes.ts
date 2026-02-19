@@ -19,9 +19,14 @@ import { IotComponent } from './pages/iot/iot.component';
 import { LogsComponent } from './pages/logs/logs.component';
 import { ELearningComponent } from './pages/elearning/elearning.component';
 import { RecommendationsComponent } from './pages/cooperative/recommendations/recommendations.component';
+import { LandingPageComponent } from './pages/landing-page/landing-page.component';
+import { MarketplaceViewComponent } from './pages/marketplace-view/marketplace-view.component';
+import { ProductDetailViewComponent } from './pages/product-detail-view/product-detail-view.component';
 
 export const routes: Routes = [
-	{ path: '', redirectTo: 'login', pathMatch: 'full' },
+	{ path: '', component: LandingPageComponent },
+	{ path: 'marketplace', component: MarketplaceViewComponent },
+	{ path: 'product/:id', component: ProductDetailViewComponent },
 	{ path: 'login', component: LoginComponent },
 	{ path: 'role', component: RoleSelectComponent },
 	{

@@ -1,0 +1,181 @@
+<div class="marketplace-layout">
+    <!-- Header -->
+    <header class="market-header">
+        <div class="brand" (click)="goBack()">
+            <span class="material-symbols-outlined logo-icon">agriculture</span>
+            <span class="logo-text">AgriSmart</span>
+        </div>
+
+        <div class="search-bar">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" [(ngModel)]="searchQuery" placeholder="Search for seeds, tools, or fertilizers...">
+        </div>
+
+        <div class="header-actions">
+            <div class="cart-icon">
+                <span class="material-symbols-outlined">shopping_cart</span>
+                <span class="badge">3</span>
+            </div>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=Jean+Dupont&background=6b9f3e&color=fff" alt="User">
+                <div class="user-info">
+                    <span class="user-name">Jean Dupont</span>
+                    <span class="user-role">Premium Farmer</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Categories Nav -->
+    <nav class="categories-nav">
+        <a *ngFor="let cat of categories" [class.active]="selectedCategory === cat" (click)="selectedCategory = cat">
+            {{ cat }}
+        </a>
+    </nav>
+
+    <div class="main-content">
+        <!-- Sidebar Filters -->
+        <aside class="filters-sidebar">
+            <div class="filter-group">
+                <h3><span class="material-symbols-outlined">location_on</span> Location</h3>
+                <select>
+                    <option>All Regions</option>
+                    <option>Dakar</option>
+                    <option>Thiès</option>
+                    <option>Saint-Louis</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <h3><span class="material-symbols-outlined">payments</span> Price Range</h3>
+                <div class="price-inputs">
+                    <input type="text" value="Min">
+                    <input type="text" value="Max">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3><span class="material-symbols-outlined">star</span> Minimum Rating</h3>
+                <div class="rating-filter">
+                    <label><input type="radio" name="rating"> ⭐⭐⭐⭐ & Up</label>
+                    <label><input type="radio" name="rating"> ⭐⭐⭐ & Up</label>
+                </div>
+            </div>
+
+            <div class="filter-group toggle">
+                <span>In Stock Only</span>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </aside>
+
+        <!-- Product Grid Section -->
+        <section class="products-section">
+            <div class="results-header">
+                <h2>Agricultural Marketplace</h2>
+                <div class="sort-by">
+                    <span>Sort by:</span>
+                    <select>
+                        <option>Relevance</option>
+                        <option>Price: Low to High</option>
+                        <option>Price: High to Low</option>
+                    </select>
+                </div>
+            </div>
+            <p class="results-count">Showing 1,248 high-quality products from certified sellers</p>
+
+            <div class="product-grid">
+                <div class="product-card" *ngFor="let product of products" (click)="viewDetails(product.id)">
+                    <div class="product-image">
+                        <span class="tag" *ngIf="product.tag" [class.new]="product.tag === 'NEW'"
+                            [class.certified]="product.tag === 'CERTIFIED'" [class.top]="product.tag === 'TOP RATED'">
+                            {{ product.tag }}
+                        </span>
+                        <img [src]="product.image" [alt]="product.name">
+                        <button class="wishlist-btn"><span class="material-symbols-outlined">favorite</span></button>
+                    </div>
+                    <div class="product-info">
+                        <div class="rating">
+                            <span class="star">⭐</span>
+                            <span class="score">{{ product.rating }}</span>
+                            <span class="count">({{ product.reviews }} reviews)</span>
+                        </div>
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <div class="seller">
+                            <span class="material-symbols-outlined">person</span>
+                            Sold by <strong>{{ product.seller }}</strong>
+                        </div>
+                        <div class="product-footer">
+                            <span class="price">{{ product.price }}</span>
+                            <button class="view-btn">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="prev-page"><span class="material-symbols-outlined">chevron_left</span></button>
+                <button class="page-num active">1</button>
+                <button class="page-num">2</button>
+                <button class="page-num">3</button>
+                <span class="dots">...</span>
+                <button class="page-num">12</button>
+                <button class="next-page"><span class="material-symbols-outlined">chevron_right</span></button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Interactive Map Section (Optional but looks good in UI) -->
+    <section class="map-banner">
+        <div class="map-content">
+            <h2>Find Sellers Near You</h2>
+            <p>Locate certified agricultural suppliers and pick up your orders locally to save on shipping costs.</p>
+            <button class="map-btn"><span class="material-symbols-outlined">map</span> Open Interactive Map</button>
+        </div>
+        <div class="map-visual">
+            <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80"
+                alt="Map Placeholder">
+        </div>
+    </section>
+
+    <!-- Marketplace Footer -->
+    <footer class="market-footer">
+        <div class="footer-links">
+            <div class="logo-area">
+                <span class="material-symbols-outlined">agriculture</span>
+                AgriSmart
+                <p>The leading marketplace for modern agriculture in Africa.</p>
+            </div>
+            <div class="link-col">
+                <h4>Quick Links</h4>
+                <a>How it works</a>
+                <a>Seller Portal</a>
+                <a>Premium Membership</a>
+            </div>
+            <div class="link-col">
+                <h4>Support</h4>
+                <a>Help Center</a>
+                <a>Shipping Policy</a>
+                <a>FAQs</a>
+            </div>
+            <div class="link-col">
+                <h4>Stay Connected</h4>
+                <div class="newsletter">
+                    <input type="text" placeholder="Email address">
+                    <button><span class="material-symbols-outlined">send</span></button>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 AgriSmart Marketplace. All rights reserved.</span>
+            <div class="legal">
+                <a>Privacy Policy</a>
+                <a>Terms of Service</a>
+                <a>Cookie Settings</a>
+            </div>
+        </div>
+    </footer>
+</div>
