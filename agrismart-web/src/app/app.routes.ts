@@ -22,6 +22,7 @@ import { RecommendationsComponent } from './pages/cooperative/recommendations/re
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { MarketplaceViewComponent } from './pages/marketplace-view/marketplace-view.component';
 import { ProductDetailViewComponent } from './pages/product-detail-view/product-detail-view.component';
+import { CoursePlayerComponent } from './pages/course-player/course-player.component';
 
 export const routes: Routes = [
 	{ path: '', component: LandingPageComponent },
@@ -49,6 +50,7 @@ export const routes: Routes = [
 			{ path: 'iot', component: IotComponent },
 			{ path: 'logs', component: LogsComponent },
 			{ path: 'e-learning', component: ELearningComponent },
+			{ path: 'course/:id', component: CoursePlayerComponent },
 			{ path: 'recommendations', component: RecommendationsComponent },
 			{ path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 		]

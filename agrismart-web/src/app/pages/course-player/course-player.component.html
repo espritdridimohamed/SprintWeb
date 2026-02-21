@@ -1,0 +1,107 @@
+<div class="player-layout">
+    <!-- Sidebar: Path / Curriculum -->
+    <aside class="curriculum-sidebar">
+        <div class="sidebar-header">
+            <button class="back-btn" (click)="goBack()">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Retour aux cours
+            </button>
+            <div class="course-meta">
+                <h2>{{ courseTitle }}</h2>
+                <div class="overall-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="totalProgress"></div>
+                    </div>
+                    <span>{{ totalProgress }}% complété</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chapters-list">
+            <div *ngFor="let chapter of chapters" class="chapter-group" [class.open]="chapter.isOpen">
+                <div class="chapter-header" (click)="toggleChapter(chapter)">
+                    <span class="material-symbols-outlined toggle-icon">
+                        {{ chapter.isOpen ? 'expand_more' : 'chevron_right' }}
+                    </span>
+                    <span class="chapter-title">{{ chapter.title }}</span>
+                </div>
+
+                <div class="lessons-list" *ngIf="chapter.isOpen">
+                    <div *ngFor="let lesson of chapter.lessons" class="lesson-item"
+                        [class.active]="selectedLesson.id === lesson.id" (click)="selectLesson(lesson)">
+
+                        <div class="lesson-status" (click)="markAsDone(lesson, $event)">
+                            <span class="material-symbols-outlined" [class.done]="lesson.completed">
+                                {{ lesson.completed ? 'check_circle' : 'circle' }}
+                            </span>
+                        </div>
+
+                        <div class="lesson-info">
+                            <span class="lesson-title">{{ lesson.title }}</span>
+                            <div class="lesson-meta">
+                                <span class="material-symbols-outlined meta-icon">
+                                    {{ lesson.type === 'video' ? 'movie' : lesson.type === 'pdf' ? 'picture_as_pdf' :
+                                    'description' }}
+                                </span>
+                                {{ lesson.duration }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-viewer">
+        <header class="content-header">
+            <div class="lesson-context">
+                <span class="chapter-label">CHAPITRE : {{ chapters[0].title }}</span>
+                <h1>{{ selectedLesson.title }}</h1>
+            </div>
+            <div class="header-actions">
+                <button class="action-btn" title="Télécharger les ressources">
+                    <span class="material-symbols-outlined">download</span>
+                </button>
+                <button class="action-btn" title="Prendre des notes">
+                    <span class="material-symbols-outlined">notes</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="lesson-content fade-in">
+            <!-- Video Mock -->
+            <div *ngIf="selectedLesson.type === 'video'" class="video-placeholder">
+                <div class="play-overlay">
+                    <span class="material-symbols-outlined">play_circle</span>
+                </div>
+                <img src="https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=1200&q=80"
+                    alt="Video cover">
+            </div>
+
+            <div class="text-content" [innerHTML]="selectedLesson.content"></div>
+
+            <div class="completion-banner" *ngIf="!selectedLesson.completed">
+                <div class="banner-text">
+                    <h3>Prêt pour la suite ?</h3>
+                    <p>Marquez cette leçon comme terminée pour débloquer la suite de votre formation.</p>
+                </div>
+                <button class="complete-btn" (click)="markAsDone(selectedLesson, $event)">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    Terminer la leçon
+                </button>
+            </div>
+
+            <div class="navigation-footer">
+                <button class="nav-btn ghost">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                    Précédent
+                </button>
+                <button class="nav-btn primary">
+                    Suivant
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
