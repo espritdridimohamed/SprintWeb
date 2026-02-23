@@ -80,6 +80,10 @@
   border-radius: 14px;
   background: var(--card);
   border: 1px solid var(--card-border);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  color: inherit;
 }
 
 .profile-name {

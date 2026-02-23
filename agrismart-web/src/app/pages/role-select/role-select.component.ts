@@ -16,6 +16,7 @@ export class RoleSelectComponent {
   roles = Object.values(ROLE_CONFIGS);
 
   readonly roleIcons: Record<string, string> = {
+    producteur: 'eco',
     technicien: 'engineering',
     cooperative: 'groups',
     ong: 'volunteer_activism',

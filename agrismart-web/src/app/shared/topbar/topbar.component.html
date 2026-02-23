@@ -11,12 +11,15 @@
     </div>
     <button class="icon-btn"><span class="material-symbols-outlined">notifications</span></button>
     <button class="icon-btn"><span class="material-symbols-outlined">mail</span></button>
-    <div class="profile">
+    <button class="icon-btn" (click)="logout()" title="Se déconnecter">
+      <span class="material-symbols-outlined">logout</span>
+    </button>
+    <button class="profile" type="button" (click)="openProfile()" title="Mon profil">
       <div>
-        <div class="profile-name">Marc Dubois</div>
+        <div class="profile-name">{{ profileName }}</div>
         <div class="profile-org">{{ orgLabel }}</div>
       </div>
-      <div class="avatar">MD</div>
-    </div>
+      <div class="avatar">{{ profileInitials }}</div>
+    </button>
   </div>
 </header>
