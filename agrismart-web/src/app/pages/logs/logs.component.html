@@ -1,28 +1,30 @@
-<div class="page-header">
-  <h1 class="page-title">Logs & Audit</h1>
-  <p class="page-subtitle">Journal d'activité et traçabilité des opérations</p>
+<div class="page-header logs-page-header">
+  <h1 class="page-title logs-page-title">Logs & Audit</h1>
+  <p class="page-subtitle logs-page-subtitle">Journal d'activité et traçabilité des opérations</p>
 </div>
 
 <div class="content-area">
+  <div class="card logs-loading" *ngIf="isLoading">Chargement des logs...</div>
+
   <!-- Activity Summary Section -->
-  <div class="grid-2">
+  <div class="grid-2" *ngIf="!isLoading">
     <div class="card">
       <h3 class="card-title">Événements du jour</h3>
       <div class="list">
         <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #2563eb;">login</span>
-          <span>Connexions utilisateurs</span>
-          <span class="tag" style="background: #dbeafe; color: #1e40af;">142</span>
+          <span class="material-symbols-outlined icon icon-info">login</span>
+          <span class="item-label">Connexions utilisateurs</span>
+          <span class="tag tag-info">{{ todayConnections }}</span>
         </div>
         <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #6b9f3e;">edit</span>
-          <span>Modifications données</span>
-          <span class="tag" style="background: #dcfce7; color: #166534;">28</span>
+          <span class="material-symbols-outlined icon icon-success">edit</span>
+          <span class="item-label">Modifications données</span>
+          <span class="tag tag-success">{{ dataChanges }}</span>
         </div>
         <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #f59e0b;">warning</span>
-          <span>Erreurs système</span>
-          <span class="tag" style="background: #fef3c7; color: #92400e;">3</span>
+          <span class="material-symbols-outlined icon icon-warning">warning</span>
+          <span class="item-label">Erreurs système</span>
+          <span class="tag tag-warning">{{ systemErrors }}</span>
         </div>
       </div>
     </div>
@@ -32,54 +34,39 @@
       <div class="list">
         <div class="list-item">
           <span class="stat-label">Logs générés/jour</span>
-          <span class="stat-value">48,290</span>
+          <span class="stat-value">{{ logsPerDay }}</span>
         </div>
         <div class="list-item">
           <span class="stat-label">Espace stockage</span>
-          <span class="stat-value">12.4GB</span>
+          <span class="stat-value">{{ storageLabel }}</span>
         </div>
         <div class="list-item">
           <span class="stat-label">Rétention jours</span>
-          <span class="stat-value">180</span>
+          <span class="stat-value">{{ retentionDays }}</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Recent Audit Trail Section -->
-  <div class="grid-2" style="margin-top: var(--spacing-6);">
+  <div class="grid-2 logs-section-gap" *ngIf="!isLoading">
     <div class="card">
       <h3 class="card-title">Activités récentes</h3>
       <div class="list">
-        <div class="list-item">
-          <span class="material-symbols-outlined">account_circle</span>
-          <span>Utilisateur Admin · Connexion · 14:32</span>
+        <div class="list-item" *ngFor="let activity of recentActivities">
+          <span class="material-symbols-outlined icon icon-neutral">account_circle</span>
+          <span class="item-label">{{ activity }}</span>
         </div>
-        <div class="list-item">
-          <span class="material-symbols-outlined">description</span>
-          <span>Export rapport · 14:15</span>
-        </div>
-        <div class="list-item">
-          <span class="material-symbols-outlined">security</span>
-          <span>Modification permissions · 13:48</span>
-        </div>
+        <div class="list-item" *ngIf="recentActivities.length === 0">Aucune activité récente</div>
       </div>
     </div>
 
     <div class="card">
       <h3 class="card-title">Alertes sécurité</h3>
       <div class="list">
-        <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #6b9f3e;">check_circle</span>
-          <span>Authentification réussie</span>
-        </div>
-        <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #6b9f3e;">check_circle</span>
-          <span>Accès API autorisé</span>
-        </div>
-        <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #2563eb;">info</span>
-          <span>Changement configuration · 11:22</span>
+        <div class="list-item" *ngFor="let alert of securityAlerts">
+          <span class="material-symbols-outlined icon icon-success">check_circle</span>
+          <span class="item-label">{{ alert }}</span>
         </div>
       </div>
     </div>

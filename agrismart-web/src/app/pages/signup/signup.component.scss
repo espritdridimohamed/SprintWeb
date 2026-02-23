@@ -1,17 +1,16 @@
-.login-page {
+.signup-page {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
 
-.login-card {
+.signup-card {
   background: #fff;
-  padding: 60px;
+  padding: 48px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 16px;
-  max-width: 560px;
+  gap: 14px;
+  max-width: 620px;
   margin: 0 auto;
   width: 100%;
 }
@@ -20,7 +19,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .brand-icon {
@@ -31,11 +30,6 @@
   display: grid;
   place-items: center;
   color: white;
-  flex-shrink: 0;
-
-  .material-symbols-outlined {
-    font-size: 22px;
-  }
 }
 
 .brand-title {
@@ -54,10 +48,16 @@ h1 {
   letter-spacing: -0.02em;
 }
 
-.login-desc {
+.signup-desc {
   color: var(--text-muted);
+  margin: 0;
   font-size: 14px;
-  margin: 0 0 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .form-group {
@@ -72,6 +72,7 @@ h1 {
   color: var(--text);
 }
 
+input[type='text'],
 input[type='email'],
 input[type='password'] {
   border: 1px solid var(--card-border);
@@ -79,9 +80,9 @@ input[type='password'] {
   border-radius: 12px;
   font-size: 14px;
   font-family: inherit;
-  transition: border-color 0.15s;
 }
 
+input[type='text']:focus,
 input[type='email']:focus,
 input[type='password']:focus {
   outline: none;
@@ -89,34 +90,14 @@ input[type='password']:focus {
   box-shadow: 0 0 0 3px rgba(107, 159, 62, 0.1);
 }
 
-.login-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-}
-
-.login-row a {
-  color: var(--accent-dark);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.remember {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.login-btn {
+.signup-btn {
   width: 100%;
   padding: 14px;
   font-size: 15px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
-.login-btn:disabled {
+.signup-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
@@ -128,7 +109,6 @@ input[type='password']:focus {
   border-radius: 10px;
   padding: 10px 12px;
   font-size: 13px;
-  margin-top: -4px;
 }
 
 .social-message {
@@ -138,14 +118,13 @@ input[type='password']:focus {
   border-radius: 10px;
   padding: 10px 12px;
   font-size: 13px;
-  margin-top: -4px;
 }
 
 .divider {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 4px 0;
+  margin: 2px 0;
   color: var(--text-muted);
   font-size: 12px;
 
@@ -169,7 +148,6 @@ input[type='password']:focus {
   gap: 8px;
   font-size: 14px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
 
   .material-symbols-outlined {
     font-size: 18px;
@@ -178,10 +156,9 @@ input[type='password']:focus {
 
 .social-btn:hover {
   background: var(--card);
-  border-color: var(--accent);
 }
 
-.signup-hint {
+.login-hint {
   font-size: 13px;
   color: var(--text-muted);
   text-align: center;
@@ -195,33 +172,28 @@ input[type='password']:focus {
   }
 }
 
-.login-info {
+.signup-info {
   padding: 60px;
   color: #173015;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 18px;
-  background: linear-gradient(140deg, rgba(55, 95, 35, 0.92), rgba(37, 72, 31, 0.96)),
-    url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=60');
-  background-size: cover;
-  background-position: center;
+  gap: 16px;
+  background: linear-gradient(140deg, rgba(55, 95, 35, 0.92), rgba(37, 72, 31, 0.96));
 }
 
-.login-info h2 {
+.signup-info h2 {
   color: #f4ffe9;
   font-size: 24px;
   margin: 0;
 }
 
-.login-info p {
+.signup-info p,
+.signup-info li {
   color: #d4e8c6;
-  font-size: 14px;
-  line-height: 1.6;
 }
 
-.login-info ul {
-  color: #d4e8c6;
+.signup-info ul {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -229,59 +201,27 @@ input[type='password']:focus {
   gap: 10px;
 }
 
-.login-info li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.login-info li::before {
+.signup-info li::before {
   content: '✓';
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(216, 255, 156, 0.2);
+  margin-right: 8px;
   color: #d8ff9c;
-  font-size: 11px;
-  flex-shrink: 0;
-}
-
-.demo-box {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 18px;
-  border-radius: 16px;
-  display: grid;
-  gap: 8px;
-  backdrop-filter: blur(4px);
-}
-
-.demo-title {
-  font-weight: 600;
-  color: #f4ffe9;
-  font-size: 14px;
-}
-
-.demo-item {
-  font-size: 12px;
-  color: #c8dfb8;
-  padding: 4px 0;
 }
 
 @media (max-width: 960px) {
-  .login-page {
+  .signup-page {
     grid-template-columns: 1fr;
   }
 
-  .login-card {
-    padding: 40px 30px;
+  .signup-card {
+    padding: 36px 24px;
   }
 
-  .login-info {
+  .signup-info {
     order: -1;
-    padding: 40px 30px;
+    padding: 36px 24px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 }

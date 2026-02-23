@@ -1,81 +1,81 @@
-<div class="page-header">
-  <div>
-    <div class="page-title">Tableau de bord</div>
-    <div class="page-subtitle">Vue visuelle pour {{ roleConfig.label }}</div>
-  </div>
-  <span class="tag">Statistiques en direct</span>
-</div>
-
-<div class="grid-4">
-  <app-kpi-card *ngFor="let kpi of roleConfig.kpis" [item]="kpi"></app-kpi-card>
-</div>
-
-<div class="visual-grid section-gap">
-  <section class="card chart-card">
-    <div class="card-head">
-      <div>
-        <div class="card-title">{{ visualData.performanceTitle }}</div>
-        <div class="card-subtitle">{{ visualData.performanceSubtitle }}</div>
-      </div>
-      <span class="material-symbols-outlined">bar_chart</span>
+<ng-container *ngIf="isAdminView; else standardDashboard">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Tableau de bord Admin</div>
+      <div class="page-subtitle">Vue exécutive de la plateforme (sans duplication avec la page Administration)</div>
     </div>
+    <a class="primary-btn" routerLink="/app/admin">Gérer les utilisateurs</a>
+  </div>
 
-    <div class="bars">
-      <div class="bar-item" *ngFor="let bar of visualData.bars">
-        <div class="bar-top">
-          <div class="bar-label">
-            <span class="material-symbols-outlined">{{ bar.icon }}</span>
-            <span>{{ bar.label }}</span>
+  <div class="grid-4" *ngIf="!isLoading">
+    <div class="card metric-card">
+      <div class="metric-label">Utilisateurs total</div>
+      <div class="metric-value">{{ totalUsers }}</div>
+    </div>
+    <div class="card metric-card">
+      <div class="metric-label">Utilisateurs actifs</div>
+      <div class="metric-value">{{ activeUsers }}</div>
+    </div>
+    <div class="card metric-card">
+      <div class="metric-label">Nouveaux (7 jours)</div>
+      <div class="metric-value">{{ newUsersThisWeek }}</div>
+    </div>
+    <div class="card metric-card">
+      <div class="metric-label">Rôles actifs</div>
+      <div class="metric-value">{{ rolesCount }}</div>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="isLoading">Chargement du résumé admin...</div>
+
+  <div class="dashboard-panels" *ngIf="!isLoading">
+    <div class="card">
+      <div class="card-title">Répartition par rôle</div>
+      <div class="chart-rows">
+        <div class="chart-row" *ngFor="let item of roleDistribution">
+          <div class="chart-label">{{ item.label }}</div>
+          <div class="chart-bar-track">
+            <div class="chart-bar-fill" [style.width.%]="totalUsers > 0 ? (item.value * 100 / totalUsers) : 0"></div>
           </div>
-          <div class="bar-value">{{ bar.valueLabel }}</div>
-        </div>
-        <div class="bar-track">
-          <div class="bar-fill" [class]="bar.tone" [style.width]="getBarWidth(bar.score)"></div>
+          <div class="chart-value">{{ item.value }}</div>
         </div>
       </div>
     </div>
-  </section>
 
-  <section class="card distribution-card">
-    <div class="card-head">
-      <div>
-        <div class="card-title">{{ visualData.distributionTitle }}</div>
-        <div class="card-subtitle">{{ visualData.distributionSubtitle }}</div>
-      </div>
-      <span class="material-symbols-outlined">donut_large</span>
-    </div>
-
-    <div class="donut-wrap">
-      <div class="donut" [style.background]="donutBackground">
-        <div class="donut-center">100%</div>
-      </div>
-
-      <div class="legend">
-        <div class="legend-item" *ngFor="let slice of visualData.slices">
-          <span class="legend-dot" [style.background]="toneColor(slice.tone)"></span>
-          <span class="legend-label">{{ slice.label }}</span>
-          <span class="legend-value">{{ slice.percent }}%</span>
-        </div>
-      </div>
-    </div>
-  </section>
-</div>
-
-<section class="card quick-stats section-gap">
-  <div class="card-head">
-    <div class="card-title">Indicateurs opérationnels</div>
-    <span class="material-symbols-outlined">insights</span>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-item" *ngFor="let stat of visualData.stats" [class]="stat.tone">
-      <div class="stat-icon">
-        <span class="material-symbols-outlined">{{ stat.icon }}</span>
-      </div>
-      <div>
-        <div class="stat-label">{{ stat.label }}</div>
-        <div class="stat-value">{{ stat.value }}</div>
+    <div class="card">
+      <div class="card-title">Accès rapide</div>
+      <div class="quick-links">
+        <a class="quick-link" routerLink="/app/admin">
+          <span class="material-symbols-outlined">admin_panel_settings</span>
+          <span>Administration</span>
+        </a>
+        <a class="quick-link" routerLink="/app/logs">
+          <span class="material-symbols-outlined">receipt_long</span>
+          <span>Logs & Audit</span>
+        </a>
+        <a class="quick-link" routerLink="/app/iot">
+          <span class="material-symbols-outlined">sensors</span>
+          <span>IoT & Passerelles</span>
+        </a>
       </div>
     </div>
   </div>
-</section>
+</ng-container>
+
+<ng-template #standardDashboard>
+  <div class="page-header">
+    <div>
+      <div class="page-title">Tableau de bord</div>
+      <div class="page-subtitle">Vue personnalisée pour {{ roleConfig.label }}</div>
+    </div>
+    <button class="primary-btn">Nouvelle action</button>
+  </div>
+
+  <div class="grid-4">
+    <app-kpi-card *ngFor="let kpi of roleConfig.kpis" [item]="kpi"></app-kpi-card>
+  </div>
+
+  <div class="dashboard-panels">
+    <app-section-card *ngFor="let panel of roleConfig.panels" [panel]="panel"></app-section-card>
+  </div>
+</ng-template>

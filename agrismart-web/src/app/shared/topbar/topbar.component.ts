@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-topbar',
@@ -12,11 +13,36 @@ import { Router } from '@angular/router';
 export class TopbarComponent {
   @Input() roleLabel = '';
   @Input() orgLabel = '';
-  @Input() showELearning = false;
 
-  constructor(private router: Router) { }
+  constructor(private authService: AuthService, private router: Router) {}
 
-  goToELearning() {
-    this.router.navigate(['/app/e-learning']);
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  get profileName(): string {
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      return 'Utilisateur';
+    }
+
+    return `${user.firstName} ${user.lastName}`.trim();
+  }
+
+  get profileInitials(): string {
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      return 'U';
+    }
+
+    const first = user.firstName?.charAt(0) ?? '';
+    const last = user.lastName?.charAt(0) ?? '';
+    const initials = `${first}${last}`.toUpperCase();
+    return initials || 'U';
+  }
+
+  openProfile(): void {
+    this.router.navigate(['/app/profile']);
   }
 }

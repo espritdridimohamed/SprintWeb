@@ -1,6 +1,85 @@
 import { RoleConfig, RoleKey } from '../models/role.model';
 
 export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
+  buyer: {
+    key: 'buyer',
+    label: 'User',
+    orgLabel: 'User',
+    nav: [
+      { label: 'Marketplace', route: '/app/market', icon: 'market' }
+    ],
+    kpis: [
+      { label: 'Commandes actives', value: '4', trend: '2 en livraison', tone: 'info', icon: 'market' },
+      { label: 'Produits favoris', value: '18', trend: '+3 cette semaine', tone: 'brand', icon: 'leaf' },
+      { label: 'Nouveaux vendeurs', value: '7', trend: 'Ce mois', tone: 'success', icon: 'users' },
+      { label: 'Alertes prix', value: '5', trend: 'À surveiller', tone: 'warning', icon: 'alert' }
+    ],
+    panels: [
+      {
+        title: 'Marché recommandé',
+        subtitle: 'Selon votre historique',
+        items: [
+          'Tomates bio · 2.8 DT/kg · Promo',
+          'Huile d\'olive extra · 18 DT/L',
+          'Pommes de terre · 1.4 DT/kg'
+        ],
+        accent: 'emerald'
+      },
+      {
+        title: 'Suivi de commandes',
+        subtitle: 'Dernières mises à jour',
+        items: [
+          'CMD-2026-0192 · En préparation',
+          'CMD-2026-0187 · En route',
+          'CMD-2026-0179 · Livrée'
+        ],
+        accent: 'amber'
+      }
+    ]
+  },
+  producteur: {
+    key: 'producteur',
+    label: 'Producteur Agricole',
+    orgLabel: 'Agriculteur',
+    nav: [
+      { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
+      { label: 'Mes Parcelles', route: '/app/agri', icon: 'agri' },
+      { label: 'IA & Conseils', route: '/app/ai', icon: 'ai' },
+      { label: 'Support Technicien', route: '/app/support', icon: 'support' },
+      { label: 'Formations', route: '/app/training', icon: 'training' },
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' },
+      { label: 'Alertes', route: '/app/alerts', icon: 'alerts' }
+    ],
+    kpis: [
+      { label: 'Parcelles actives', value: '5', trend: 'Surface 12 ha', tone: 'success', icon: 'pin' },
+      { label: 'Donnees capteurs', value: '18', trend: 'En temps reel', tone: 'info', icon: 'sensors' },
+      { label: 'Diagnostics', value: '3', trend: 'A valider', tone: 'warning', icon: 'brain' },
+      { label: 'Formations suivies', value: '12', trend: '+2 ce mois', tone: 'brand', icon: 'training' }
+    ],
+    panels: [
+      {
+        title: 'Alertes actives',
+        subtitle: 'Vos parcelles',
+        items: [
+          'Parcelle A · Humidite sol < 20% · Urgent',
+          'Parcelle C · Risque maladie fongique · Moyen',
+          'Parcelle B · Temperature optimale · OK'
+        ],
+        accent: 'rose'
+      },
+      {
+        title: 'Formations recommandees',
+        subtitle: 'Basees sur vos cultures',
+        items: [
+          'Irrigation efficace · Debutant',
+          'Gestion des maladies · Intermediaire',
+          'Biologie du sol · Avance'
+        ],
+        accent: 'emerald'
+      }
+    ]
+  },
   technicien: {
     key: 'technicien',
     label: 'Technicien Agricole',
@@ -171,7 +250,6 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     label: 'Administrateur Système',
     orgLabel: 'AgriSmart Cloud',
     nav: [
-      { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
       { label: 'Administration', route: '/app/admin', icon: 'admin' },
       { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'IoT & Passerelles', route: '/app/iot', icon: 'iot' },
