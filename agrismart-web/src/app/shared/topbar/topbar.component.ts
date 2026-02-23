@@ -13,12 +13,17 @@ import { AuthService } from '../../services/auth.service';
 export class TopbarComponent {
   @Input() roleLabel = '';
   @Input() orgLabel = '';
+  @Input() showELearning = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  goToELearning(): void {
+    this.router.navigate(['/app/training']);
   }
 
   get profileName(): string {

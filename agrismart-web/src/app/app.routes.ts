@@ -20,6 +20,9 @@ import { RapportsComponent } from './pages/rapports/rapports.component';
 import { IotComponent } from './pages/iot/iot.component';
 import { LogsComponent } from './pages/logs/logs.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { LandingPageComponent } from './pages/landing-page/landing-page.component';
+import { MarketplaceViewComponent } from './pages/marketplace-view/marketplace-view.component';
+import { ProductDetailViewComponent } from './pages/product-detail-view/product-detail-view.component';
 
 export const routes: Routes = [
 	{ path: '', component: LandingPageComponent },
