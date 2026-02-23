@@ -1,8 +1,9 @@
 <ng-container *ngIf="isAdminView; else standardDashboard">
+  <!-- ═══ ADMIN DASHBOARD ═══ -->
   <div class="page-header">
     <div>
       <div class="page-title">Tableau de bord Admin</div>
-      <div class="page-subtitle">Vue exécutive de la plateforme (sans duplication avec la page Administration)</div>
+      <div class="page-subtitle">Vue exécutive de la plateforme</div>
     </div>
     <a class="primary-btn" routerLink="/app/admin">Gérer les utilisateurs</a>
   </div>
@@ -60,22 +61,153 @@
       </div>
     </div>
   </div>
+
+  <!-- Admin visual charts -->
+  <div class="visual-grid section-gap" *ngIf="!isLoading">
+    <section class="card chart-card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">{{ visualData.performanceTitle }}</div>
+          <div class="card-subtitle">{{ visualData.performanceSubtitle }}</div>
+        </div>
+        <span class="material-symbols-outlined">bar_chart</span>
+      </div>
+      <div class="bars">
+        <div class="bar-item" *ngFor="let bar of visualData.bars">
+          <div class="bar-top">
+            <div class="bar-label">
+              <span class="material-symbols-outlined">{{ bar.icon }}</span>
+              <span>{{ bar.label }}</span>
+            </div>
+            <div class="bar-value">{{ bar.valueLabel }}</div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" [class]="bar.tone" [style.width]="getBarWidth(bar.score)"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card distribution-card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">{{ visualData.distributionTitle }}</div>
+          <div class="card-subtitle">{{ visualData.distributionSubtitle }}</div>
+        </div>
+        <span class="material-symbols-outlined">donut_large</span>
+      </div>
+      <div class="donut-wrap">
+        <div class="donut" [style.background]="donutBackground">
+          <div class="donut-center">100%</div>
+        </div>
+        <div class="legend">
+          <div class="legend-item" *ngFor="let slice of visualData.slices">
+            <span class="legend-dot" [style.background]="toneColor(slice.tone)"></span>
+            <span class="legend-label">{{ slice.label }}</span>
+            <span class="legend-value">{{ slice.percent }}%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card quick-stats section-gap" *ngIf="!isLoading">
+    <div class="card-head">
+      <div class="card-title">Indicateurs opérationnels</div>
+      <span class="material-symbols-outlined">insights</span>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-item" *ngFor="let stat of visualData.stats" [class]="stat.tone">
+        <div class="stat-icon">
+          <span class="material-symbols-outlined">{{ stat.icon }}</span>
+        </div>
+        <div>
+          <div class="stat-label">{{ stat.label }}</div>
+          <div class="stat-value">{{ stat.value }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
 </ng-container>
 
+<!-- ═══ NON-ADMIN VISUAL DASHBOARD ═══ -->
 <ng-template #standardDashboard>
   <div class="page-header">
     <div>
       <div class="page-title">Tableau de bord</div>
-      <div class="page-subtitle">Vue personnalisée pour {{ roleConfig.label }}</div>
+      <div class="page-subtitle">Vue visuelle pour {{ roleConfig.label }}</div>
     </div>
-    <button class="primary-btn">Nouvelle action</button>
+    <span class="tag">Statistiques en direct</span>
   </div>
 
   <div class="grid-4">
     <app-kpi-card *ngFor="let kpi of roleConfig.kpis" [item]="kpi"></app-kpi-card>
   </div>
 
-  <div class="dashboard-panels">
-    <app-section-card *ngFor="let panel of roleConfig.panels" [panel]="panel"></app-section-card>
+  <div class="visual-grid section-gap">
+    <section class="card chart-card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">{{ visualData.performanceTitle }}</div>
+          <div class="card-subtitle">{{ visualData.performanceSubtitle }}</div>
+        </div>
+        <span class="material-symbols-outlined">bar_chart</span>
+      </div>
+      <div class="bars">
+        <div class="bar-item" *ngFor="let bar of visualData.bars">
+          <div class="bar-top">
+            <div class="bar-label">
+              <span class="material-symbols-outlined">{{ bar.icon }}</span>
+              <span>{{ bar.label }}</span>
+            </div>
+            <div class="bar-value">{{ bar.valueLabel }}</div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" [class]="bar.tone" [style.width]="getBarWidth(bar.score)"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card distribution-card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">{{ visualData.distributionTitle }}</div>
+          <div class="card-subtitle">{{ visualData.distributionSubtitle }}</div>
+        </div>
+        <span class="material-symbols-outlined">donut_large</span>
+      </div>
+      <div class="donut-wrap">
+        <div class="donut" [style.background]="donutBackground">
+          <div class="donut-center">100%</div>
+        </div>
+        <div class="legend">
+          <div class="legend-item" *ngFor="let slice of visualData.slices">
+            <span class="legend-dot" [style.background]="toneColor(slice.tone)"></span>
+            <span class="legend-label">{{ slice.label }}</span>
+            <span class="legend-value">{{ slice.percent }}%</span>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
+
+  <section class="card quick-stats section-gap">
+    <div class="card-head">
+      <div class="card-title">Indicateurs opérationnels</div>
+      <span class="material-symbols-outlined">insights</span>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-item" *ngFor="let stat of visualData.stats" [class]="stat.tone">
+        <div class="stat-icon">
+          <span class="material-symbols-outlined">{{ stat.icon }}</span>
+        </div>
+        <div>
+          <div class="stat-label">{{ stat.label }}</div>
+          <div class="stat-value">{{ stat.value }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </ng-template>

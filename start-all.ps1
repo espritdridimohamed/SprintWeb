@@ -13,7 +13,7 @@ Set-StrictMode -Version Latest
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $backendDir = Join-Path $root 'spring_boot-main'
-$frontendDir = Join-Path $root 'SprintWeb-mohamed\agrismart-web'
+$frontendDir = Join-Path $root 'agrismart-web'
 $mongoInitDir = Join-Path $backendDir 'mongodb'
 
 function Start-Mongo {
