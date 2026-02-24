@@ -78,6 +78,21 @@
   </div>
 </div>
 
+<div class="grid-3 section-gap">
+  <div class="card mini-stat-card">
+    <div class="mini-stat-label">Taux utilisateurs actifs</div>
+    <div class="mini-stat-value">{{ activeRate }}%</div>
+  </div>
+  <div class="card mini-stat-card">
+    <div class="mini-stat-label">Nouveaux comptes (30 jours)</div>
+    <div class="mini-stat-value">{{ usersThisMonth }}</div>
+  </div>
+  <div class="card mini-stat-card">
+    <div class="mini-stat-label">Rôle majoritaire</div>
+    <div class="mini-stat-value">{{ topRoleStat.name }} · {{ topRoleStat.count }}</div>
+  </div>
+</div>
+
 <div class="grid-2 section-gap">
   <div class="card">
     <div class="card-title">Répartition des rôles (chart)</div>
@@ -93,18 +108,58 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Indicateurs administratifs</div>
-    <div class="list">
-      <div class="list-item">Nouveaux comptes (7 jours) · {{ newUsersThisWeek }}</div>
-      <div class="list-item">Comptes inactifs · {{ inactiveUsers }}</div>
-      <div class="list-item">Comptes actifs · {{ activeUsers }}</div>
-      <div class="list-item">Rôles distincts · {{ totalRoles }}</div>
+    <div class="card-title">Inscriptions (7 derniers jours)</div>
+    <div class="trend-rows">
+      <div class="trend-row" *ngFor="let day of signupTrendLast7Days">
+        <div class="trend-label">{{ day.label }}</div>
+        <div class="trend-track">
+          <div class="trend-fill" [style.width.%]="day.width"></div>
+        </div>
+        <div class="trend-value">{{ day.count }}</div>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="card section-gap" *ngIf="!isLoading">
   <div class="card-title">Gestion des utilisateurs</div>
+
+  <div class="table-toolbar">
+    <div class="toolbar-search">
+      <span class="material-symbols-outlined">search</span>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onFiltersChanged()"
+        placeholder="Rechercher par nom, email ou rôle"
+      />
+    </div>
+
+    <select [(ngModel)]="selectedRoleFilter" (ngModelChange)="onFiltersChanged()">
+      <option value="all">Tous les rôles</option>
+      <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+    </select>
+
+    <select [(ngModel)]="selectedStatusFilter" (ngModelChange)="onFiltersChanged()">
+      <option value="all">Tous statuts</option>
+      <option value="active">Actifs</option>
+      <option value="inactive">Inactifs</option>
+    </select>
+
+    <select [(ngModel)]="selectedDateFilter" (ngModelChange)="onFiltersChanged()">
+      <option value="all">Toutes dates</option>
+      <option value="today">Aujourd'hui</option>
+      <option value="7d">7 derniers jours</option>
+      <option value="30d">30 derniers jours</option>
+    </select>
+
+    <button class="secondary-btn" (click)="resetFilters()">Réinitialiser</button>
+  </div>
+
+  <div class="table-meta">
+    <span>Résultats: {{ totalFilteredUsers }}</span>
+    <span *ngIf="totalFilteredUsers > 0">Affichage {{ pageStartItem }}-{{ pageEndItem }}</span>
+  </div>
 
   <div class="users-table-wrap" *ngIf="users.length > 0; else emptyUsers">
     <table class="users-table">
@@ -113,15 +168,17 @@
           <th>Nom</th>
           <th>Email</th>
           <th>Rôle actuel</th>
+          <th>Inscription</th>
           <th>Nouveau rôle</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of users">
+        <tr *ngFor="let user of paginatedUsers">
           <td>{{ user.firstName }} {{ user.lastName }}</td>
           <td>{{ user.email }}</td>
           <td>{{ getRoleNameById(user.roleId) }}</td>
+          <td>{{ getUserCreatedAtLabel(user) }}</td>
           <td>
             <select class="role-select" [ngModel]="getPendingRole(user)" (ngModelChange)="setPendingRole(user, $event)">
               <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
@@ -140,6 +197,20 @@
         </tr>
       </tbody>
     </table>
+
+    <div class="table-empty" *ngIf="totalFilteredUsers === 0">Aucun utilisateur trouvé pour ces filtres.</div>
+
+    <div class="pagination" *ngIf="totalFilteredUsers > pageSize">
+      <button class="secondary-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">Précédent</button>
+      <button
+        class="page-btn"
+        *ngFor="let page of visiblePageNumbers"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      <button class="secondary-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Suivant</button>
+    </div>
   </div>
 
   <ng-template #emptyUsers>

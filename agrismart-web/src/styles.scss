@@ -97,6 +97,24 @@ a {
 	border-radius: 18px;
 	padding: 18px;
 	box-shadow: var(--shadow-soft);
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+@media (hover: hover) {
+	.card:hover {
+		transform: translateY(-3px) scale(1.01);
+		box-shadow: 0 24px 58px rgba(22, 42, 18, 0.13);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.card {
+		transition: none;
+	}
+
+	.card:hover {
+		transform: none;
+	}
 }
 
 .tag {

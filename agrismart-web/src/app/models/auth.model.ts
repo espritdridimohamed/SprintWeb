@@ -18,4 +18,5 @@ export interface AuthResponse {
   role: string;
   firstName: string;
   lastName: string;
+  profilePictureUrl?: string;
 }

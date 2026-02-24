@@ -3,8 +3,8 @@
 }
 
 .logs-page-title {
-	font-size: 36px;
-	font-weight: 800;
+	font-size: 30px;
+	font-weight: 700;
 	letter-spacing: -0.02em;
 }
 
@@ -21,29 +21,51 @@
 }
 
 .logs-section-gap {
-	margin-top: var(--spacing-6);
+	margin-top: 22px;
 }
 
 .card-title {
-	font-size: 24px;
+	font-size: 18px;
 	font-weight: 700;
-	letter-spacing: -0.01em;
+	letter-spacing: -0.005em;
+}
+
+.metric-card {
+	padding: 16px 18px;
+}
+
+.metric-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--text-muted);
+	margin-bottom: 4px;
+}
+
+.metric-value {
+	font-size: 28px;
+	font-weight: 700;
 }
 
 .list-item {
-	font-size: 15px;
-	min-height: 44px;
+	font-size: 13px;
+	min-height: 42px;
 }
 
 .item-label {
-	font-size: 15px;
-	font-weight: 500;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.item-sub {
+	font-size: 12px;
+	color: var(--text-muted);
+	margin-top: 1px;
 }
 
 .icon {
-	font-size: 22px;
-	width: 22px;
-	height: 22px;
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
 }
 
 .icon-info {
@@ -62,52 +84,129 @@
 	color: var(--text-muted);
 }
 
-.tag {
-	margin-left: auto;
-	font-size: 12px;
-	font-weight: 700;
-	padding: 4px 9px;
-	border-radius: 999px;
+.mini-bars {
+	height: 190px;
+	display: grid;
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+	gap: 8px;
+	align-items: end;
+	margin-top: 10px;
 }
 
-.tag-info {
-	background: #dbeafe;
-	color: #1e40af;
+.mini-bar-col {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
 }
 
-.tag-success {
-	background: #dcfce7;
-	color: #166534;
+.mini-bar {
+	width: 100%;
+	max-width: 42px;
+	min-height: 10px;
+	border-radius: 10px 10px 4px 4px;
+	background: linear-gradient(180deg, #88be52, #6b9f3e);
 }
 
-.tag-warning {
-	background: #fef3c7;
-	color: #92400e;
-}
-
-.stat-label {
-	font-size: 14px;
+.mini-bar-label {
+	font-size: 11px;
 	color: var(--text-muted);
 }
 
-.stat-value {
-	font-size: 40px;
-	font-weight: 800;
-	letter-spacing: -0.02em;
+.mini-bar-value {
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.role-chart {
+	display: grid;
+	gap: 10px;
+	margin-top: 8px;
+}
+
+.role-chart-row {
+	display: grid;
+	grid-template-columns: 90px 1fr 24px;
+	gap: 8px;
+	align-items: center;
+}
+
+.role-name {
+	font-size: 12px;
+	color: var(--text-muted);
+	font-weight: 600;
+}
+
+.role-track {
+	height: 8px;
+	background: var(--card-border);
+	border-radius: 999px;
+	overflow: hidden;
+}
+
+.role-fill {
+	height: 100%;
+	background: linear-gradient(90deg, var(--accent), #88be52);
+}
+
+.role-count {
+	font-size: 12px;
+	font-weight: 700;
+	text-align: right;
+}
+
+.activity-list {
+	display: grid;
+	gap: 8px;
+}
+
+.activity-main {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.activity-time {
+	margin-left: auto;
+	font-size: 11px;
+	color: var(--text-muted);
+}
+
+.security-meta {
+	margin-top: 12px;
+	border-top: 1px solid var(--card-border);
+	padding-top: 12px;
+	display: grid;
+	gap: 8px;
+}
+
+.security-line {
+	display: flex;
+	justify-content: space-between;
+	font-size: 12px;
+	color: var(--text-muted);
+}
+
+.security-line strong {
+	color: var(--text);
+	font-size: 12px;
 }
 
 @media (max-width: 900px) {
 	.logs-page-title {
-		font-size: 30px;
+		font-size: 24px;
 	}
 
 	.card-title {
-		font-size: 21px;
+		font-size: 16px;
 	}
 
 	.item-label,
-	.list-item,
-	.stat-label {
+	.list-item {
 		font-size: 14px;
+	}
+
+	.activity-time {
+		display: none;
 	}
 }

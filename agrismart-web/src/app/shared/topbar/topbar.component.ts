@@ -47,6 +47,11 @@ export class TopbarComponent {
     return initials || 'U';
   }
 
+  get profilePictureUrl(): string {
+    const user = this.authService.getCurrentUser();
+    return user?.profilePictureUrl?.trim() ?? '';
+  }
+
   openProfile(): void {
     this.router.navigate(['/app/profile']);
   }

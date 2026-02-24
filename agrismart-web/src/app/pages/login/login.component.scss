@@ -1,17 +1,22 @@
 .login-page {
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 
 .login-card {
   background: #fff;
-  padding: 60px;
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+  padding: 42px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 16px;
-  max-width: 560px;
+  max-width: 520px;
   margin: 0 auto;
   width: 100%;
 }
@@ -195,93 +200,8 @@ input[type='password']:focus {
   }
 }
 
-.login-info {
-  padding: 60px;
-  color: #173015;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 18px;
-  background: linear-gradient(140deg, rgba(55, 95, 35, 0.92), rgba(37, 72, 31, 0.96)),
-    url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=60');
-  background-size: cover;
-  background-position: center;
-}
-
-.login-info h2 {
-  color: #f4ffe9;
-  font-size: 24px;
-  margin: 0;
-}
-
-.login-info p {
-  color: #d4e8c6;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.login-info ul {
-  color: #d4e8c6;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 10px;
-}
-
-.login-info li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.login-info li::before {
-  content: '✓';
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(216, 255, 156, 0.2);
-  color: #d8ff9c;
-  font-size: 11px;
-  flex-shrink: 0;
-}
-
-.demo-box {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 18px;
-  border-radius: 16px;
-  display: grid;
-  gap: 8px;
-  backdrop-filter: blur(4px);
-}
-
-.demo-title {
-  font-weight: 600;
-  color: #f4ffe9;
-  font-size: 14px;
-}
-
-.demo-item {
-  font-size: 12px;
-  color: #c8dfb8;
-  padding: 4px 0;
-}
-
 @media (max-width: 960px) {
-  .login-page {
-    grid-template-columns: 1fr;
-  }
-
   .login-card {
-    padding: 40px 30px;
-  }
-
-  .login-info {
-    order: -1;
-    padding: 40px 30px;
+    padding: 34px 24px;
   }
 }

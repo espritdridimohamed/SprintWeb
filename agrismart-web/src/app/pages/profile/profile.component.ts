@@ -40,6 +40,7 @@ export class ProfileComponent implements OnInit {
 
   createdAtLabel = '-';
   updatedAtLabel = '-';
+  readonly maxPhotoSizeMb = 2;
 
   constructor(private authService: AuthService, private profileService: ProfileService) {}
 
@@ -72,6 +73,11 @@ export class ProfileComponent implements OnInit {
         this.organization = profile.organization ?? '';
         this.accountType = profile.accountType ?? '';
         this.profilePictureUrl = profile.profilePictureUrl ?? '';
+        this.authService.updateStoredUser({
+          firstName: this.firstName,
+          lastName: this.lastName,
+          profilePictureUrl: this.profilePictureUrl
+        });
         this.createdAtLabel = profile.createdAt ? new Date(profile.createdAt).toLocaleString() : '-';
         this.updatedAtLabel = profile.updatedAt ? new Date(profile.updatedAt).toLocaleString() : '-';
         this.roleLabel = this.resolveRoleLabel(roles ?? []);
@@ -112,7 +118,8 @@ export class ProfileComponent implements OnInit {
       next: () => {
         this.authService.updateStoredUser({
           firstName: this.firstName.trim(),
-          lastName: this.lastName.trim()
+          lastName: this.lastName.trim(),
+          profilePictureUrl: this.profilePictureUrl
         });
         this.profileSuccess = 'Profil mis à jour avec succès.';
         this.updatedAtLabel = new Date().toLocaleString();
@@ -171,6 +178,48 @@ export class ProfileComponent implements OnInit {
     const last = this.lastName?.charAt(0) ?? '';
     const initials = `${first}${last}`.toUpperCase();
     return initials || 'U';
+  }
+
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      this.profileError = 'Veuillez sélectionner une image valide (JPG, PNG, WEBP).';
+      input.value = '';
+      return;
+    }
+
+    const maxBytes = this.maxPhotoSizeMb * 1024 * 1024;
+    if (file.size > maxBytes) {
+      this.profileError = `La photo dépasse ${this.maxPhotoSizeMb} MB.`;
+      input.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.profilePictureUrl = typeof reader.result === 'string' ? reader.result : '';
+      this.profileError = '';
+      this.profileSuccess = 'Photo prête. Cliquez sur Enregistrer le profil pour valider.';
+      this.authService.updateStoredUser({ profilePictureUrl: this.profilePictureUrl });
+    };
+    reader.onerror = () => {
+      this.profileError = 'Impossible de lire le fichier sélectionné.';
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+  }
+
+  removePhoto(): void {
+    this.profilePictureUrl = '';
+    this.profileSuccess = 'Photo supprimée. Cliquez sur Enregistrer le profil pour valider.';
+    this.profileError = '';
+    this.authService.updateStoredUser({ profilePictureUrl: '' });
   }
 
   private resolveRoleLabel(roles: DbRole[]): string {
