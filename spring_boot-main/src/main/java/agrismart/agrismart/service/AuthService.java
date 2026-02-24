@@ -48,7 +48,14 @@ public class AuthService {
         userRepository.save(user);
 
         String token = jwtUtil.generateToken(user.getEmail(), role.getName());
-        return new AuthResponse(token, user.getEmail(), role.getName(), user.getFirstName(), user.getLastName());
+        return new AuthResponse(
+            token,
+            user.getEmail(),
+            role.getName(),
+            user.getFirstName(),
+            user.getLastName(),
+            user.getProfilePictureUrl()
+        );
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -67,7 +74,14 @@ public class AuthService {
             .orElseThrow(() -> new RuntimeException("Role not found"));
 
         String token = jwtUtil.generateToken(user.getEmail(), role.getName());
-        return new AuthResponse(token, user.getEmail(), role.getName(), user.getFirstName(), user.getLastName());
+        return new AuthResponse(
+            token,
+            user.getEmail(),
+            role.getName(),
+            user.getFirstName(),
+            user.getLastName(),
+            user.getProfilePictureUrl()
+        );
     }
 
     public Optional<User> findByEmail(String email) {
