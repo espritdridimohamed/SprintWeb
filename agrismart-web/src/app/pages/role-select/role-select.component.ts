@@ -20,10 +20,11 @@ export class RoleSelectComponent {
     cooperative: 'groups',
     ong: 'volunteer_activism',
     etat: 'account_balance',
-    admin: 'admin_panel_settings'
+    admin: 'admin_panel_settings',
+    agriculteur: 'agriculture'
   };
 
-  constructor(private router: Router, private roleService: RoleService) {}
+  constructor(private router: Router, private roleService: RoleService) { }
 
   selectRole(role: RoleKey): void {
     this.roleService.setRole(role);

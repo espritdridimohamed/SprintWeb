@@ -51,6 +51,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
       { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
       { label: 'Formations', route: '/app/training', icon: 'training' },
+      { label: 'Recommandations', route: '/app/recommendations', icon: 'auto_awesome' },
       { label: 'Alertes', route: '/app/alerts', icon: 'alerts' },
       { label: 'Rapports', route: '/app/rapports', icon: 'reports' }
     ],
@@ -91,6 +92,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
       { label: 'Formations', route: '/app/training', icon: 'training' },
+      { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'Analyse & Impact', route: '/app/impact', icon: 'impact' }
     ],
     kpis: [
@@ -171,6 +173,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
       { label: 'Administration', route: '/app/admin', icon: 'admin' },
+      { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'IoT & Passerelles', route: '/app/iot', icon: 'iot' },
       { label: 'Logs & Audit', route: '/app/logs', icon: 'logs' },
       { label: 'Modèles IA', route: '/app/ai', icon: 'ai' }
@@ -201,6 +204,46 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
           'Base temporelle · OK'
         ],
         accent: 'emerald'
+      }
+    ]
+  },
+  agriculteur: {
+    key: 'agriculteur',
+    label: 'Agriculteur / Producteur',
+    orgLabel: 'Exploitation Familiale',
+    nav: [
+      { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
+      { label: 'Météo & IA', route: '/app/ai', icon: 'cloud' },
+      { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
+      { label: 'Gestion Parcelles', route: '/app/agri', icon: 'agri' },
+      { label: 'Marché Agricole', route: '/app/market', icon: 'market' }
+    ],
+    kpis: [
+      { label: 'Surface cultivée', value: '12.5 ha', trend: '+1.5 ha cette saison', tone: 'info', icon: 'pin' },
+      { label: 'Récolte prévue', value: '145 t', trend: 'Est. Maïs/Blé', tone: 'success', icon: 'leaf' },
+      { label: 'Cours terminés', value: '4/12', trend: '+2 cette semaine', tone: 'brand', icon: 'training' },
+      { label: 'Alertes météo', value: '0', trend: 'Aucun risque', tone: 'neutral', icon: 'cloud' }
+    ],
+    panels: [
+      {
+        title: 'Tâches prioritaires',
+        subtitle: 'Prochains 48h',
+        items: [
+          'Irrigation Parcelle B · Aujourd\'hui 18h',
+          'Application engrais · Demain matin',
+          'Récolte zone C · Jeudi'
+        ],
+        accent: 'leaf'
+      },
+      {
+        title: 'Cours suggérés',
+        subtitle: 'Selon votre profil',
+        items: [
+          'Optimisation irrigation goutte-à-goutte',
+          'Protection naturelle contre les nuisibles',
+          'Vendre au meilleur prix sur le marché'
+        ],
+        accent: 'indigo'
       }
     ]
   }

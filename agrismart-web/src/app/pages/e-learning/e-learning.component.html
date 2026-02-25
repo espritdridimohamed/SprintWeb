@@ -1,0 +1,120 @@
+<div class="page-header">
+  <div>
+    <div class="page-title">E-learning</div>
+    <div class="page-subtitle">Gestion des contenus pédagogiques et formations</div>
+  </div>
+  <button *ngIf="!isCreating" class="primary-btn dynamic-btn" (click)="startCreating()">
+    <span class="material-symbols-outlined">add_circle</span>
+    Ajouter un contenu pédagogique
+  </button>
+</div>
+
+<div class="e-learning-container" [class.empty]="!isCreating && courses.length === 0">
+  <!-- Status when not creating -->
+  <div *ngIf="!isCreating" class="dashboard-view">
+    <div class="grid-3">
+      <div class="card stat-card">
+        <div class="card-title">Cours total</div>
+        <div class="stat-value">24</div>
+      </div>
+      <div class="card stat-card">
+        <div class="card-title">Étudiants actifs</div>
+        <div class="stat-value">1,150</div>
+      </div>
+      <div class="card stat-card">
+        <div class="card-title">Taux d'achèvement</div>
+        <div class="stat-value">76%</div>
+      </div>
+    </div>
+
+    <div class="section-gap">
+      <div class="card">
+        <div class="card-header-flex">
+          <div class="card-title">Mes contenus récemment ajoutés</div>
+        </div>
+        <div class="list">
+          <div class="list-item course-item">
+            <div class="course-info">
+              <div class="course-name">Irrigation de précision</div>
+              <div class="course-meta">5 parties · 12 Mo</div>
+            </div>
+            <span class="tag">Publié</span>
+          </div>
+          <div class="list-item course-item">
+            <div class="course-info">
+              <div class="course-name">Gestion des sols arides</div>
+              <div class="course-meta">3 parties · 8 Mo</div>
+            </div>
+            <span class="tag">Brouillon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Creation Form -->
+  <div *ngIf="isCreating" class="creation-form card">
+    <div class="form-header">
+      <h3>Nouveau cours</h3>
+      <div class="actions">
+        <button class="ghost-btn" (click)="cancelCreating()">Annuler</button>
+        <button class="primary-btn" (click)="saveCourse()">Publier le cours</button>
+      </div>
+    </div>
+
+    <div class="form-body">
+      <div class="input-group">
+        <label>Titre global du cours</label>
+        <input type="text" [(ngModel)]="courseTitle" placeholder="Ex: Maîtrise de l'irrigation goutte-à-goutte">
+      </div>
+
+      <div class="parts-container">
+        <div *ngFor="let part of parts; let i = index" class="part-card">
+          <div class="part-header">
+            <h4>Partie {{ i + 1 }}</h4>
+            <button *ngIf="parts.length > 1" class="icon-btn delete-btn" (click)="removePart(i)">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+
+          <div class="input-group">
+            <input type="text" [(ngModel)]="part.title" placeholder="Titre de la partie (ex: Introduction aux systèmes)">
+          </div>
+
+          <div class="input-group content-area">
+            <textarea [(ngModel)]="part.content" placeholder="Contenu détaillé de la partie..."></textarea>
+            <div class="editor-toolbar">
+              <div class="toolbar-left">
+                <button class="tool-btn" title="Ajouter une vidéo">
+                  <span class="material-symbols-outlined">movie</span>
+                </button>
+                <button class="tool-btn" title="Ajouter un PDF">
+                  <span class="material-symbols-outlined">picture_as_pdf</span>
+                </button>
+                <button class="tool-btn" title="Ajouter une image">
+                  <span class="material-symbols-outlined">image</span>
+                </button>
+                <button class="tool-btn" title="Lien externe">
+                  <span class="material-symbols-outlined">link</span>
+                </button>
+              </div>
+              <div class="toolbar-right">
+                <button class="tool-btn">
+                  <span class="material-symbols-outlined">format_bold</span>
+                </button>
+                <button class="tool-btn">
+                  <span class="material-symbols-outlined">format_list_bulleted</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="add-part-btn" (click)="addPart()">
+        <span class="material-symbols-outlined">add</span>
+        Ajouter une partie
+      </button>
+    </div>
+  </div>
+</div>

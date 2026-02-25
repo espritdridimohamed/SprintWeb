@@ -1,0 +1,286 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">E-learning</div>
+        <div class="page-subtitle">{{ isManagementMode ? 'Gestion des contenus pédagogiques et formations' : 'Développez
+            vos compétences agricoles avec nos experts' }}</div>
+    </div>
+    <button *ngIf="isManagementMode && !isCreating" class="primary-btn dynamic-btn" (click)="startCreating()">
+        <span class="material-symbols-outlined">add_circle</span>
+        Ajouter un contenu
+    </button>
+</div>
+
+<!-- Student View (Modern Dashboard) -->
+<div *ngIf="!isManagementMode" class="student-dashboard fade-in">
+
+    <!-- Hero Section -->
+    <div class="learning-hero">
+        <div class="hero-content">
+            <span class="badge">ESPACE APPRENTISSAGE</span>
+            <h1>Développez vos compétences,<br><span class="gradient-text">Cultivez votre avenir.</span></h1>
+            <p>Accédez à des formations expertes conçues pour booster vos rendements et votre exploitation.</p>
+
+            <div class="hero-stats">
+                <div class="h-stat">
+                    <span class="val">12</span>
+                    <span class="lab">Cours suivis</span>
+                </div>
+                <div class="divider"></div>
+                <div class="h-stat">
+                    <span class="val">4h 30m</span>
+                    <span class="lab">Temps d'étude</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image-box">
+            <img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80"
+                alt="Farmer Learning">
+            <div class="floating-card">
+                <span class="material-symbols-outlined">trending_up</span>
+                <div>
+                    <div class="f-val">+24%</div>
+                    <div class="f-lab">Rendement moyen</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Learning Container -->
+    <div class="dashboard-sections">
+        <!-- Resume Section -->
+        <div class="resume-learning">
+            <div class="section-title-box">
+                <h2 class="section-title">Continuer l'apprentissage</h2>
+                <span class="view-all">Historique complet</span>
+            </div>
+
+            <div class="active-course-card card-premium" (click)="openCourse(activeCourse.id)">
+                <div class="ac-img">
+                    <img [src]="activeCourse.image" alt="Active Course">
+                    <div class="play-btn-mini">
+                        <span class="material-symbols-outlined">play_arrow</span>
+                    </div>
+                </div>
+                <div class="ac-content">
+                    <div class="ac-info">
+                        <span class="ac-label">EN COURS</span>
+                        <h3>{{ activeCourse.title }}</h3>
+                        <p>Prochaine leçon : <strong>{{ activeCourse.nextLesson }}</strong></p>
+                    </div>
+                    <div class="ac-progress">
+                        <div class="ac-prog-header">
+                            <span>Progression : {{ activeCourse.progress }}%</span>
+                        </div>
+                        <div class="p-bar">
+                            <div class="p-fill" [style.width.%]="activeCourse.progress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Catalog Sidebar / Search -->
+        <div class="catalog-header card-glass">
+            <div class="search-premium">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" placeholder="Que voulez-vous apprendre aujourd'hui ?">
+            </div>
+            <div class="filter-pills">
+                <button class="pill active">Tout explorer</button>
+                <button class="pill">Technique</button>
+                <button class="pill">Cultures</button>
+                <button class="pill">Elevage</button>
+                <button class="pill">Outils IA</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Catalog Grid -->
+    <div class="catalog-section">
+        <h2 class="section-title">Catalogue de formations</h2>
+        <div class="course-grid">
+            <div class="course-card-premium" *ngFor="let course of studentCourses" (click)="openCourse(course.id)">
+                <div class="c-image">
+                    <img [src]="course.image" [alt]="course.title">
+                    <div class="c-tag">{{ course.tag }}</div>
+                    <div class="c-overlay">
+                        <button class="view-btn">Détails <span
+                                class="material-symbols-outlined">chevron_right</span></button>
+                    </div>
+                </div>
+                <div class="c-body">
+                    <h3 class="c-title">{{ course.title }}</h3>
+                    <div class="c-footer">
+                        <div class="instructor">
+                            <img src="https://ui-avatars.com/api/?name={{course.instructor}}&background=6b9f3e&color=fff"
+                                alt="Avatar">
+                            <span>{{ course.instructor }}</span>
+                        </div>
+                        <div class="c-progress-mini">
+                            <svg class="prog-circle" viewBox="0 0 36 36">
+                                <path class="circle-bg"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="circle" [style.stroke-dasharray]="course.progress + ', 100'"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <span class="prog-val">{{ course.progress }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Management View -->
+<div *ngIf="isManagementMode" class="e-learning-container" [class.empty]="!isCreating && courses.length === 0">
+    <!-- Status when not creating -->
+    <div *ngIf="!isCreating" class="dashboard-view">
+        <div class="grid-3">
+            <div class="card stat-card">
+                <div class="card-title">Cours total</div>
+                <div class="stat-value">24</div>
+            </div>
+            <div class="card stat-card">
+                <div class="card-title">Étudiants actifs</div>
+                <div class="stat-value">1,150</div>
+            </div>
+            <div class="card stat-card">
+                <div class="card-title">Taux d'achèvement</div>
+                <div class="stat-value">76%</div>
+            </div>
+        </div>
+
+        <div class="section-gap">
+            <div class="card">
+                <div class="card-header-flex">
+                    <div class="card-title">Mes contenus récemment ajoutés</div>
+                </div>
+                <div class="list">
+                    <div *ngFor="let c of courses" class="list-item course-item">
+                        <div class="course-info">
+                            <div class="course-name">{{ c.name }}</div>
+                            <div class="course-meta">{{ c.parts }} parties · {{ c.size }}</div>
+                        </div>
+                        <span class="tag">{{ c.status }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Creation Form -->
+    <div *ngIf="isCreating" class="creation-form card">
+        <!-- ... existing form ... -->
+        <div class="form-header">
+            <h3>Nouveau cours</h3>
+            <div class="actions">
+                <button class="ghost-btn" (click)="cancelCreating()">Annuler</button>
+                <button class="primary-btn" (click)="saveCourse()">Publier le cours</button>
+            </div>
+        </div>
+
+        <div class="form-body">
+            <div class="input-group">
+                <label>Titre global du cours</label>
+                <input type="text" [(ngModel)]="courseTitle" placeholder="Ex: Maîtrise de l'irrigation goutte-à-goutte">
+            </div>
+
+            <div class="parts-container">
+                <div *ngFor="let part of parts; let i = index" class="part-card">
+                    <div class="part-header">
+                        <h4>Partie {{ i + 1 }}</h4>
+                        <button *ngIf="parts.length > 1" class="icon-btn delete-btn" (click)="removePart(i)">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" [(ngModel)]="part.title"
+                            placeholder="Titre de la partie (ex: Introduction aux systèmes)">
+                    </div>
+
+                    <div class="input-group content-area">
+                        <textarea [(ngModel)]="part.content" placeholder="Contenu détaillé de la partie..."></textarea>
+                        <div class="editor-toolbar">
+                            <div class="toolbar-left">
+                                <button class="tool-btn" title="Ajouter une vidéo">
+                                    <span class="material-symbols-outlined">movie</span>
+                                </button>
+                                <button class="tool-btn" title="Ajouter un PDF">
+                                    <span class="material-symbols-outlined">picture_as_pdf</span>
+                                </button>
+                                <button class="tool-btn" title="Ajouter une image">
+                                    <span class="material-symbols-outlined">image</span>
+                                </button>
+                                <button class="tool-btn" title="Lien externe">
+                                    <span class="material-symbols-outlined">link</span>
+                                </button>
+                            </div>
+                            <div class="toolbar-right">
+                                <button class="tool-btn">
+                                    <span class="material-symbols-outlined">format_bold</span>
+                                </button>
+                                <button class="tool-btn">
+                                    <span class="material-symbols-outlined">format_list_bulleted</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="add-part-btn" (click)="addPart()">
+                <span class="material-symbols-outlined">add</span>
+                Ajouter une partie
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Selection Popup / Modal -->
+<div *ngIf="isPublishPopupOpen" class="modal-overlay">
+    <!-- ... same as before ... -->
+    <div class="modal-content card">
+        <div class="modal-header">
+            <h3>Diffuser le cours</h3>
+            <button class="icon-btn" (click)="closePublishPopup()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <p class="modal-desc">Sélectionnez les membres qui recevront ce contenu pédagogique.</p>
+
+            <div class="selection-controls">
+                <div class="search-box">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="text" placeholder="Rechercher un membre...">
+                </div>
+                <label class="select-all">
+                    <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()">
+                    <span>Tout sélectionner</span>
+                </label>
+            </div>
+
+            <div class="members-list">
+                <div *ngFor="let member of members" class="member-item" [class.selected]="member.selected">
+                    <label>
+                        <input type="checkbox" [(ngModel)]="member.selected" (change)="onMemberSelect()">
+                        <div class="member-info">
+                            <span class="member-name">{{ member.name }}</span>
+                            <span class="member-role">{{ member.role }}</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="ghost-btn" (click)="closePublishPopup()">Annuler</button>
+            <button class="primary-btn" (click)="confirmPublish()" [disabled]="!hasSelectedMembers">
+                Confirmer la publication
+            </button>
+        </div>
+    </div>
+</div>

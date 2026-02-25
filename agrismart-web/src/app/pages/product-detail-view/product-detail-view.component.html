@@ -1,0 +1,160 @@
+<div class="product-container">
+    <!-- Small Breadcrumb -->
+    <nav class="breadcrumb">
+        <a (click)="goBack()">Accueil</a> >
+        <a (click)="goBack()">Marketplace</a> >
+        <a (click)="goBack()">Engrais & Fertilisants</a> >
+        <span>{{ product.name }}</span>
+    </nav>
+
+    <div class="product-main">
+        <!-- Left: Gallery -->
+        <div class="product-gallery">
+            <div class="main-image">
+                <img [src]="product.images[product.selectedImageIndex]" [alt]="product.name">
+            </div>
+            <div class="thumbnails">
+                <div class="thumb" *ngFor="let img of product.images; let i = index"
+                    [class.active]="i === product.selectedImageIndex" (click)="changeImage(i)">
+                    <img [src]="img" [alt]="'Preview ' + i">
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Info -->
+        <div class="product-info">
+            <div class="status-badge">
+                <span class="dot"></span> {{ product.status }}
+                <span class="ref">Ref: {{ product.ref }}</span>
+            </div>
+
+            <h1>{{ product.name }}</h1>
+
+            <div class="price-container">
+                <span class="current-price">{{ product.price }}</span>
+                <span class="old-price" *ngIf="product.oldPrice">{{ product.oldPrice }}</span>
+            </div>
+
+            <div class="seller-card">
+                <img [src]="product.seller.avatar" alt="Seller">
+                <div class="seller-details">
+                    <h3>{{ product.seller.name }}</h3>
+                    <div class="rating">
+                        ⭐ {{ product.seller.rating }} <span>({{ product.seller.reviews }} avis)</span>
+                    </div>
+                </div>
+                <button class="store-btn">Voir la boutique</button>
+            </div>
+
+            <p class="description">{{ product.description }}</p>
+
+            <ul class="specs">
+                <li *ngFor="let spec of product.specs">
+                    <span class="check">✔</span> <strong>{{ spec.label }}:</strong> {{ spec.value }}
+                </li>
+            </ul>
+
+            <div class="purchase-actions">
+                <div class="quantity-picker">
+                    <button (click)="quantity = (quantity > 1 ? quantity - 1 : 1)">-</button>
+                    <span>{{ quantity }}</span>
+                    <button (click)="quantity = quantity + 1">+</button>
+                </div>
+                <span class="stock-info">50 unités disponibles</span>
+            </div>
+
+            <div class="cta-btns">
+                <button class="buy-now">
+                    <span class="material-symbols-outlined">shopping_bag</span> Acheter maintenant
+                </button>
+                <button class="contact-seller">
+                    <span class="material-symbols-outlined">chat</span> Contacter le vendeur
+                </button>
+            </div>
+
+            <div class="trust-badges">
+                <div class="badge">
+                    <span class="material-symbols-outlined">local_shipping</span>
+                    <span>Livraison Rapide (24-48h)</span>
+                </div>
+                <div class="badge">
+                    <span class="material-symbols-outlined">verified_user</span>
+                    <span>Qualité Garantie par AgriSmart</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Tabs/Sections -->
+    <div class="details-section">
+        <div class="section-block">
+            <h2>Description détaillée</h2>
+            <p>Notre engrais organique premium est conçu pour les agriculteurs exigeants. Il favorise un enracinement
+                profond et une absorption optimale des nutriments par la plante. Contrairement aux engrais chimiques
+                agressifs, il améliore la structure du sol sur le long terme.</p>
+
+            <div class="details-grid">
+                <div class="detail-col">
+                    <h3>Conseils d'utilisation</h3>
+                    <ul>
+                        <li>Appliquer 200g par m² pour le potager.</li>
+                        <li>Incorporer légèrement au sol à une profondeur de 5-10cm.</li>
+                        <li>Arroser généreusement après application.</li>
+                    </ul>
+                </div>
+                <div class="detail-col">
+                    <h3>Composition</h3>
+                    <table class="comp-table">
+                        <tr *ngFor="let item of product.details">
+                            <td>{{ item.label }}</td>
+                            <td>{{ item.value }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Similar Products -->
+    <div class="similar-section">
+        <div class="section-header">
+            <h2>Produits similaires</h2>
+            <div class="arrows">
+                <span class="material-symbols-outlined">chevron_left</span>
+                <span class="material-symbols-outlined">chevron_right</span>
+            </div>
+        </div>
+        <div class="similar-grid">
+            <div class="similar-card" *ngFor="let p of similarProducts">
+                <div class="img-container">
+                    <img [src]="p.image" [alt]="p.name">
+                </div>
+                <div class="info">
+                    <h3>{{ p.name }}</h3>
+                    <p>Jardinage Urbain</p>
+                    <div class="footer">
+                        <span class="price">{{ p.price }}</span>
+                        <button class="cart-btn"><span class="material-symbols-outlined">shopping_cart</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Minimal Footer -->
+    <footer class="minimal-footer">
+        <div class="footer-content">
+            <div class="brand">
+                <span class="material-symbols-outlined">agriculture</span>
+                AgriSmart
+            </div>
+            <div class="links">
+                <a>Centre d'aide</a> | <a>Livraison</a> | <a>Retours</a>
+            </div>
+            <div class="social">
+                <span>fb</span> | <span>ig</span>
+            </div>
+        </div>
+        <p class="copyright">© 2026 AgriSmart. Tous droits réservés.</p>
+    </footer>
+</div>
