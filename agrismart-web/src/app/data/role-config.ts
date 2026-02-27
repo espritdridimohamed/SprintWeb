@@ -176,7 +176,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
       { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'IoT & Passerelles', route: '/app/iot', icon: 'iot' },
       { label: 'Logs & Audit', route: '/app/logs', icon: 'logs' },
-      { label: 'Modèles IA', route: '/app/ai', icon: 'ai' }
+      { label: 'Modéles IA', route: '/app/modeles-ia', icon: 'ai' }
     ],
     kpis: [
       { label: 'Utilisateurs actifs', value: '1,824', trend: '+6% ce mois', tone: 'info', icon: 'users' },
@@ -213,7 +213,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     orgLabel: 'Exploitation Familiale',
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
-      { label: 'Météo & IA', route: '/app/ai', icon: 'cloud' },
+      { label: 'Dashboard IA', route: '/app/dashboard-ia', icon: 'cloud' },
       { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'Gestion Parcelles', route: '/app/agri', icon: 'agri' },
       { label: 'Marché Agricole', route: '/app/market', icon: 'market' }

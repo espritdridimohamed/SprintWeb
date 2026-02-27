@@ -5,7 +5,10 @@ import { RoleSelectComponent } from './pages/role-select/role-select.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AgriComponent } from './pages/agri/agri.component';
 import { AiComponent } from './pages/ai/ai.component';
-import { SupportComponent } from './pages/support/support.component';
+import { DashboardIaComponent } from './pages/dashboard-ia/dashboard-ia.component';
+import {DiagnosticsListComponent} from './pages/diagnostics-list/diagnostics-list.component';
+import { SupportTicketsComponent } from './pages/support/support.component';
+import { TicketConversationComponent } from './pages/ticket-conversation/ticket-conversation.component';
 import { PlanningComponent } from './pages/planning/planning.component';
 import { MarketComponent } from './pages/market/market.component';
 import { TrainingComponent } from './pages/training/training.component';
@@ -23,6 +26,7 @@ import { LandingPageComponent } from './pages/landing-page/landing-page.componen
 import { MarketplaceViewComponent } from './pages/marketplace-view/marketplace-view.component';
 import { ProductDetailViewComponent } from './pages/product-detail-view/product-detail-view.component';
 import { CoursePlayerComponent } from './pages/course-player/course-player.component';
+import { ModelesIaComponent } from './pages/modeles-ia/modeles-ia.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -37,7 +41,11 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'agri', component: AgriComponent },
       { path: 'ai', component: AiComponent },
-      { path: 'support', component: SupportComponent },
+      { path: 'dashboard-ia', component: DashboardIaComponent },
+      { path: 'diagnostics', component: DiagnosticsListComponent },
+      { path: 'modeles-ia', component: ModelesIaComponent },
+      { path: 'support', component: SupportTicketsComponent },
+      { path: 'support/ticket/:id', component: TicketConversationComponent },
       { path: 'planning', component: PlanningComponent },
       { path: 'market', component: MarketComponent },
       { path: 'training', component: TrainingComponent },

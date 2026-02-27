@@ -1,0 +1,227 @@
+<div class="page-wrapper">
+  <div class="main-container">
+    
+
+
+
+    <!-- Main Content -->
+    <div class="content-container">
+      
+      <!-- Page Header -->
+      <div class="page-header">
+        <h2 class="main-title">Configuration des modèles IA</h2>
+        <p class="main-subtitle">Gestion et paramétrage des algorithmes de diagnostic</p>
+    </div>
+
+      <!-- Configuration Sections -->
+      <div class="config-sections">
+
+        <!-- Section 1: Model Selection -->
+        <section class="config-card">
+          <h3 class="section-title">Sélection du modèle</h3>
+          
+          <div class="form-group">
+            <label class="form-label">Version du modèle</label>
+            <select 
+              class="form-select"
+              [(ngModel)]="selectedModel"
+              (change)="onModelChange()"
+            >
+              <option *ngFor="let model of modelVersions" [value]="model">
+                {{ model }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group toggle-group">
+            <div class="toggle-info">
+              <label class="form-label toggle-label">État du modèle</label>
+              <p class="form-description">Activer ou désactiver le modèle IA</p>
+            </div>
+            <div class="toggle-switch" [class.active]="isModelActive" (click)="toggleModelState()">
+              <div class="toggle-slider"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 2: Confidence Threshold -->
+        <section class="config-card">
+          <h3 class="section-title">Seuil de confiance</h3>
+          
+          <div class="threshold-container">
+            <div class="threshold-header">
+              <label class="form-label">Seuil minimal pour validation automatique</label>
+              <span class="threshold-value">{{ confidenceThreshold }}%</span>
+            </div>
+
+            <!-- Range Slider -->
+            <div class="range-slider-container">
+              <input 
+                type="range" 
+                class="range-slider"
+                [min]="minThreshold"
+                [max]="maxThreshold"
+                [(ngModel)]="confidenceThreshold"
+                (input)="onThresholdChange($event)"
+              >
+              <div class="range-track">
+                <div 
+                  class="range-fill" 
+                  [style.width.%]="confidenceThreshold - minThreshold"
+                ></div>
+                <div 
+                  class="range-thumb" 
+                  [style.left.%]="confidenceThreshold - minThreshold"
+                ></div>
+              </div>
+              <div class="range-labels">
+                <span>{{ minThreshold }}%</span>
+                <span>75%</span>
+                <span>{{ maxThreshold }}%</span>
+              </div>
+            </div>
+
+            <!-- Warning Message -->
+            <div class="alert-box warning">
+              <span class="alert-icon">⚠️</span>
+              <div class="alert-content">
+                <strong>Attention:</strong> Les diagnostics en dessous de ce seuil nécessiteront une validation manuelle par un technicien.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 3: Performance Statistics -->
+        <section class="config-card">
+          <h3 class="section-title">Statistiques de performance</h3>
+          
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card precision">
+              <p class="stat-label">Précision actuelle</p>
+              <p class="stat-value" [ngClass]="getPerformanceClass(performanceStats.precision, 'precision')">
+                {{ performanceStats.precision }}%
+              </p>
+            </div>
+            
+            <div class="stat-card diagnostics">
+              <p class="stat-label">Diagnostics totaux</p>
+              <p class="stat-value">{{ formatNumber(performanceStats.totalDiagnostics) }}</p>
+            </div>
+            
+            <div class="stat-card time">
+              <p class="stat-label">Temps moyen</p>
+              <p class="stat-value" [ngClass]="getPerformanceClass(performanceStats.avgTime, 'time')">
+                {{ performanceStats.avgTime }}s
+              </p>
+            </div>
+          </div>
+
+          <!-- Precision Evolution Chart -->
+          <div class="chart-section">
+            <h4 class="chart-title">Évolution de la précision</h4>
+            
+            <div class="chart-container">
+              <svg class="precision-chart" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <!-- Grid Lines -->
+                <line x1="0" y1="25" x2="100" y2="25" class="grid-line"/>
+                <line x1="0" y1="50" x2="100" y2="50" class="grid-line"/>
+                <line x1="0" y1="75" x2="100" y2="75" class="grid-line"/>
+                
+                <!-- Y-axis Labels -->
+                <text x="-2" y="20" class="axis-label">95</text>
+                <text x="-2" y="45" class="axis-label">88</text>
+                <text x="-2" y="95" class="axis-label">80</text>
+                
+                <!-- Area Fill -->
+                <polygon 
+                  [attr.points]="getChartArea()"
+                  class="chart-fill"
+                />
+                
+                <!-- Line -->
+                <polyline 
+                  [attr.points]="getChartPoints()"
+                  class="chart-line"
+                />
+                
+                <!-- Data Points -->
+                <circle 
+                  *ngFor="let point of precisionData; let i = index"
+                  [attr.cx]="(i / (precisionData.length - 1)) * 100"
+                  [attr.cy]="100 - ((point.value - 75) / 20) * 80"
+                  r="1.5"
+                  class="data-point"
+                />
+              </svg>
+
+              <!-- X-axis Labels -->
+              <div class="chart-x-labels">
+                <span *ngFor="let point of precisionData" class="x-label">
+                  {{ point.month }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 4: Training Information -->
+        <section class="config-card">
+          <h3 class="section-title">Informations d'entraînement</h3>
+          
+          <div class="info-grid">
+            <div class="info-row">
+              <span class="info-label">Dernier entraînement</span>
+              <span class="info-value">{{ formatDate(trainingInfo.lastTraining) }}</span>
+            </div>
+            
+            <div class="info-row">
+              <span class="info-label">Nombre d'images d'entraînement</span>
+              <span class="info-value">{{ formatNumber(trainingInfo.imagesCount) }}</span>
+            </div>
+            
+            <div class="info-row">
+              <span class="info-label">Nombre de classes</span>
+              <span class="info-value">{{ trainingInfo.classesCount }} maladies</span>
+            </div>
+            
+            <div class="info-row highlighted">
+              <span class="info-label">Prochain entraînement prévu</span>
+              <span class="info-value">{{ formatDate(trainingInfo.nextTraining) }}</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button 
+          class="btn-save"
+          [class.saving]="isSaving"
+          [disabled]="isSaving"
+          (click)="saveConfiguration()"
+        >
+          <span class="btn-icon" *ngIf="!isSaving">💾</span>
+          <span class="spinner" *ngIf="isSaving"></span>
+          <span class="btn-text">{{ isSaving ? 'Enregistrement...' : 'Enregistrer la configuration' }}</span>
+        </button>
+        
+        <button 
+          class="btn-cancel"
+          [disabled]="isSaving"
+          (click)="cancelChanges()"
+        >
+          Annuler
+        </button>
+      </div>
+
+      <!-- Success Confirmation -->
+      <div class="confirmation-toast" *ngIf="showSaveConfirmation">
+        <span class="toast-icon">✅</span>
+        <span class="toast-message">Configuration enregistrée avec succès</span>
+      </div>
+
+    </div>
+  </div>
+</div>

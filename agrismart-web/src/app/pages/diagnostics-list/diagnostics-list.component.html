@@ -1,0 +1,144 @@
+<div class="page-wrapper">
+  <!-- Sidebar (part of app layout) -->
+  
+  <div class="main-container">
+    
+    <!-- Top Navigation Tabs -->
+    <nav class="top-nav-tabs">
+      <a class="nav-tab" routerLink="/app/dashboard-ia">Dashboard IA</a>
+      <a class="nav-tab" routerLink="/app/diagnostics">Liste diagnostics</a>
+
+    </nav>
+
+    <!-- Main Content -->
+    <div class="content-container">
+      
+      <!-- Page Header -->
+      <div class="page-header">
+        <h2 class="main-title">Liste des diagnostics</h2>
+        <p class="main-subtitle">Historique complet des analyses IA</p>
+      </div>
+
+      <!-- Filters Bar -->
+      <div class="filters-container">
+        <div class="filter-group search-filter">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            placeholder="Rechercher..." 
+            class="filter-input"
+            [(ngModel)]="searchText"
+            (input)="onSearch()"
+          >
+        </div>
+
+        <div class="filter-group">
+          <select 
+            class="filter-select"
+            [(ngModel)]="selectedCulture"
+            (change)="onCultureChange()"
+          >
+            <option *ngFor="let culture of cultures" [value]="culture.value">
+              {{ culture.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <select 
+            class="filter-select"
+            [(ngModel)]="selectedStatut"
+            (change)="onStatutChange()"
+          >
+            <option *ngFor="let statut of statuts" [value]="statut.value">
+              {{ statut.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group date-filter">
+          <span class="calendar-icon">📅</span>
+          <input 
+            type="text" 
+            placeholder="jj/mm/aaaa" 
+            class="filter-input date-input"
+            [(ngModel)]="selectedDate"
+            (change)="onDateChange()"
+          >
+        </div>
+      </div>
+
+      <!-- Diagnostics Grid -->
+      <div class="diagnostics-grid">
+        <div 
+          class="diagnostic-card" 
+          *ngFor="let diagnostic of filteredDiagnostics"
+          [class.fade-in]="true"
+        >
+          <!-- Card Image -->
+          <div class="card-image">
+            <img [src]="diagnostic.image" [alt]="diagnostic.culture" class="plant-image">
+            <div class="image-overlay"></div>
+          </div>
+
+          <!-- Card Content -->
+          <div class="card-content">
+            <!-- Header with Title and Status -->
+            <div class="card-header">
+              <h3 class="card-title">{{ diagnostic.culture }}</h3>
+              <span 
+                class="status-badge" 
+                [ngClass]="getStatutClass(diagnostic.statut)"
+              >
+                {{ diagnostic.statut }}
+              </span>
+            </div>
+
+            <!-- Disease Name -->
+            <p class="disease-name">{{ diagnostic.maladie }}</p>
+
+            <!-- Confidence Bar -->
+            <div class="confidence-section">
+              <div class="confidence-header">
+                <span class="confidence-label">Confiance</span>
+                <span 
+                  class="confidence-value" 
+                  [ngClass]="getConfidenceClass(diagnostic.confiance)"
+                >
+                  {{ diagnostic.confiance }}%
+                </span>
+              </div>
+              <div class="confidence-bar">
+                <div 
+                  class="confidence-fill" 
+                  [ngClass]="getConfidenceClass(diagnostic.confiance)"
+                  [style.width.%]="diagnostic.confiance"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Footer with Date and Action Button -->
+            <div class="card-footer">
+              <span class="card-date">{{ formatDate(diagnostic.date) }}</span>
+              <button 
+                class="view-btn"
+                (click)="viewDetail(diagnostic.id)"
+              >
+                <span class="btn-icon">👁️</span>
+                <span class="btn-text">Voir détail</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="filteredDiagnostics.length === 0">
+        <div class="empty-icon">🔍</div>
+        <h3 class="empty-title">Aucun diagnostic trouvé</h3>
+        <p class="empty-text">Essayez de modifier vos filtres de recherche</p>
+      </div>
+
+    </div>
+  </div>
+</div>

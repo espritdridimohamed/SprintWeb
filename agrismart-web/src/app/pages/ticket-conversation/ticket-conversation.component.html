@@ -1,0 +1,107 @@
+<div class="conversation-wrapper">
+  
+  <!-- Conversation Header -->
+  <header class="conversation-header">
+    <div class="header-left">
+      <button class="back-button" (click)="goBack()">
+        <span class="back-icon">←</span>
+      </button>
+      <div class="ticket-info">
+        <h1 class="client-name">{{ ticket.client }}</h1>
+        <p class="parcelle-info">Parcelle: {{ ticket.parcelle }}</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <span class="urgence-badge">{{ getUrgenceLabel() }}</span>
+      
+      <select 
+        class="status-select"
+        [(ngModel)]="ticket.statut"
+        (change)="changeStatus(ticket.statut)"
+      >
+        <option value="en-attente">En attente</option>
+        <option value="en-cours">En cours</option>
+        <option value="resolu">Résolu</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- Messages Container -->
+  <div class="messages-container">
+    <div class="messages-wrapper">
+      
+      <div 
+        class="message-group"
+        *ngFor="let message of messages"
+        [class.client-message]="message.sender === 'client'"
+        [class.technicien-message]="message.sender === 'technicien'"
+      >
+        <!-- Avatar -->
+        <div class="message-avatar" *ngIf="message.sender === 'client'">
+          <span class="avatar-icon">👤</span>
+        </div>
+
+        <!-- Message Content -->
+        <div class="message-content">
+          <div class="message-header" *ngIf="message.sender === 'client'">
+            <span class="sender-name">{{ message.senderName }}</span>
+          </div>
+
+          <!-- Text Message -->
+          <div class="message-bubble" *ngIf="message.content">
+            <p class="message-text">{{ message.content }}</p>
+          </div>
+
+          <!-- Image Message -->
+          <div class="message-image" *ngIf="message.image">
+            <img [src]="message.image" alt="Image partagée" class="shared-image">
+          </div>
+
+          <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Message Input -->
+  <div class="message-input-container">
+    <button class="attach-button" (click)="triggerFileInput()">
+      <span class="attach-icon">📎</span>
+    </button>
+
+    <input 
+      type="file" 
+      id="file-input"
+      class="file-input"
+      accept="image/*"
+      (change)="onFileSelected($event)"
+      hidden
+    >
+
+    <input 
+      type="text"
+      class="message-input"
+      placeholder="Écrire un message..."
+      [(ngModel)]="newMessage"
+      (keypress)="onKeyPress($event)"
+    >
+
+    <button 
+      class="send-button"
+      [disabled]="!newMessage.trim() && !selectedFile"
+      (click)="sendMessage()"
+    >
+      <span class="send-icon">✈️</span>
+      <span class="send-text">Envoyer</span>
+    </button>
+  </div>
+
+  <!-- File Preview (if file selected) -->
+  <div class="file-preview" *ngIf="selectedFile">
+    <span class="preview-text">📎 {{ selectedFile.name }}</span>
+    <button class="remove-file" (click)="selectedFile = null">✕</button>
+  </div>
+
+</div>

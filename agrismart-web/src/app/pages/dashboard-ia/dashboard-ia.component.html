@@ -1,0 +1,127 @@
+<div class="page-wrapper">
+  <!-- Sidebar (part of app layout) -->
+  
+  <!-- Main Content Area -->
+  <div class="main-content">
+    
+    <!-- Top Navigation Tabs -->
+    <nav class="top-nav-tabs">
+      <a class="nav-tab active" routerLink="/app/dashboard-ia">Dashboard IA</a>
+      <a class="nav-tab" routerLink="/app/diagnostics">Liste diagnostics</a>
+
+    </nav>
+
+    <!-- Page Content -->
+    <div class="content-container">
+      
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="header-left">
+          <h1 class="page-title">Intelligence Artificielle & Aide à la décision</h1>
+          <p class="page-subtitle">Diagnostics et recommandations personnalisées</p>
+        </div>
+        <button class="btn-nouveau" (click)="createNewDiagnostic()">
+          <span class="btn-icon">+</span>
+          <span class="btn-text">Nouveau diagnostic</span>
+        </button>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon">📈</div>
+          <div class="stat-content">
+            <h2 class="stat-value">{{ stats.totalDiagnostics }}</h2>
+            <p class="stat-label">Diagnostics totaux</p>
+          </div>
+        </div>
+
+        <div class="stat-card green">
+          <div class="stat-icon">✓</div>
+          <div class="stat-content">
+            <h2 class="stat-value">{{ stats.tauxPrecision }}%</h2>
+            <p class="stat-label">Taux de précision</p>
+          </div>
+        </div>
+
+        <div class="stat-card purple">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-content">
+            <h2 class="stat-value">{{ stats.aujourdhui }}</h2>
+            <p class="stat-label">Aujourd'hui</p>
+          </div>
+        </div>
+
+        <div class="stat-card orange">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-content">
+            <h2 class="stat-value">{{ stats.aVerifier }}</h2>
+            <p class="stat-label">À vérifier</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div class="content-grid">
+        
+        <!-- Left Column: Recent Diagnostics -->
+        <div class="section-card">
+          <h3 class="section-title">Diagnostics récents</h3>
+          
+          <div class="diagnostics-list">
+            <div 
+              class="diagnostic-item"
+              *ngFor="let diag of diagnosticsRecents"
+              (click)="viewDiagnosticDetail(diag.id)"
+            >
+              <div class="diagnostic-header">
+                <div class="diagnostic-info">
+                  <h4 class="culture-name">{{ diag.culture }}</h4>
+                  <p class="maladie-name">{{ diag.maladie }}</p>
+                </div>
+                <span class="statut-badge" [ngClass]="getStatutClass(diag.statut)">
+                  {{ diag.statut }}
+                </span>
+              </div>
+
+              <div class="confidence-bar-container">
+                <div class="confidence-bar">
+                  <div 
+                    class="confidence-fill"
+                    [ngClass]="getConfidenceClass(diag.confiance)"
+                    [style.width.%]="diag.confiance"
+                  ></div>
+                </div>
+                <span class="confidence-value" [ngClass]="getConfidenceClass(diag.confiance)">
+                  {{ diag.confiance }}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Priority Recommendations -->
+        <div class="section-card">
+          <h3 class="section-title">Recommandations prioritaires</h3>
+          
+          <div class="recommendations-list">
+            <div 
+              class="recommendation-item"
+              *ngFor="let rec of recommendations"
+            >
+              <div class="recommendation-header">
+                <h4 class="recommendation-title">{{ rec.titre }}</h4>
+                <span class="urgence-badge" [ngClass]="getUrgenceClass(rec.urgence)">
+                  {{ rec.urgence }}
+                </span>
+              </div>
+              <p class="parcelle-info">Parcelle: {{ rec.parcelle }}</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

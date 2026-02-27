@@ -1,26 +1,132 @@
-<div class="page-header">
-  <div>
-    <div class="page-title">Appui Technique</div>
-    <div class="page-subtitle">Gestion des demandes et interventions terrain</div>
-  </div>
-  <button class="primary-btn">Créer un ticket</button>
-</div>
+<div class="page-wrapper">
+  <div class="main-container">
+    
+   
+    <!-- Main Content -->
+    <div class="content-container">
+      
+      <!-- Page Header -->
+      <div class="page-header">
+        <h2 class="main-title">Demandes d'assistance</h2>
+        <p class="main-subtitle">Gestion des tickets de support technique</p>
+      </div>
 
-<div class="grid-2 section-gap">
-  <div class="card">
-    <div class="card-title">Demandes en cours</div>
-    <div class="list">
-      <div class="list-item">Ahmed Benali · Urgent · Parcelle A-12</div>
-      <div class="list-item">Fatima Zahra · Moyen · Parcelle B-05</div>
-      <div class="list-item">Ali Mansour · Normal · Parcelle C-23</div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Fil de discussion</div>
-    <div class="chat">
-      <div class="chat-bubble">Besoin d'aide pour maladie des feuilles.</div>
-      <div class="chat-bubble reply">Analyse en cours, recommandations sous 2h.</div>
-      <div class="chat-bubble">Merci, photos envoyées.</div>
+      <!-- Tickets Kanban Board -->
+      <div class="kanban-board">
+        
+        <!-- Column: En Attente -->
+        <div class="kanban-column">
+          <div class="column-header en-attente">
+            <div class="header-left">
+              <span class="status-dot"></span>
+              <h3 class="column-title">En attente</h3>
+            </div>
+            <span class="ticket-count">{{ getCountByStatus('en-attente') }}</span>
+          </div>
+
+          <div class="tickets-list">
+            <div 
+              class="ticket-card"
+              *ngFor="let ticket of getTicketsByStatus('en-attente')"
+              (click)="openTicket(ticket)"
+            >
+              <div class="ticket-header">
+                <h4 class="client-name">{{ ticket.client }}</h4>
+                <span class="urgence-badge" [ngClass]="getUrgenceClass(ticket.urgence)">
+                  {{ ticket.urgence }}
+                </span>
+              </div>
+
+              <p class="parcelle-info">Parcelle: {{ ticket.parcelle }}</p>
+              <p class="ticket-subject">{{ ticket.sujet }}</p>
+
+              <div class="ticket-footer">
+                <div class="messages-info">
+                  <span class="message-icon">💬</span>
+                  <span class="message-count">{{ ticket.messagesCount }}</span>
+                </div>
+                <span class="last-activity">{{ ticket.lastActivity }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column: En Cours -->
+        <div class="kanban-column">
+          <div class="column-header en-cours">
+            <div class="header-left">
+              <span class="status-dot"></span>
+              <h3 class="column-title">En cours</h3>
+            </div>
+            <span class="ticket-count">{{ getCountByStatus('en-cours') }}</span>
+          </div>
+
+          <div class="tickets-list">
+            <div 
+              class="ticket-card"
+              *ngFor="let ticket of getTicketsByStatus('en-cours')"
+              (click)="openTicket(ticket)"
+            >
+              <div class="ticket-header">
+                <h4 class="client-name">{{ ticket.client }}</h4>
+                <span class="urgence-badge" [ngClass]="getUrgenceClass(ticket.urgence)">
+                  {{ ticket.urgence }}
+                </span>
+              </div>
+
+              <p class="parcelle-info">Parcelle: {{ ticket.parcelle }}</p>
+              <p class="ticket-subject">{{ ticket.sujet }}</p>
+
+              <div class="ticket-footer">
+                <div class="messages-info">
+                  <span class="message-icon">💬</span>
+                  <span class="message-count">{{ ticket.messagesCount }}</span>
+                </div>
+                <span class="last-activity">{{ ticket.lastActivity }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column: Résolu -->
+        <div class="kanban-column">
+          <div class="column-header resolu">
+            <div class="header-left">
+              <span class="status-dot"></span>
+              <h3 class="column-title">Résolu</h3>
+            </div>
+            <span class="ticket-count">{{ getCountByStatus('resolu') }}</span>
+          </div>
+
+          <div class="tickets-list">
+            <div 
+              class="ticket-card"
+              *ngFor="let ticket of getTicketsByStatus('resolu')"
+              (click)="openTicket(ticket)"
+            >
+              <div class="ticket-header">
+                <h4 class="client-name">{{ ticket.client }}</h4>
+                <span class="urgence-badge" [ngClass]="getUrgenceClass(ticket.urgence)">
+                  {{ ticket.urgence }}
+                </span>
+              </div>
+
+              <p class="parcelle-info">Parcelle: {{ ticket.parcelle }}</p>
+              <p class="ticket-subject">{{ ticket.sujet }}</p>
+
+              <div class="ticket-footer">
+                <div class="messages-info">
+                  <span class="message-icon">💬</span>
+                  <span class="message-count">{{ ticket.messagesCount }}</span>
+                </div>
+                <span class="last-activity">{{ ticket.lastActivity }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   </div>
 </div>
