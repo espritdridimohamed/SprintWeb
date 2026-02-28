@@ -1,0 +1,167 @@
+<div class="page-header">
+  <div>
+    <div class="page-title">Users Management</div>
+    <div class="page-subtitle">Create, manage roles, and control user lifecycle</div>
+  </div>
+  <button class="primary-btn" (click)="openCreateUser()">
+    <span class="material-symbols-outlined">person_add</span>
+    Create User
+  </button>
+</div>
+
+<!-- Create User Form -->
+<div class="card create-user-card" *ngIf="isCreateModalOpen">
+  <div class="card-title">
+    <span class="material-symbols-outlined">person_add</span>
+    New Account
+  </div>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label>First Name</label>
+      <input type="text" [(ngModel)]="firstName" placeholder="John" />
+    </div>
+
+    <div class="form-group">
+      <label>Last Name</label>
+      <input type="text" [(ngModel)]="lastName" placeholder="Doe" />
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="email" placeholder="john@agrismart.com" />
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" [(ngModel)]="password" placeholder="••••••••" />
+    </div>
+
+    <div class="form-group">
+      <label>Role</label>
+      <select [(ngModel)]="selectedRole">
+        <option *ngFor="let role of roles" [value]="role.name">{{ role.name }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Organization</label>
+      <input type="text" [(ngModel)]="organization" placeholder="AgriSmart" />
+    </div>
+  </div>
+
+  <div class="feedback error" *ngIf="submitError">{{ submitError }}</div>
+  <div class="feedback success" *ngIf="submitSuccess">{{ submitSuccess }}</div>
+
+  <div class="form-actions">
+    <button class="secondary-btn" (click)="closeCreateUser()">Cancel</button>
+    <button class="primary-btn" (click)="createUser()" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Creating...' : 'Create User' }}
+    </button>
+  </div>
+</div>
+
+<!-- Users Table -->
+<div class="card section-gap" *ngIf="!isLoading">
+  <div class="card-title">
+    <span class="material-symbols-outlined">group</span>
+    All Users
+  </div>
+
+  <div class="table-toolbar">
+    <div class="toolbar-search">
+      <span class="material-symbols-outlined">search</span>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onFiltersChanged()"
+        placeholder="Search by name, email or role"
+      />
+    </div>
+
+    <select [(ngModel)]="selectedRoleFilter" (ngModelChange)="onFiltersChanged()">
+      <option value="all">All Roles</option>
+      <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+    </select>
+
+    <select [(ngModel)]="selectedStatusFilter" (ngModelChange)="onFiltersChanged()">
+      <option value="all">All Status</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+
+    <select [(ngModel)]="selectedDateFilter" (ngModelChange)="onFiltersChanged()">
+      <option value="all">All Dates</option>
+      <option value="today">Today</option>
+      <option value="7d">Last 7 days</option>
+      <option value="30d">Last 30 days</option>
+    </select>
+
+    <button class="secondary-btn" (click)="resetFilters()">Reset</button>
+  </div>
+
+  <div class="table-meta">
+    <span>Results: {{ totalFilteredUsers }}</span>
+    <span *ngIf="totalFilteredUsers > 0">Showing {{ pageStartItem }}-{{ pageEndItem }}</span>
+  </div>
+
+  <div class="users-table-wrap" *ngIf="users.length > 0; else emptyUsers">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Current Role</th>
+          <th>Registered</th>
+          <th>New Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of paginatedUsers">
+          <td>{{ user.firstName }} {{ user.lastName }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="role-badge">{{ getRoleNameById(user.roleId) }}</span>
+          </td>
+          <td>{{ getUserCreatedAtLabel(user) }}</td>
+          <td>
+            <select class="role-select" [ngModel]="getPendingRole(user)" (ngModelChange)="setPendingRole(user, $event)">
+              <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+            </select>
+          </td>
+          <td>
+            <div class="actions">
+              <button class="icon-action edit" (click)="saveUserRole(user)" title="Save role change">
+                <span class="material-symbols-outlined">save</span>
+              </button>
+              <button class="icon-action delete" (click)="deleteUser(user)" title="Delete user">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="table-empty" *ngIf="totalFilteredUsers === 0">No users found for these filters.</div>
+
+    <div class="pagination" *ngIf="totalFilteredUsers > pageSize">
+      <button class="secondary-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+      <button
+        class="page-btn"
+        *ngFor="let page of visiblePageNumbers"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      <button class="secondary-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
+    </div>
+  </div>
+
+  <ng-template #emptyUsers>
+    <div class="list">
+      <div class="list-item">No users in database.</div>
+    </div>
+  </ng-template>
+</div>
