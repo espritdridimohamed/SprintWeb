@@ -1,16 +1,21 @@
 .signup-page {
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 
 .signup-card {
   background: #fff;
-  padding: 48px;
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+  padding: 42px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  max-width: 620px;
+  max-width: 560px;
   margin: 0 auto;
   width: 100%;
 }
@@ -172,53 +177,9 @@ input[type='password']:focus {
   }
 }
 
-.signup-info {
-  padding: 60px;
-  color: #173015;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 16px;
-  background: linear-gradient(140deg, rgba(55, 95, 35, 0.92), rgba(37, 72, 31, 0.96));
-}
-
-.signup-info h2 {
-  color: #f4ffe9;
-  font-size: 24px;
-  margin: 0;
-}
-
-.signup-info p,
-.signup-info li {
-  color: #d4e8c6;
-}
-
-.signup-info ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 10px;
-}
-
-.signup-info li::before {
-  content: '✓';
-  margin-right: 8px;
-  color: #d8ff9c;
-}
-
 @media (max-width: 960px) {
-  .signup-page {
-    grid-template-columns: 1fr;
-  }
-
   .signup-card {
-    padding: 36px 24px;
-  }
-
-  .signup-info {
-    order: -1;
-    padding: 36px 24px;
+    padding: 34px 24px;
   }
 
   .form-grid {

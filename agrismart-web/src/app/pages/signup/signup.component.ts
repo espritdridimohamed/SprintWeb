@@ -16,6 +16,7 @@ export class SignupComponent {
   lastName = '';
   email = '';
   password = '';
+  confirmPassword = '';
   organization = '';
   isLoading = false;
   errorMessage = '';
@@ -24,9 +25,20 @@ export class SignupComponent {
   constructor(private authService: AuthService, private router: Router) { }
 
   onSignup(): void {
-    this.isLoading = true;
     this.errorMessage = '';
     this.socialMessage = '';
+
+    if (!this.firstName || !this.lastName || !this.email || !this.password || !this.confirmPassword) {
+      this.errorMessage = 'Veuillez remplir tous les champs obligatoires.';
+      return;
+    }
+
+    if (this.password !== this.confirmPassword) {
+      this.errorMessage = 'Les mots de passe ne correspondent pas.';
+      return;
+    }
+
+    this.isLoading = true;
 
     this.authService
       .register({

@@ -6,56 +6,64 @@
 <div class="content-area">
   <div class="card logs-loading" *ngIf="isLoading">Chargement des logs...</div>
 
-  <!-- Activity Summary Section -->
-  <div class="grid-2" *ngIf="!isLoading">
+  <div class="grid-4" *ngIf="!isLoading">
+    <div class="card metric-card">
+      <div class="metric-label">Connexions (24h)</div>
+      <div class="metric-value">{{ todayConnections }}</div>
+    </div>
+    <div class="card metric-card">
+      <div class="metric-label">Logs / jour</div>
+      <div class="metric-value">{{ logsPerDay }}</div>
+    </div>
+    <div class="card metric-card">
+      <div class="metric-label">Comptes actifs</div>
+      <div class="metric-value">{{ activeUsers }}</div>
+    </div>
+    <div class="card metric-card">
+      <div class="metric-label">Score sécurité</div>
+      <div class="metric-value">{{ securityScore }}%</div>
+    </div>
+  </div>
+
+  <div class="grid-2 logs-section-gap" *ngIf="!isLoading">
     <div class="card">
-      <h3 class="card-title">Événements du jour</h3>
-      <div class="list">
-        <div class="list-item">
-          <span class="material-symbols-outlined icon icon-info">login</span>
-          <span class="item-label">Connexions utilisateurs</span>
-          <span class="tag tag-info">{{ todayConnections }}</span>
-        </div>
-        <div class="list-item">
-          <span class="material-symbols-outlined icon icon-success">edit</span>
-          <span class="item-label">Modifications données</span>
-          <span class="tag tag-success">{{ dataChanges }}</span>
-        </div>
-        <div class="list-item">
-          <span class="material-symbols-outlined icon icon-warning">warning</span>
-          <span class="item-label">Erreurs système</span>
-          <span class="tag tag-warning">{{ systemErrors }}</span>
+      <h3 class="card-title">Tendance des inscriptions (7 jours)</h3>
+      <div class="mini-bars">
+        <div class="mini-bar-col" *ngFor="let point of signupTrendLast7Days">
+          <div class="mini-bar" [style.height.%]="point.height"></div>
+          <div class="mini-bar-value">{{ point.count }}</div>
+          <div class="mini-bar-label">{{ point.label }}</div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h3 class="card-title">Métriques audit</h3>
-      <div class="list">
-        <div class="list-item">
-          <span class="stat-label">Logs générés/jour</span>
-          <span class="stat-value">{{ logsPerDay }}</span>
-        </div>
-        <div class="list-item">
-          <span class="stat-label">Espace stockage</span>
-          <span class="stat-value">{{ storageLabel }}</span>
-        </div>
-        <div class="list-item">
-          <span class="stat-label">Rétention jours</span>
-          <span class="stat-value">{{ retentionDays }}</span>
+      <h3 class="card-title">Répartition activité par rôle</h3>
+      <div class="role-chart">
+        <div class="role-chart-row" *ngFor="let item of roleActivityChart">
+          <div class="role-name">{{ item.role }}</div>
+          <div class="role-track">
+            <div class="role-fill" [style.width.%]="item.width"></div>
+          </div>
+          <div class="role-count">{{ item.count }}</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Recent Audit Trail Section -->
   <div class="grid-2 logs-section-gap" *ngIf="!isLoading">
     <div class="card">
       <h3 class="card-title">Activités récentes</h3>
-      <div class="list">
+      <div class="activity-list">
         <div class="list-item" *ngFor="let activity of recentActivities">
-          <span class="material-symbols-outlined icon icon-neutral">account_circle</span>
-          <span class="item-label">{{ activity }}</span>
+          <div class="activity-main">
+            <span class="material-symbols-outlined icon icon-neutral">account_circle</span>
+            <div>
+              <div class="item-label">{{ activity.actor }} · {{ activity.role }}</div>
+              <div class="item-sub">{{ activity.action }}</div>
+            </div>
+          </div>
+          <span class="activity-time">{{ activity.timestamp }}</span>
         </div>
         <div class="list-item" *ngIf="recentActivities.length === 0">Aucune activité récente</div>
       </div>
@@ -67,6 +75,20 @@
         <div class="list-item" *ngFor="let alert of securityAlerts">
           <span class="material-symbols-outlined icon icon-success">check_circle</span>
           <span class="item-label">{{ alert }}</span>
+        </div>
+        <div class="security-meta">
+          <div class="security-line">
+            <span>Stockage estimé</span>
+            <strong>{{ storageLabel }}</strong>
+          </div>
+          <div class="security-line">
+            <span>Rétention</span>
+            <strong>{{ retentionDays }} jours</strong>
+          </div>
+          <div class="security-line">
+            <span>Erreurs système</span>
+            <strong>{{ systemErrors }}</strong>
+          </div>
         </div>
       </div>
     </div>

@@ -108,6 +108,14 @@
   font-size: 13px;
 }
 
+.avatar-image {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--card-border);
+}
+
 @media (max-width: 960px) {
   .topbar {
     flex-direction: column;

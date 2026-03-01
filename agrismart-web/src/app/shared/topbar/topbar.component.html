@@ -23,7 +23,8 @@
         <div class="profile-name">{{ profileName }}</div>
         <div class="profile-org">{{ orgLabel }}</div>
       </div>
-      <div class="avatar">{{ profileInitials }}</div>
+      <div class="avatar" *ngIf="!profilePictureUrl">{{ profileInitials }}</div>
+      <img class="avatar-image" *ngIf="profilePictureUrl" [src]="profilePictureUrl" alt="Avatar" />
     </button>
   </div>
 </header>

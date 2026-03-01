@@ -10,7 +10,12 @@
 <div class="grid-2" *ngIf="!isLoading">
   <div class="card">
     <div class="profile-header">
-      <div class="avatar-preview">{{ avatarInitials }}</div>
+      <label class="avatar-upload" title="Changer la photo">
+        <input type="file" accept="image/*" (change)="onPhotoSelected($event)" />
+        <div class="avatar-preview" *ngIf="!profilePictureUrl">{{ avatarInitials }}</div>
+        <img class="avatar-preview-image" *ngIf="profilePictureUrl" [src]="profilePictureUrl" alt="Photo de profil" />
+        <span class="avatar-edit-hint">Modifier</span>
+      </label>
       <div>
         <div class="profile-name">{{ firstName }} {{ lastName }}</div>
         <div class="profile-email">{{ email }}</div>
@@ -40,8 +45,13 @@
         <input type="text" [(ngModel)]="accountType" placeholder="Ex: Standard, Premium" />
       </div>
       <div class="form-group full-width">
-        <label>URL photo de profil</label>
-        <input type="text" [(ngModel)]="profilePictureUrl" placeholder="https://..." />
+        <label>Photo de profil</label>
+        <div class="photo-controls">
+          <button class="secondary-btn" type="button" (click)="removePhoto()" [disabled]="!profilePictureUrl">
+            Supprimer la photo
+          </button>
+          <span class="photo-note">Cliquez sur l’avatar pour importer (max {{ maxPhotoSizeMb }} MB)</span>
+        </div>
       </div>
     </div>
 
