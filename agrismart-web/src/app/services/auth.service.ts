@@ -1,7 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
+import {
+  AuthResponse,
+  CodeResponse,
+  FacebookAuthRequest,
+  GoogleAuthRequest,
+  LoginRequest,
+  RegisterRequest,
+  ResetPasswordConfirmRequest,
+  VerifyCodeRequest
+} from '../models/auth.model';
 import { RoleService } from './role.service';
 
 @Injectable({ providedIn: 'root' })
@@ -26,6 +35,42 @@ export class AuthService {
 
   register(payload: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiBaseUrl}/register`, payload).pipe(
+      tap((response) => this.storeSession(response))
+    );
+  }
+
+  requestSignupCode(payload: RegisterRequest): Observable<CodeResponse> {
+    return this.http.post<CodeResponse>(`${this.apiBaseUrl}/signup/request-code`, payload);
+  }
+
+  verifySignupCode(payload: VerifyCodeRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiBaseUrl}/signup/verify-code`, payload).pipe(
+      tap((response) => this.storeSession(response))
+    );
+  }
+
+  requestPasswordResetCode(email: string): Observable<CodeResponse> {
+    return this.http.post<CodeResponse>(`${this.apiBaseUrl}/password-reset/request-code`, { email });
+  }
+
+  confirmPasswordReset(payload: ResetPasswordConfirmRequest): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiBaseUrl}/password-reset/confirm`, payload);
+  }
+
+  setFirstLoginPassword(newPassword: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiBaseUrl}/first-login/set-password`, { newPassword });
+  }
+
+  googleAuth(credential: string, mode: 'signup' | 'login'): Observable<AuthResponse> {
+    const body: GoogleAuthRequest = { credential, mode };
+    return this.http.post<AuthResponse>(`${this.apiBaseUrl}/google`, body).pipe(
+      tap((response) => this.storeSession(response))
+    );
+  }
+
+  facebookAuth(accessToken: string, mode: 'signup' | 'login'): Observable<AuthResponse> {
+    const body: FacebookAuthRequest = { accessToken, mode };
+    return this.http.post<AuthResponse>(`${this.apiBaseUrl}/facebook`, body).pipe(
       tap((response) => this.storeSession(response))
     );
   }

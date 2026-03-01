@@ -118,6 +118,8 @@ export class LogsComponent implements OnInit {
   get signupTrendLast7Days(): Array<{ label: string; count: number; height: number }> {
     const today = new Date();
     const points: Array<{ label: string; count: number; height: number }> = [];
+    const minBarHeight = 8;
+    const maxBarHeight = 140;
 
     for (let offset = 6; offset >= 0; offset--) {
       const dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - offset);
@@ -142,7 +144,10 @@ export class LogsComponent implements OnInit {
     const maxCount = Math.max(...points.map((item) => item.count), 1);
     return points.map((item) => ({
       ...item,
-      height: Math.max(8, Math.round((item.count * 100) / maxCount))
+      height:
+        item.count === 0
+          ? minBarHeight
+          : Math.round(minBarHeight + (item.count / maxCount) * (maxBarHeight - minBarHeight))
     }));
   }
 

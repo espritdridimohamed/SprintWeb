@@ -25,14 +25,22 @@ public class RoleService {
     }
 
     public void initializeRoles() {
-        String[] roleNames = {"producteur", "technicien", "cooperative", "ong", "etat", "admin"};
+        // Migrate old "buyer" role to "viewer"
+        roleRepository.findByName("buyer").ifPresent(buyerRole -> {
+            buyerRole.setName("viewer");
+            buyerRole.setDescription("Viewer");
+            roleRepository.save(buyerRole);
+        });
+
+        String[] roleNames = {"producteur", "technicien", "cooperative", "ong", "etat", "admin", "viewer"};
         String[] roleDescriptions = {
             "Agriculteur",
             "Technicien Agricole",
             "Coopérative Agricole",
             "ONG",
             "Acteur Étatique",
-            "Administrateur Système"
+            "Administrateur Système",
+            "Viewer"
         };
 
         for (int i = 0; i < roleNames.length; i++) {

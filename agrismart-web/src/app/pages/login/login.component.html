@@ -1,61 +1,130 @@
 <div class="login-page">
-  <div class="login-card">
-    <div class="brand">
-      <div class="brand-icon"><span class="material-symbols-outlined">energy_savings_leaf</span></div>
-      <div>
-        <div class="brand-title">AgriSmart</div>
-        <div class="brand-sub">Plateforme de gestion agricole</div>
+  <div class="login-container">
+    <!-- Left Side: Login Form -->
+    <div class="login-form-side">
+      <div class="brand">
+        <div class="brand-icon">
+          <span class="material-symbols-outlined">energy_savings_leaf</span>
+        </div>
+        <span class="brand-title">AgriSmart</span>
+      </div>
+
+      <form class="form-content" #loginForm="ngForm" (ngSubmit)="onLogin()" autocomplete="on">
+        <h1>Login</h1>
+        <p class="login-desc">Access your workspace.</p>
+
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <input
+            id="login-email"
+            type="email"
+            name="email"
+            autocomplete="email"
+            [(ngModel)]="email"
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input
+            id="login-password"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            [(ngModel)]="password"
+            placeholder="********"
+          />
+        </div>
+
+        <div class="login-row">
+          <label class="remember">
+            <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" />
+            Remember me
+          </label>
+          <a href="#" (click)="openForgotPassword($event)">Forgot password?</a>
+        </div>
+
+        <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+        <div class="social-message" *ngIf="socialMessage">{{ socialMessage }}</div>
+
+        <button class="primary-btn login-btn" type="submit" [disabled]="isLoading">
+          {{ isLoading ? 'Signing in...' : 'Log In' }}
+        </button>
+
+        <div class="divider"><span>or</span></div>
+
+        <div class="social-buttons">
+          <button class="social-btn" type="button" (click)="onSocialSignup('google')">
+            <span class="material-symbols-outlined">public</span>
+            Google
+          </button>
+          <button class="social-btn" type="button" (click)="onSocialSignup('facebook')">
+            <span class="material-symbols-outlined">groups</span>
+            Facebook
+          </button>
+        </div>
+      </form>
+
+      <div class="form-footer">
+        <p class="signup-hint">
+          New to AgriSmart?
+          <a routerLink="/signup">Create an account</a>
+        </p>
       </div>
     </div>
 
-    <h1>Connexion</h1>
-    <p class="login-desc">Accédez à votre espace de travail sécurisé.</p>
-
-    <div class="form-group">
-      <label>Adresse email</label>
-      <input type="email" [(ngModel)]="email" />
+    <!-- Right Side: Image -->
+    <div class="login-image-side">
+      <div class="image-overlay">
+        <div class="overlay-top">
+        </div>
+        <div class="overlay-bottom">
+          <h2>Smart Agriculture<br>Powered by AI & IoT</h2>
+          <p>Real-Time Monitoring, AI Decision Support, Smart Irrigation, Agro Marketplace, Offline Mode.</p>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div class="form-group">
-      <label>Mot de passe</label>
-      <input type="password" [(ngModel)]="password" />
+  <div class="forgot-modal-backdrop" *ngIf="forgotPasswordMode" (click)="cancelForgotPassword()">
+    <div class="forgot-modal" (click)="$event.stopPropagation()">
+      <h3>Reset Password</h3>
+      <p class="forgot-subtitle">We will send a verification code to your email.</p>
+
+      <div class="form-group">
+        <label>Reset Email</label>
+        <input type="email" [(ngModel)]="resetEmail" name="resetEmail" placeholder="you@example.com" />
+      </div>
+
+      <button class="primary-btn login-btn" type="button" (click)="requestResetCode()" [disabled]="isLoading" *ngIf="resetStep === 'request'">
+        {{ isLoading ? 'Sending...' : 'Send Reset Code' }}
+      </button>
+
+      <div *ngIf="resetStep === 'confirm'" class="reset-confirm-block">
+        <div class="form-group">
+          <label>Verification Code</label>
+          <input type="text" [(ngModel)]="resetCode" name="resetCode" placeholder="Enter code" />
+        </div>
+
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" [(ngModel)]="newPassword" name="newPassword" placeholder="********" />
+        </div>
+
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" [(ngModel)]="confirmNewPassword" name="confirmNewPassword" placeholder="********" />
+        </div>
+
+        <div class="social-message" *ngIf="resetHint">{{ resetHint }}</div>
+
+        <button class="primary-btn login-btn" type="button" (click)="confirmResetPassword()" [disabled]="isLoading">
+          {{ isLoading ? 'Resetting...' : 'Reset Password' }}
+        </button>
+      </div>
+
+      <button class="social-btn modal-cancel" type="button" (click)="cancelForgotPassword()">Cancel</button>
     </div>
-
-    <div class="login-row">
-      <label class="remember">
-        <input type="checkbox" />
-        Se souvenir de moi
-      </label>
-      <a href="#">Mot de passe oublié ?</a>
-    </div>
-
-    <div class="error-message" *ngIf="errorMessage">
-      {{ errorMessage }}
-    </div>
-
-    <div class="social-message" *ngIf="socialMessage">
-      {{ socialMessage }}
-    </div>
-
-    <button class="primary-btn login-btn" (click)="onLogin()" [disabled]="isLoading">
-      {{ isLoading ? 'Connexion...' : 'Se connecter' }}
-    </button>
-
-    <div class="divider"><span>ou</span></div>
-
-    <button class="social-btn" (click)="onSocialSignup('google')">
-      <span class="material-symbols-outlined">public</span>
-      Continuer avec Google
-    </button>
-
-    <button class="social-btn" (click)="onSocialSignup('facebook')">
-      <span class="material-symbols-outlined">groups</span>
-      Continuer avec Facebook
-    </button>
-
-    <p class="signup-hint">
-      Nouveau sur AgriSmart ?
-      <a routerLink="/signup">Créer un compte</a>
-    </p>
   </div>
 </div>

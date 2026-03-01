@@ -15,7 +15,7 @@
     </div>
     <button class="icon-btn"><span class="material-symbols-outlined">notifications</span></button>
     <button class="icon-btn"><span class="material-symbols-outlined">mail</span></button>
-    <button class="icon-btn" (click)="logout()" title="Se déconnecter">
+    <button class="icon-btn" (click)="openLogoutModal()" title="Se déconnecter">
       <span class="material-symbols-outlined">logout</span>
     </button>
     <button class="profile" type="button" (click)="openProfile()" title="Mon profil">
@@ -28,3 +28,18 @@
     </button>
   </div>
 </header>
+
+<!-- Logout Confirmation Modal -->
+<div class="logout-overlay" *ngIf="showLogoutModal" (click)="closeLogoutModal()">
+  <div class="logout-modal" (click)="$event.stopPropagation()">
+    <div class="logout-modal-icon">
+      <span class="material-symbols-outlined">logout</span>
+    </div>
+    <h3>Are you sure you want to logout?</h3>
+    <p>You will be redirected to the login page.</p>
+    <div class="logout-modal-actions">
+      <button class="modal-btn cancel" (click)="closeLogoutModal()">No</button>
+      <button class="modal-btn confirm" (click)="confirmLogout()">Yes</button>
+    </div>
+  </div>
+</div>

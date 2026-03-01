@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-landing-page',
@@ -9,7 +10,7 @@ import { Router } from '@angular/router';
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.scss'
 })
-export class LandingPageComponent {
+export class LandingPageComponent implements OnInit {
   currentSlide = 0;
 
   slides = [
@@ -57,7 +58,28 @@ export class LandingPageComponent {
     { title: 'Smart Recommendations', desc: 'Receive actionable insights on your device.' }
   ];
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private authService: AuthService) { }
+
+  ngOnInit(): void {
+    // Auto-redirect if already logged in (session persistence)
+    if (this.authService.isAuthenticated()) {
+      const user = this.authService.getCurrentUser();
+      if (user) {
+        if (user.requiresPasswordChange) {
+          this.router.navigate(['/set-new-password']);
+          return;
+        }
+
+        const normalizedRole = user.role.trim().toLowerCase();
+        const targetRoute = (normalizedRole === 'viewer' || normalizedRole === 'buyer')
+          ? '/app/market'
+          : normalizedRole === 'admin'
+            ? '/app/admin'
+            : '/app/dashboard';
+        this.router.navigate([targetRoute]);
+      }
+    }
+  }
 
   nextSlide() {
     this.currentSlide = (this.currentSlide + 1) % this.slides.length;

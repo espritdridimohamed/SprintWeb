@@ -29,6 +29,7 @@ public class User {
     private String accountType;
     private Boolean isClientApproved;
     private String profilePictureUrl;
+    private String facebookId;
     private Date lastLoginAt;
     private Date createdAt;
     private Date updatedAt;
@@ -77,6 +78,9 @@ public class User {
     
     public String getProfilePictureUrl() { return profilePictureUrl; }
     public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
+
+    public String getFacebookId() { return facebookId; }
+    public void setFacebookId(String facebookId) { this.facebookId = facebookId; }
     
     public Date getLastLoginAt() { return lastLoginAt; }
     public void setLastLoginAt(Date lastLoginAt) { this.lastLoginAt = lastLoginAt; }

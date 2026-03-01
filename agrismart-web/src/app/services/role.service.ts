@@ -24,7 +24,7 @@ export class RoleService {
   }
 
   clearRole(): void {
-    this.roleSubject.next('technicien');
+    this.roleSubject.next('viewer');
     if (this.canUseStorage) {
       localStorage.removeItem(this.roleStorageKey);
     }
@@ -40,12 +40,14 @@ export class RoleService {
       return 'technicien';
     }
 
-    const storedRole = localStorage.getItem(this.roleStorageKey) as RoleKey | null;
-    if (!storedRole) {
+    const raw = localStorage.getItem(this.roleStorageKey);
+    if (!raw) {
       return 'technicien';
     }
+    if (raw === 'buyer') return 'viewer';
 
-    const validRoles: RoleKey[] = ['buyer', 'producteur', 'technicien', 'cooperative', 'ong', 'etat', 'admin'];
+    const storedRole = raw as RoleKey;
+    const validRoles: RoleKey[] = ['viewer', 'producteur', 'technicien', 'cooperative', 'ong', 'etat', 'admin'];
     return validRoles.includes(storedRole) ? storedRole : 'technicien';
   }
 
@@ -53,8 +55,9 @@ export class RoleService {
     const normalized = backendRole.trim().toUpperCase();
 
     switch (normalized) {
+      case 'VIEWER':
       case 'BUYER':
-        return 'buyer';
+        return 'viewer';
       case 'PRODUCTEUR':
         return 'producteur';
       case 'TECHNICIEN':
@@ -68,7 +71,7 @@ export class RoleService {
       case 'ADMIN':
         return 'admin';
       default:
-        return 'technicien';
+        return 'viewer';
     }
   }
 }
