@@ -24,7 +24,7 @@ export class RoleService {
   }
 
   clearRole(): void {
-    this.roleSubject.next('technicien');
+    this.roleSubject.next('viewer');
     if (this.canUseStorage) {
       localStorage.removeItem(this.roleStorageKey);
     }
@@ -45,8 +45,8 @@ export class RoleService {
       return 'technicien';
     }
 
-    const validRoles: RoleKey[] = ['buyer', 'producteur', 'technicien', 'cooperative', 'ong', 'etat', 'admin'];
-    return validRoles.includes(storedRole) ? storedRole : 'technicien';
+    const validRoles: RoleKey[] = ['viewer', 'producteur', 'technicien', 'cooperative', 'ong', 'etat', 'admin'];
+    return validRoles.includes(storedRole) ? storedRole : 'viewer';
   }
 
   private mapBackendRoleToRoleKey(backendRole: string): RoleKey {
@@ -54,7 +54,8 @@ export class RoleService {
 
     switch (normalized) {
       case 'BUYER':
-        return 'buyer';
+      case 'VIEWER':
+        return 'viewer';
       case 'PRODUCTEUR':
         return 'producteur';
       case 'TECHNICIEN':
@@ -68,7 +69,7 @@ export class RoleService {
       case 'ADMIN':
         return 'admin';
       default:
-        return 'technicien';
+        return 'viewer';
     }
   }
 }

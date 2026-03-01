@@ -21,7 +21,7 @@ export class SignupComponent {
   errorMessage = '';
   socialMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
   onSignup(): void {
     this.isLoading = true;
@@ -34,7 +34,7 @@ export class SignupComponent {
         lastName: this.lastName,
         email: this.email,
         password: this.password,
-        role: 'BUYER',
+        role: 'VIEWER',
         organization: this.organization || 'Client AgriSmart'
       })
       .subscribe({

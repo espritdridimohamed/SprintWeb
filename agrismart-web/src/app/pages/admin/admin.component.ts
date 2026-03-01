@@ -46,10 +46,10 @@ export class AdminComponent implements OnInit {
   lastName = '';
   email = '';
   password = '';
-  selectedRole = 'BUYER';
+  selectedRole = '';
   organization = 'AgriSmart';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.loadAdminData();

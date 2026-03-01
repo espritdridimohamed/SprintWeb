@@ -19,7 +19,7 @@ export class LoginComponent {
   errorMessage = '';
   socialMessage = '';
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private router: Router, private authService: AuthService) { }
 
   onLogin(): void {
     this.isLoading = true;
@@ -29,7 +29,7 @@ export class LoginComponent {
       next: (response) => {
         this.isLoading = false;
         const normalizedRole = response.role.trim().toLowerCase();
-        const targetRoute = normalizedRole === 'buyer'
+        const targetRoute = normalizedRole === 'viewer'
           ? '/app/market'
           : normalizedRole === 'admin'
             ? '/app/admin'

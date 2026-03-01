@@ -58,7 +58,7 @@ interface RoleVisualData {
 
 /* ── Per-role visual data ── */
 const ROLE_VISUALS: Record<RoleKey, RoleVisualData> = {
-  buyer: {
+  viewer: {
     performanceTitle: 'Suivi commandes (4 semaines)',
     performanceSubtitle: 'Activité d\'achat hebdomadaire',
     distributionTitle: 'Répartition des achats',
@@ -232,7 +232,7 @@ export class DashboardComponent implements OnInit {
   users: DashboardUser[] = [];
   roles: DashboardRole[] = [];
 
-  constructor(public roleService: RoleService, private http: HttpClient) {}
+  constructor(public roleService: RoleService, private http: HttpClient) { }
 
   ngOnInit(): void {
     if (this.isAdminView) {
@@ -276,11 +276,11 @@ export class DashboardComponent implements OnInit {
   toneColor(tone: ChartTone): string {
     switch (tone) {
       case 'success': return '#2f9d57';
-      case 'info':    return '#347ad4';
+      case 'info': return '#347ad4';
       case 'warning': return '#d9820f';
-      case 'danger':  return '#c43e3e';
-      case 'brand':   return '#6b9f3e';
-      default:        return '#8a9786';
+      case 'danger': return '#c43e3e';
+      case 'brand': return '#6b9f3e';
+      default: return '#8a9786';
     }
   }
 

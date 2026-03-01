@@ -1,12 +1,13 @@
 import { RoleConfig, RoleKey } from '../models/role.model';
 
 export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
-  buyer: {
-    key: 'buyer',
+  viewer: {
+    key: 'viewer',
     label: 'User',
     orgLabel: 'User',
     nav: [
-      { label: 'Marketplace', route: '/app/market', icon: 'market' }
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' }
     ],
     kpis: [
       { label: 'Commandes actives', value: '4', trend: '2 en livraison', tone: 'info', icon: 'market' },
@@ -87,6 +88,8 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
       { label: 'Gestion Agricole', route: '/app/agri', icon: 'agri' },
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'IA & Conseils', route: '/app/ai', icon: 'ai' },
       { label: 'Appui Technique', route: '/app/support', icon: 'support' },
       { label: 'Alertes', route: '/app/alerts', icon: 'alerts' }
@@ -170,6 +173,8 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     orgLabel: 'AgriDev International',
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'Formations', route: '/app/training', icon: 'training' },
       { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'Analyse & Impact', route: '/app/impact', icon: 'impact' }
@@ -212,6 +217,8 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     orgLabel: 'Ministère Agriculture',
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'Analyse & Impact', route: '/app/impact', icon: 'impact' },
       { label: 'Communications', route: '/app/communications', icon: 'report' },
       { label: 'Exports décision', route: '/app/exports-decision', icon: 'download' }
@@ -251,6 +258,8 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     orgLabel: 'AgriSmart Cloud',
     nav: [
       { label: 'Administration', route: '/app/admin', icon: 'admin' },
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'IoT & Passerelles', route: '/app/iot', icon: 'iot' },
       { label: 'Logs & Audit', route: '/app/logs', icon: 'logs' },
