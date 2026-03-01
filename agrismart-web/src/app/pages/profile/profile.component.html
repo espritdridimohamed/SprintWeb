@@ -1,0 +1,118 @@
+<div class="page-header">
+  <div>
+    <div class="page-title">Paramètres du profil</div>
+    <div class="page-subtitle">Gérez vos informations personnelles, votre compte et votre sécurité</div>
+  </div>
+</div>
+
+<div class="card" *ngIf="isLoading">Chargement du profil...</div>
+
+<div class="grid-2" *ngIf="!isLoading">
+  <div class="card">
+    <div class="profile-header">
+      <label class="avatar-upload" title="Changer la photo">
+        <input type="file" accept="image/*" (change)="onPhotoSelected($event)" />
+        <div class="avatar-preview" *ngIf="!profilePictureUrl">{{ avatarInitials }}</div>
+        <img class="avatar-preview-image" *ngIf="profilePictureUrl" [src]="profilePictureUrl" alt="Photo de profil" />
+        <span class="avatar-edit-hint">Modifier</span>
+      </label>
+      <div>
+        <div class="profile-name">{{ firstName }} {{ lastName }}</div>
+        <div class="profile-email">{{ email }}</div>
+      </div>
+    </div>
+
+    <div class="card-title section-title">Informations personnelles</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Prénom</label>
+        <input type="text" [(ngModel)]="firstName" />
+      </div>
+      <div class="form-group">
+        <label>Nom</label>
+        <input type="text" [(ngModel)]="lastName" />
+      </div>
+      <div class="form-group full-width">
+        <label>Email</label>
+        <input type="email" [value]="email" disabled />
+      </div>
+      <div class="form-group">
+        <label>Organisation</label>
+        <input type="text" [(ngModel)]="organization" />
+      </div>
+      <div class="form-group">
+        <label>Type de compte</label>
+        <input type="text" [(ngModel)]="accountType" placeholder="Ex: Standard, Premium" />
+      </div>
+      <div class="form-group full-width">
+        <label>Photo de profil</label>
+        <div class="photo-controls">
+          <button class="secondary-btn" type="button" (click)="removePhoto()" [disabled]="!profilePictureUrl">
+            Supprimer la photo
+          </button>
+          <span class="photo-note">Cliquez sur l’avatar pour importer (max {{ maxPhotoSizeMb }} MB)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="feedback error" *ngIf="profileError">{{ profileError }}</div>
+    <div class="feedback success" *ngIf="profileSuccess">{{ profileSuccess }}</div>
+
+    <div class="form-actions">
+      <button class="primary-btn" (click)="saveProfile()" [disabled]="isSavingProfile">
+        {{ isSavingProfile ? 'Enregistrement...' : 'Enregistrer le profil' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="stacked">
+    <div class="card">
+      <div class="card-title">Informations du compte</div>
+      <div class="meta-list">
+        <div class="meta-row">
+          <span>Rôle</span>
+          <span class="badge">{{ roleLabel }}</span>
+        </div>
+        <div class="meta-row">
+          <span>Statut</span>
+          <span class="badge">{{ status }}</span>
+        </div>
+        <div class="meta-row">
+          <span>Créé le</span>
+          <span>{{ createdAtLabel }}</span>
+        </div>
+        <div class="meta-row">
+          <span>Dernière mise à jour</span>
+          <span>{{ updatedAtLabel }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card section-gap">
+      <div class="card-title">Sécurité du compte</div>
+      <div class="form-grid password-grid">
+        <div class="form-group full-width">
+          <label>Mot de passe actuel</label>
+          <input type="password" [(ngModel)]="currentPassword" />
+        </div>
+        <div class="form-group full-width">
+          <label>Nouveau mot de passe</label>
+          <input type="password" [(ngModel)]="newPassword" />
+        </div>
+        <div class="form-group full-width">
+          <label>Confirmer le nouveau mot de passe</label>
+          <input type="password" [(ngModel)]="confirmPassword" />
+        </div>
+      </div>
+
+      <div class="feedback error" *ngIf="passwordError">{{ passwordError }}</div>
+      <div class="feedback success" *ngIf="passwordSuccess">{{ passwordSuccess }}</div>
+
+      <div class="form-actions">
+        <button class="secondary-btn" (click)="changePassword()" [disabled]="isSavingPassword">
+          {{ isSavingPassword ? 'Mise à jour...' : 'Changer le mot de passe' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -34,11 +34,11 @@ interface PrecisionDataPoint {
 }
 
 @Component({
-  selector: 'app-configuration',
+  selector: 'app-modeles-ia',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './modeles-ia.component.html',
-  styleUrl: './modeles-ia.component.scss'
+  styleUrls: ['./modeles-ia.component.scss']
 })
 export class ModelesIaComponent implements OnInit {
   // Model Configuration

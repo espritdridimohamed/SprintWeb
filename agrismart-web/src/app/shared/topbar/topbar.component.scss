@@ -80,6 +80,10 @@
   border-radius: 14px;
   background: var(--card);
   border: 1px solid var(--card-border);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  color: inherit;
 }
 
 .profile-name {
@@ -102,6 +106,14 @@
   place-items: center;
   font-weight: 700;
   font-size: 13px;
+}
+
+.avatar-image {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--card-border);
 }
 
 @media (max-width: 960px) {

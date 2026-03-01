@@ -1,190 +1,339 @@
-<!-- Role Selector (Demo purposes) -->
-<div class="role-selector">
-  <button [class.active]="userRole === 'producteur'" (click)="switchRole('producteur')" class="role-btn">
-    <span class="material-symbols-outlined">agriculture</span>
-    Producteur
-  </button>
-  <button [class.active]="userRole === 'cooperative'" (click)="switchRole('cooperative')" class="role-btn">
-    <span class="material-symbols-outlined">groups</span>
-    Coopérative
-  </button>
-  <button [class.active]="userRole === 'technicien'" (click)="switchRole('technicien')" class="role-btn">
-    <span class="material-symbols-outlined">engineering</span>
-    Technicien
-  </button>
-  <button [class.active]="userRole === 'admin'" (click)="switchRole('admin')" class="role-btn">
-    <span class="material-symbols-outlined">admin_panel_settings</span>
-    Admin
-  </button>
-  <button [class.active]="userRole === 'viewer'" (click)="switchRole('viewer')" class="role-btn">
-    <span class="material-symbols-outlined">visibility</span>
-    ONG/État
-  </button>
-</div>
-
 <!-- Page Header -->
 <div class="page-header">
   <div>
-    <div class="page-title">Planification des campagnes</div>
+    <div class="page-title">Planning agricole</div>
     <div class="page-subtitle">
-      <span *ngIf="userRole === 'producteur'">Calendrier de vos tâches et rappels automatiques</span>
-      <span *ngIf="userRole === 'cooperative'">Planification collective et coordination des ressources</span>
-      <span *ngIf="userRole === 'technicien'">Suivi des producteurs et recommandations terrain</span>
-      <span *ngIf="userRole === 'admin'">Modèles de campagnes et supervision globale</span>
-      <span *ngIf="userRole === 'viewer'">Vue globale des calendriers régionaux</span>
+      <span *ngIf="role === 'producteur'">Planifiez vos tâches agricoles et gérez vos parcelles</span>
+      <span *ngIf="role === 'cooperative'">Gérez les campagnes collectives et les ressources</span>
+      <span *ngIf="role === 'admin'">Supervision et gestion complète du planning</span>
+      <span *ngIf="role === 'technicien'">Vos tâches assignées et mise à jour des statuts</span>
+      <span *ngIf="role === 'ong'">Calendrier des campagnes collectives</span>
+      <span *ngIf="role === 'etat'">Dashboard national des campagnes agricoles</span>
+      <span *ngIf="role === 'viewer'">Calendrier — Consultation uniquement</span>
     </div>
   </div>
   <div class="page-actions">
-    <button *ngIf="userRole === 'producteur' || userRole === 'technicien'" class="primary-btn"
-      (click)="openTaskModal()">
+    <button *ngIf="canCreateTask" class="primary-btn" (click)="openTaskModal()">
       <span class="material-symbols-outlined">add</span>
       Nouvelle tâche
     </button>
-    <button *ngIf="userRole === 'cooperative' || userRole === 'admin'" class="primary-btn"
-      (click)="openCampaignModal()">
+    <button *ngIf="canManageCampaign" class="ghost-btn" (click)="openCampaignModal()">
       <span class="material-symbols-outlined">campaign</span>
       Nouvelle campagne
     </button>
-    <button class="ghost-btn" (click)="goToToday()">
-      <span class="material-symbols-outlined">today</span>
-      Aujourd'hui
-    </button>
+    <span *ngIf="isReadOnly" class="role-badge">
+      <span class="material-symbols-outlined">visibility</span>
+      {{ roleLabel }} — Lecture seule
+    </span>
   </div>
 </div>
 
-<!-- Statistics Cards -->
-<div class="grid-4">
+<!-- KPI Cards -->
+<div class="grid-3">
   <div class="card stat-card">
-    <div class="stat-icon">
-      <span class="material-symbols-outlined">task</span>
-    </div>
+    <div class="stat-icon"><span class="material-symbols-outlined">task_alt</span></div>
     <div>
       <div class="card-title">Tâches totales</div>
-      <div class="stat-value">{{ stats.totalTasks }}</div>
+      <div class="stat-value">{{ tasks.length }}</div>
       <div class="stat-label">{{ completionRate }}% complétées</div>
     </div>
   </div>
-
   <div class="card stat-card">
-    <div class="stat-icon success">
-      <span class="material-symbols-outlined">check_circle</span>
-    </div>
+    <div class="stat-icon warning"><span class="material-symbols-outlined">warning</span></div>
     <div>
-      <div class="card-title">Complétées</div>
-      <div class="stat-value">{{ stats.completedTasks }}</div>
-      <div class="stat-label">Ce mois-ci</div>
+      <div class="card-title">Tâches en retard</div>
+      <div class="stat-value">{{ lateTasks.length }}</div>
+      <div class="stat-label">À traiter en priorité</div>
     </div>
   </div>
-
   <div class="card stat-card">
-    <div class="stat-icon warning">
-      <span class="material-symbols-outlined">schedule</span>
-    </div>
-    <div>
-      <div class="card-title">En retard</div>
-      <div class="stat-value">{{ stats.lateTasks }}</div>
-      <div class="stat-label">Nécessitent attention</div>
-    </div>
-  </div>
-
-  <div class="card stat-card" *ngIf="userRole === 'cooperative' || userRole === 'admin'">
-    <div class="stat-icon cooperative">
-      <span class="material-symbols-outlined">campaign</span>
-    </div>
+    <div class="stat-icon success"><span class="material-symbols-outlined">campaign</span></div>
     <div>
       <div class="card-title">Campagnes actives</div>
-      <div class="stat-value">{{ stats.activeCampaigns }}</div>
+      <div class="stat-value">{{ campaigns.length }}</div>
       <div class="stat-label">{{ stats.totalParticipants }} participants</div>
-    </div>
-  </div>
-
-  <div class="card stat-card" *ngIf="userRole === 'producteur' || userRole === 'technicien'">
-    <div class="stat-icon info">
-      <span class="material-symbols-outlined">upcoming</span>
-    </div>
-    <div>
-      <div class="card-title">À venir</div>
-      <div class="stat-value">{{ stats.upcomingTasks }}</div>
-      <div class="stat-label">Prochains 7 jours</div>
     </div>
   </div>
 </div>
 
-<!-- PRODUCTEUR VIEW -->
-<div *ngIf="userRole === 'producteur'" class="section-gap">
-  <div class="grid-2">
-    <!-- Calendar -->
-    <div class="card calendar-card">
-      <div class="calendar-header">
-        <button class="icon-btn" (click)="previousMonth()">
-          <span class="material-symbols-outlined">chevron_left</span>
-        </button>
-        <h3>{{ monthNames[currentMonth] }} {{ currentYear }}</h3>
-        <button class="icon-btn" (click)="nextMonth()">
-          <span class="material-symbols-outlined">chevron_right</span>
-        </button>
-      </div>
+<!-- ===================== TECHNICIEN VIEW ===================== -->
+<div *ngIf="role === 'technicien'" class="section-gap">
+  <div class="read-only-banner technicien-banner">
+    <span class="material-symbols-outlined">engineering</span>
+    Technicien — Vous pouvez uniquement mettre à jour le statut des tâches qui vous sont assignées.
+  </div>
 
-      <div class="calendar-grid">
-        <div class="calendar-day-name">Dim</div>
-        <div class="calendar-day-name">Lun</div>
-        <div class="calendar-day-name">Mar</div>
-        <div class="calendar-day-name">Mer</div>
-        <div class="calendar-day-name">Jeu</div>
-        <div class="calendar-day-name">Ven</div>
-        <div class="calendar-day-name">Sam</div>
-
-        <div *ngFor="let day of calendarDays" class="calendar-day" [class.other-month]="!day.isCurrentMonth"
-          [class.today]="day.isToday" [class.has-tasks]="day.tasks.length > 0" (click)="selectDate(day)">
-          <div class="day-number">{{ day.date.getDate() }}</div>
-          <div class="day-tasks">
-            <div *ngFor="let task of day.tasks.slice(0, 2)" class="task-dot"
-              [style.background-color]="getTaskTypeColor(task.type)" [title]="task.title"></div>
-            <div *ngIf="day.tasks.length > 2" class="task-more">+{{ day.tasks.length - 2 }}</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Mes tâches assignées</div>
+      <span class="badge">{{ myAssignedTasks.length }}</span>
+    </div>
+    <div class="task-list">
+      <div *ngFor="let task of myAssignedTasks" class="task-item">
+        <div class="task-icon" [style.background]="getTaskTypeColor(task.type)">
+          <span class="material-symbols-outlined">{{ getTaskTypeIcon(task.type) }}</span>
+        </div>
+        <div class="task-content">
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-meta">
+            <span>{{ task.parcel }}</span>
+            <span class="separator">•</span>
+            <span>{{ formatDate(task.date) }}</span>
+            <span class="separator">•</span>
+            <span class="priority-tag" [ngClass]="getPriorityClass(task.priority)">{{ task.priority }}</span>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Upcoming Tasks -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">Tâches à venir</div>
-        <span class="badge">{{ upcomingTasks.length }}</span>
-      </div>
-      <div class="tasks-list">
-        <div *ngFor="let task of upcomingTasks" class="task-item">
-          <div class="task-type-indicator" [style.background-color]="getTaskTypeColor(task.type)"></div>
-          <div class="task-content">
-            <div class="task-header">
-              <strong>{{ task.title }}</strong>
-              <span class="task-date">{{ formatDate(task.date) }}</span>
-            </div>
-            <div class="task-meta">
-              <span class="material-symbols-outlined">{{ getTaskTypeIcon(task.type) }}</span>
-              <span>{{ task.parcel }}</span>
-              <span class="separator">•</span>
-              <span class="priority-badge" [ngClass]="getPriorityClass(task.priority)">
-                {{ task.priority === 'high' ? 'Haute' : task.priority === 'medium' ? 'Moyenne' : 'Basse' }}
-              </span>
-            </div>
-          </div>
-          <button class="icon-btn" (click)="updateTaskStatus(task, 'done')">
-            <span class="material-symbols-outlined">check</span>
+        <div class="task-actions">
+          <span class="status-badge" [ngClass]="getStatusClass(task.status)">
+            {{ task.status === 'todo' ? 'À faire' : task.status === 'inprogress' ? 'En cours' : task.status === 'done' ?
+            'Terminé' : 'En retard' }}
+          </span>
+          <!-- TECHNICIEN can only update status -->
+          <button class="ghost-btn small" (click)="openStatusModal(task)">
+            <span class="material-symbols-outlined">edit</span>
+            Statut
           </button>
         </div>
-        <div *ngIf="upcomingTasks.length === 0" class="empty-state">
-          <span class="material-symbols-outlined">task_alt</span>
-          <p>Aucune tâche à venir</p>
-        </div>
+      </div>
+      <div *ngIf="myAssignedTasks.length === 0" class="empty-state">
+        <span class="material-symbols-outlined">assignment_turned_in</span>
+        <p>Aucune tâche assignée</p>
       </div>
     </div>
   </div>
 
-  <!-- All Tasks List -->
+  <!-- Resources (technicien can update) -->
   <div class="card section-gap">
     <div class="card-header">
-      <div class="card-title">Toutes les tâches</div>
+      <div class="card-title">Ressources disponibles</div>
+    </div>
+    <div class="resources-grid">
+      <div *ngFor="let resource of resources" class="resource-card">
+        <div class="resource-icon"><span class="material-symbols-outlined">build</span></div>
+        <div class="resource-info">
+          <strong>{{ resource.name }}</strong>
+          <span class="resource-type">{{ resource.type }}</span>
+        </div>
+        <div class="resource-availability" [class.available]="resource.availability === 'Disponible'"
+          [class.reserved]="resource.availability === 'Réservé'">
+          {{ resource.availability }}
+        </div>
+        <button class="icon-btn" title="Réserver" [disabled]="resource.availability !== 'Disponible'">
+          <span class="material-symbols-outlined">bookmark_add</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ONG VIEW ===================== -->
+<div *ngIf="role === 'ong'" class="section-gap">
+  <div class="read-only-banner ong-banner">
+    <span class="material-symbols-outlined">volunteer_activism</span>
+    ONG — Consultation du calendrier des campagnes collectives
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Campagnes collectives</div>
+    </div>
+    <div class="campaigns-grid">
+      <div *ngFor="let campaign of campaigns" class="campaign-card">
+        <div class="campaign-header">
+          <span class="material-symbols-outlined">campaign</span>
+          <h4>{{ campaign.name }}</h4>
+        </div>
+        <div class="campaign-details">
+          <div class="campaign-detail"><span class="material-symbols-outlined">location_on</span>{{ campaign.zone }}
+          </div>
+          <div class="campaign-detail"><span class="material-symbols-outlined">calendar_today</span>{{
+            formatDate(campaign.startDate) }} → {{ formatDate(campaign.endDate) }}</div>
+          <div class="campaign-detail"><span class="material-symbols-outlined">group</span>{{ campaign.participants }}
+            participants</div>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(campaign.status)">{{ campaign.status }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar view (read only) -->
+  <div class="card section-gap">
+    <div class="card-header">
+      <div class="card-title">{{ monthNames[currentMonth] }} {{ currentYear }}</div>
+      <div class="calendar-nav">
+        <button class="icon-btn" (click)="previousMonth()"><span
+            class="material-symbols-outlined">chevron_left</span></button>
+        <button class="ghost-btn small" (click)="goToToday()">Aujourd'hui</button>
+        <button class="icon-btn" (click)="nextMonth()"><span
+            class="material-symbols-outlined">chevron_right</span></button>
+      </div>
+    </div>
+    <div class="calendar-grid">
+      <div class="calendar-header" *ngFor="let day of ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam']">{{ day }}</div>
+      <div *ngFor="let day of calendarDays" class="calendar-day" [class.other-month]="!day.isCurrentMonth"
+        [class.today]="day.isToday">
+        <div class="day-number">{{ day.date.getDate() }}</div>
+        <div *ngFor="let task of day.tasks.slice(0,2)" class="day-task"
+          [style.background]="getTaskTypeColor(task.type)">
+          {{ task.title }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ETAT VIEW ===================== -->
+<div *ngIf="role === 'etat'" class="section-gap">
+  <div class="read-only-banner etat-banner">
+    <span class="material-symbols-outlined">account_balance</span>
+    Tableau de bord gouvernemental — Monitoring des campagnes agricoles nationales
+  </div>
+
+  <div class="grid-3">
+    <div class="card stat-card">
+      <div class="stat-icon"><span class="material-symbols-outlined">campaign</span></div>
+      <div>
+        <div class="card-title">Campagnes nationales</div>
+        <div class="stat-value">{{ campaigns.length }}</div>
+        <div class="stat-label">En cours + planifiées</div>
+      </div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-icon success"><span class="material-symbols-outlined">group</span></div>
+      <div>
+        <div class="card-title">Participants totaux</div>
+        <div class="stat-value">{{ stats.totalParticipants }}</div>
+        <div class="stat-label">Agriculteurs engagés</div>
+      </div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-icon revenue"><span class="material-symbols-outlined">task_alt</span></div>
+      <div>
+        <div class="card-title">Taux de réalisation</div>
+        <div class="stat-value">{{ completionRate }}%</div>
+        <div class="stat-label">Tâches complétées</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2 section-gap">
+    <div class="card">
+      <div class="card-title">Campagnes nationales</div>
+      <div class="campaigns-grid">
+        <div *ngFor="let campaign of campaigns" class="campaign-card">
+          <div class="campaign-header"><span class="material-symbols-outlined">campaign</span>
+            <h4>{{ campaign.name }}</h4>
+          </div>
+          <div class="campaign-details">
+            <div class="campaign-detail"><span class="material-symbols-outlined">location_on</span>{{ campaign.zone }}
+            </div>
+            <div class="campaign-detail"><span class="material-symbols-outlined">group</span>{{ campaign.participants }}
+              participants</div>
+            <div class="campaign-detail"><span class="material-symbols-outlined">calendar_today</span>{{
+              formatDate(campaign.startDate) }} → {{ formatDate(campaign.endDate) }}</div>
+          </div>
+          <div class="campaign-footer">
+            <span class="status-badge" [ngClass]="getStatusClass(campaign.status)">{{ campaign.status }}</span>
+            <!-- ETAT can participate in modifying campaigns -->
+            <button *ngIf="canModifyCampaign" class="icon-btn" title="Modifier"><span
+                class="material-symbols-outlined">edit</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Bilan par statut de tâche</div>
+      <div class="performance-stats">
+        <div class="perf-item">
+          <div class="perf-label">Tâches complétées</div>
+          <div class="perf-value">{{ doneTasks }}</div>
+          <div class="perf-trend positive">{{ completionRate }}% du total</div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label">En cours</div>
+          <div class="perf-value">{{ inProgressTasks }}</div>
+          <div class="perf-trend neutral">En progression</div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label">En retard</div>
+          <div class="perf-value">{{ lateTasks.length }}</div>
+          <div class="perf-trend negative">Attention requise</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== VIEWER VIEW ===================== -->
+<div *ngIf="role === 'viewer'" class="section-gap">
+  <div class="read-only-banner">
+    <span class="material-symbols-outlined">visibility</span>
+    Accès observateur — Consultation du calendrier uniquement
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">{{ monthNames[currentMonth] }} {{ currentYear }}</div>
+      <div class="calendar-nav">
+        <button class="icon-btn" (click)="previousMonth()"><span
+            class="material-symbols-outlined">chevron_left</span></button>
+        <button class="ghost-btn small" (click)="goToToday()">Aujourd'hui</button>
+        <button class="icon-btn" (click)="nextMonth()"><span
+            class="material-symbols-outlined">chevron_right</span></button>
+      </div>
+    </div>
+    <div class="calendar-grid">
+      <div class="calendar-header" *ngFor="let day of ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam']">{{ day }}</div>
+      <div *ngFor="let day of calendarDays" class="calendar-day" [class.other-month]="!day.isCurrentMonth"
+        [class.today]="day.isToday">
+        <div class="day-number">{{ day.date.getDate() }}</div>
+        <div *ngFor="let task of day.tasks.slice(0,2)" class="day-task"
+          [style.background]="getTaskTypeColor(task.type)">
+          {{ task.title }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PRODUCTEUR / COOPERATIVE / ADMIN VIEW ===================== -->
+<div *ngIf="role === 'producteur' || role === 'cooperative' || role === 'admin'" class="section-gap">
+
+  <!-- Calendar Navigation -->
+  <div class="card">
+    <div class="card-header">
+      <div class="view-controls">
+        <button class="ghost-btn small" [class.active]="viewMode === 'month'" (click)="viewMode = 'month'">Mois</button>
+        <button class="ghost-btn small" [class.active]="viewMode === 'list'" (click)="viewMode = 'list'">Liste</button>
+      </div>
+      <div class="calendar-nav">
+        <button class="icon-btn" (click)="previousMonth()"><span
+            class="material-symbols-outlined">chevron_left</span></button>
+        <div class="month-title">{{ monthNames[currentMonth] }} {{ currentYear }}</div>
+        <button class="icon-btn" (click)="nextMonth()"><span
+            class="material-symbols-outlined">chevron_right</span></button>
+        <button class="ghost-btn small" (click)="goToToday()">Aujourd'hui</button>
+      </div>
+    </div>
+
+    <!-- Month Calendar -->
+    <div *ngIf="viewMode === 'month'" class="calendar-grid">
+      <div class="calendar-header" *ngFor="let day of ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam']">{{ day }}</div>
+      <div *ngFor="let day of calendarDays" class="calendar-day" [class.other-month]="!day.isCurrentMonth"
+        [class.today]="day.isToday" [class.selected]="selectedDate?.toDateString() === day.date.toDateString()"
+        (click)="selectDate(day)">
+        <div class="day-number">{{ day.date.getDate() }}</div>
+        <div *ngFor="let task of day.tasks.slice(0, 2)" class="day-task"
+          [style.background]="getTaskTypeColor(task.type)">
+          {{ task.title }}
+        </div>
+        <div *ngIf="day.tasks.length > 2" class="day-more">+{{ day.tasks.length - 2 }}</div>
+      </div>
+    </div>
+
+    <!-- List view -->
+    <div *ngIf="viewMode === 'list'" class="task-list-view">
       <div class="filters">
         <select [(ngModel)]="selectedParcel" class="filter-select">
           <option value="all">Toutes les parcelles</option>
@@ -198,467 +347,189 @@
           <option value="all">Tous les statuts</option>
           <option value="todo">À faire</option>
           <option value="inprogress">En cours</option>
-          <option value="done">Terminée</option>
+          <option value="done">Terminé</option>
           <option value="late">En retard</option>
         </select>
       </div>
-    </div>
-    <div class="tasks-table">
-      <div class="task-row header">
-        <div>Tâche</div>
-        <div>Type</div>
-        <div>Parcelle</div>
-        <div>Date</div>
-        <div>Priorité</div>
-        <div>Statut</div>
-        <div>Actions</div>
-      </div>
-      <div *ngFor="let task of filteredTasks" class="task-row">
-        <div class="task-title-cell">
-          <span class="material-symbols-outlined">{{ getTaskTypeIcon(task.type) }}</span>
-          <strong>{{ task.title }}</strong>
+
+      <div class="task-list">
+        <div *ngFor="let task of filteredTasks" class="task-item">
+          <div class="task-icon" [style.background]="getTaskTypeColor(task.type)">
+            <span class="material-symbols-outlined">{{ getTaskTypeIcon(task.type) }}</span>
+          </div>
+          <div class="task-content">
+            <div class="task-title">{{ task.title }}</div>
+            <div class="task-meta">
+              <span>{{ task.parcel }}</span>
+              <span class="separator">•</span>
+              <span>{{ formatDate(task.date) }}</span>
+              <span class="separator">•</span>
+              <span class="priority-tag" [ngClass]="getPriorityClass(task.priority)">{{ task.priority }}</span>
+              <span *ngIf="task.assignedTo" class="separator">•</span>
+              <span *ngIf="task.assignedTo" class="assigned-to">📌 {{ task.assignedTo }}</span>
+            </div>
+          </div>
+          <div class="task-actions">
+            <span class="status-badge" [ngClass]="getStatusClass(task.status)">
+              {{ task.status === 'todo' ? 'À faire' : task.status === 'inprogress' ? 'En cours' : task.status === 'done'
+              ? 'Terminé' : 'En retard' }}
+            </span>
+            <button *ngIf="canUpdateStatus" class="ghost-btn small" (click)="openStatusModal(task)">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button *ngIf="canDeleteTask" class="icon-btn danger" (click)="deleteTask(task)" title="Supprimer">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
         </div>
-        <div>
-          <span class="task-type-badge" [style.background-color]="getTaskTypeColor(task.type)">
-            {{ getTaskTypeLabel(task.type) }}
-          </span>
-        </div>
-        <div>{{ task.parcel }}</div>
-        <div>{{ formatDate(task.date) }}</div>
-        <div>
-          <span class="priority-badge" [ngClass]="getPriorityClass(task.priority)">
-            {{ task.priority === 'high' ? 'Haute' : task.priority === 'medium' ? 'Moyenne' : 'Basse' }}
-          </span>
-        </div>
-        <div>
-          <span class="status-badge" [ngClass]="getStatusClass(task.status)">
-            {{ task.status === 'todo' ? 'À faire' : task.status === 'inprogress' ? 'En cours' : task.status === 'done' ?
-            'Terminée' : 'En retard' }}
-          </span>
-        </div>
-        <div class="task-actions">
-          <button *ngIf="task.status !== 'done'" class="icon-btn small" (click)="updateTaskStatus(task, 'done')"
-            title="Marquer comme terminée">
-            <span class="material-symbols-outlined">check</span>
-          </button>
-          <button class="icon-btn small" title="Modifier">
-            <span class="material-symbols-outlined">edit</span>
-          </button>
+        <div *ngIf="filteredTasks.length === 0" class="empty-state">
+          <span class="material-symbols-outlined">event_busy</span>
+          <p>Aucune tâche pour ces filtres</p>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- COOPERATIVE VIEW -->
-<div *ngIf="userRole === 'cooperative'" class="section-gap">
-  <div class="grid-2">
-    <!-- Campaigns -->
+  <!-- Upcoming + Campaigns -->
+  <div class="grid-2 section-gap">
+    <!-- Upcoming tasks panel -->
     <div class="card">
       <div class="card-header">
-        <div class="card-title">Campagnes collectives</div>
-        <button class="icon-btn" (click)="openCampaignModal()">
-          <span class="material-symbols-outlined">add</span>
-        </button>
+        <div class="card-title">Prochaines tâches</div>
+        <span class="badge">{{ upcomingTasks.length }}</span>
       </div>
-      <div class="campaigns-list">
+      <div class="task-list">
+        <div *ngFor="let task of upcomingTasks" class="task-item compact">
+          <div class="task-icon small" [style.background]="getTaskTypeColor(task.type)">
+            <span class="material-symbols-outlined">{{ getTaskTypeIcon(task.type) }}</span>
+          </div>
+          <div class="task-content">
+            <div class="task-title">{{ task.title }}</div>
+            <div class="task-meta"><span>{{ formatDate(task.date) }}</span><span class="separator">•</span><span>{{
+                task.parcel }}</span></div>
+          </div>
+          <span class="status-badge small" [ngClass]="getStatusClass(task.status)">
+            {{ task.status === 'todo' ? 'À faire' : 'En cours' }}
+          </span>
+        </div>
+        <div *ngIf="upcomingTasks.length === 0" class="empty-state"><span
+            class="material-symbols-outlined">event_available</span>
+          <p>Aucune tâche à venir</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campaigns (COOPERATIVE + ADMIN) -->
+    <div class="card" *ngIf="role === 'cooperative' || role === 'admin'">
+      <div class="card-header">
+        <div class="card-title">Campagnes</div>
+        <button class="icon-btn" (click)="openCampaignModal()"><span
+            class="material-symbols-outlined">add</span></button>
+      </div>
+      <div class="campaigns-grid">
         <div *ngFor="let campaign of campaigns" class="campaign-card">
-          <div class="campaign-header">
-            <span class="material-symbols-outlined">campaign</span>
+          <div class="campaign-header"><span class="material-symbols-outlined">campaign</span>
             <h4>{{ campaign.name }}</h4>
           </div>
           <div class="campaign-details">
-            <div class="campaign-detail-item">
-              <span class="material-symbols-outlined">location_on</span>
-              <span>{{ campaign.zone }}</span>
+            <div class="campaign-detail"><span class="material-symbols-outlined">location_on</span>{{ campaign.zone }}
             </div>
-            <div class="campaign-detail-item">
-              <span class="material-symbols-outlined">group</span>
-              <span>{{ campaign.participants }} participants</span>
-            </div>
-            <div class="campaign-detail-item">
-              <span class="material-symbols-outlined">calendar_month</span>
-              <span>{{ formatDate(campaign.startDate) }} - {{ formatDate(campaign.endDate) }}</span>
-            </div>
+            <div class="campaign-detail"><span class="material-symbols-outlined">group</span>{{ campaign.participants }}
+              participants</div>
           </div>
-          <span class="status-badge" [ngClass]="getStatusClass(campaign.status)">{{ campaign.status }}</span>
+          <div class="campaign-footer">
+            <span class="status-badge" [ngClass]="getStatusClass(campaign.status)">{{ campaign.status }}</span>
+            <button *ngIf="role === 'admin'" class="icon-btn" title="Supprimer"><span
+                class="material-symbols-outlined">delete</span></button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Shared Resources -->
-    <div class="card">
+    <!-- Resources (PRODUCTEUR view) -->
+    <div class="card" *ngIf="role === 'producteur'">
       <div class="card-header">
         <div class="card-title">Ressources partagées</div>
-        <button class="icon-btn" (click)="openResourceModal()">
-          <span class="material-symbols-outlined">add</span>
-        </button>
       </div>
-      <div class="resources-list">
-        <div *ngFor="let resource of resources" class="resource-item">
-          <div class="resource-icon">
-            <span class="material-symbols-outlined">
-              {{ resource.type === 'Machine' ? 'agriculture' : resource.type === 'Équipement' ? 'build' : 'inventory' }}
-            </span>
-          </div>
-          <div class="resource-content">
-            <strong>{{ resource.name }}</strong>
-            <span class="resource-type">{{ resource.type }}</span>
-            <span *ngIf="resource.bookedBy" class="resource-booked">Réservé par {{ resource.bookedBy }}</span>
-          </div>
-          <span class="availability-badge" [class.available]="resource.availability === 'Disponible'">
-            {{ resource.availability }}
-          </span>
+      <div class="resources-grid">
+        <div *ngFor="let resource of resources" class="resource-card">
+          <div class="resource-icon"><span class="material-symbols-outlined">build</span></div>
+          <div class="resource-info"><strong>{{ resource.name }}</strong><span class="resource-type">{{ resource.type
+              }}</span></div>
+          <div class="resource-availability" [class.available]="resource.availability === 'Disponible'">{{
+            resource.availability }}</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Group Events Calendar -->
-  <div class="card section-gap">
-    <div class="card-title">Événements groupés</div>
-    <div class="calendar-header">
-      <button class="icon-btn" (click)="previousMonth()">
-        <span class="material-symbols-outlined">chevron_left</span>
-      </button>
-      <h3>{{ monthNames[currentMonth] }} {{ currentYear }}</h3>
-      <button class="icon-btn" (click)="nextMonth()">
-        <span class="material-symbols-outlined">chevron_right</span>
-      </button>
-    </div>
-    <div class="calendar-grid">
-      <div class="calendar-day-name">Dim</div>
-      <div class="calendar-day-name">Lun</div>
-      <div class="calendar-day-name">Mar</div>
-      <div class="calendar-day-name">Mer</div>
-      <div class="calendar-day-name">Jeu</div>
-      <div class="calendar-day-name">Ven</div>
-      <div class="calendar-day-name">Sam</div>
-
-      <div *ngFor="let day of calendarDays" class="calendar-day" [class.other-month]="!day.isCurrentMonth"
-        [class.today]="day.isToday" [class.has-tasks]="day.tasks.length > 0">
-        <div class="day-number">{{ day.date.getDate() }}</div>
-        <div class="day-tasks">
-          <div *ngFor="let task of day.tasks.slice(0, 2)" class="task-dot"
-            [style.background-color]="getTaskTypeColor(task.type)"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- TECHNICIEN VIEW -->
-<div *ngIf="userRole === 'technicien'" class="section-gap">
-  <div class="grid-2">
-    <!-- Assigned Producers -->
-    <div class="card">
-      <div class="card-title">Producteurs assignés</div>
-      <div class="producers-list">
-        <div class="producer-item">
-          <div class="producer-avatar">FM</div>
-          <div class="producer-info">
-            <strong>Ferme Martin</strong>
-            <span>3 tâches en cours</span>
-          </div>
-          <button class="icon-btn">
-            <span class="material-symbols-outlined">visibility</span>
-          </button>
-        </div>
-        <div class="producer-item">
-          <div class="producer-avatar">DS</div>
-          <div class="producer-info">
-            <strong>Domaine Sud</strong>
-            <span>1 tâche en retard</span>
-          </div>
-          <button class="icon-btn">
-            <span class="material-symbols-outlined">visibility</span>
-          </button>
-        </div>
-        <div class="producer-item">
-          <div class="producer-avatar">CN</div>
-          <div class="producer-info">
-            <strong>Coop Nord</strong>
-            <span>5 tâches à venir</span>
-          </div>
-          <button class="icon-btn">
-            <span class="material-symbols-outlined">visibility</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Urgent Tasks -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">Urgences terrain</div>
-        <span class="badge urgent">{{ stats.lateTasks }}</span>
-      </div>
-      <div class="urgent-tasks-list">
-        <div *ngFor="let task of lateTasks" class="urgent-task-item">
-          <div class="urgent-icon">
-            <span class="material-symbols-outlined">warning</span>
-          </div>
-          <div class="urgent-content">
-            <strong>{{ task.title }}</strong>
-            <span>{{ task.parcel }} - {{ formatDate(task.date) }}</span>
-          </div>
-          <button class="primary-btn small">Intervenir</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Recommendations -->
-  <div class="card section-gap">
+  <!-- ADMIN — Full resources management -->
+  <div *ngIf="role === 'admin'" class="card section-gap">
     <div class="card-header">
-      <div class="card-title">Recommandations</div>
-      <button class="primary-btn" (click)="openTaskModal()">
-        <span class="material-symbols-outlined">add</span>
-        Ajouter une recommandation
+      <div class="card-title">Gestion des ressources <span class="badge admin-badge">Admin</span></div>
+      <button class="primary-btn" (click)="openResourceModal()">
+        <span class="material-symbols-outlined">add</span> Ajouter ressource
       </button>
     </div>
-    <div class="recommendations-list">
-      <div class="recommendation-item">
-        <div class="recommendation-header">
-          <span class="material-symbols-outlined">lightbulb</span>
-          <strong>Traitement préventif recommandé</strong>
-          <span class="recommendation-date">Il y a 2 jours</span>
-        </div>
-        <p>Application d'un fongicide préventif recommandée pour les parcelles de blé avant la période humide prévue.
-        </p>
-        <div class="recommendation-footer">
-          <span class="tag">Toutes parcelles blé</span>
-          <span class="tag">Semaine 12</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ADMIN VIEW -->
-<div *ngIf="userRole === 'admin'" class="section-gap">
-  <div class="grid-2">
-    <!-- Campaign Templates -->
-    <div class="card">
-      <div class="card-title">Modèles de campagnes</div>
-      <div class="templates-list">
-        <div class="template-item">
-          <span class="material-symbols-outlined">description</span>
-          <div>
-            <strong>Campagne céréales printemps</strong>
-            <span>12 étapes · 3 mois</span>
-          </div>
-          <button class="icon-btn">
-            <span class="material-symbols-outlined">content_copy</span>
-          </button>
-        </div>
-        <div class="template-item">
-          <span class="material-symbols-outlined">description</span>
-          <div>
-            <strong>Récolte collective olives</strong>
-            <span>8 étapes · 2 semaines</span>
-          </div>
-          <button class="icon-btn">
-            <span class="material-symbols-outlined">content_copy</span>
-          </button>
-        </div>
-        <div class="template-item">
-          <span class="material-symbols-outlined">description</span>
-          <div>
-            <strong>Formation irrigation</strong>
-            <span>5 étapes · 1 semaine</span>
-          </div>
-          <button class="icon-btn">
-            <span class="material-symbols-outlined">content_copy</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- KPI Dashboard -->
-    <div class="card">
-      <div class="card-title">KPI Planning</div>
-      <div class="kpi-stats">
-        <div class="kpi-item">
-          <div class="kpi-label">Taux de complétion</div>
-          <div class="kpi-value">{{ completionRate }}%</div>
-          <div class="kpi-progress">
-            <div class="kpi-progress-bar" [style.width.%]="completionRate"></div>
-          </div>
-        </div>
-        <div class="kpi-item">
-          <div class="kpi-label">Tâches en retard</div>
-          <div class="kpi-value">{{ stats.lateTasks }}</div>
-          <div class="kpi-trend negative">+2 vs semaine dernière</div>
-        </div>
-        <div class="kpi-item">
-          <div class="kpi-label">Campagnes actives</div>
-          <div class="kpi-value">{{ stats.activeCampaigns }}</div>
-          <div class="kpi-trend positive">Stable</div>
+    <div class="resources-grid">
+      <div *ngFor="let resource of resources" class="resource-card">
+        <div class="resource-icon"><span class="material-symbols-outlined">build</span></div>
+        <div class="resource-info"><strong>{{ resource.name }}</strong><span class="resource-type">{{ resource.type
+            }}</span></div>
+        <div class="resource-availability" [class.available]="resource.availability === 'Disponible'"
+          [class.reserved]="resource.availability === 'Réservé'">{{ resource.availability }}</div>
+        <div class="action-btns">
+          <button class="icon-btn"><span class="material-symbols-outlined">edit</span></button>
+          <button class="icon-btn danger"><span class="material-symbols-outlined">delete</span></button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Global Overview -->
-  <div class="card section-gap">
-    <div class="card-title">Vue d'ensemble globale</div>
-    <div class="calendar-header">
-      <button class="icon-btn" (click)="previousMonth()">
-        <span class="material-symbols-outlined">chevron_left</span>
-      </button>
-      <h3>{{ monthNames[currentMonth] }} {{ currentYear }}</h3>
-      <button class="icon-btn" (click)="nextMonth()">
-        <span class="material-symbols-outlined">chevron_right</span>
-      </button>
-    </div>
-    <div class="calendar-grid">
-      <div class="calendar-day-name">Dim</div>
-      <div class="calendar-day-name">Lun</div>
-      <div class="calendar-day-name">Mar</div>
-      <div class="calendar-day-name">Mer</div>
-      <div class="calendar-day-name">Jeu</div>
-      <div class="calendar-day-name">Ven</div>
-      <div class="calendar-day-name">Sam</div>
-
-      <div *ngFor="let day of calendarDays" class="calendar-day" [class.other-month]="!day.isCurrentMonth"
-        [class.today]="day.isToday" [class.has-tasks]="day.tasks.length > 0">
-        <div class="day-number">{{ day.date.getDate() }}</div>
-        <div class="day-tasks">
-          <div *ngIf="day.tasks.length > 0" class="task-count">{{ day.tasks.length }}</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- VIEWER VIEW (ONG/État) -->
-<div *ngIf="userRole === 'viewer'" class="section-gap">
-  <div class="grid-2">
-    <!-- Regional Statistics -->
-    <div class="card">
-      <div class="card-title">Statistiques régionales</div>
-      <div class="regional-stats">
-        <div class="regional-stat-item">
-          <div class="regional-header">
-            <span class="material-symbols-outlined">location_on</span>
-            <strong>Zone Nord</strong>
-          </div>
-          <div class="regional-metrics">
-            <div class="metric">
-              <span>Tâches actives</span>
-              <strong>156</strong>
-            </div>
-            <div class="metric">
-              <span>Producteurs</span>
-              <strong>42</strong>
-            </div>
-          </div>
-        </div>
-        <div class="regional-stat-item">
-          <div class="regional-header">
-            <span class="material-symbols-outlined">location_on</span>
-            <strong>Zone Centre</strong>
-          </div>
-          <div class="regional-metrics">
-            <div class="metric">
-              <span>Tâches actives</span>
-              <strong>98</strong>
-            </div>
-            <div class="metric">
-              <span>Producteurs</span>
-              <strong>28</strong>
-            </div>
-          </div>
-        </div>
-        <div class="regional-stat-item">
-          <div class="regional-header">
-            <span class="material-symbols-outlined">location_on</span>
-            <strong>Zone Sud</strong>
-          </div>
-          <div class="regional-metrics">
-            <div class="metric">
-              <span>Tâches actives</span>
-              <strong>124</strong>
-            </div>
-            <div class="metric">
-              <span>Producteurs</span>
-              <strong>35</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Critical Periods -->
-    <div class="card">
-      <div class="card-title">Périodes critiques</div>
-      <div class="critical-periods-list">
-        <div class="critical-period-item">
-          <div class="period-icon warning">
-            <span class="material-symbols-outlined">warning</span>
-          </div>
-          <div class="period-content">
-            <strong>Semis printemps</strong>
-            <span>Semaines 10-14 · Toutes zones</span>
-            <div class="period-progress">
-              <div class="period-progress-bar" style="width: 65%"></div>
-            </div>
-          </div>
-        </div>
-        <div class="critical-period-item">
-          <div class="period-icon info">
-            <span class="material-symbols-outlined">info</span>
-          </div>
-          <div class="period-content">
-            <strong>Irrigation intensive</strong>
-            <span>Semaines 18-22 · Zone Sud</span>
-            <div class="period-progress">
-              <div class="period-progress-bar" style="width: 30%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Export & Reporting -->
-  <div class="card section-gap">
+  <!-- Late tasks alert -->
+  <div *ngIf="lateTasks.length > 0" class="card section-gap late-alert">
     <div class="card-header">
-      <div class="card-title">Reporting et export</div>
-      <div class="export-actions">
-        <button class="ghost-btn">
-          <span class="material-symbols-outlined">download</span>
-          Export Excel
-        </button>
-        <button class="ghost-btn">
-          <span class="material-symbols-outlined">picture_as_pdf</span>
-          Export PDF
-        </button>
+      <div class="card-title">
+        <span class="material-symbols-outlined text-danger">warning</span>
+        Tâches en retard ({{ lateTasks.length }})
       </div>
     </div>
-    <div class="reporting-summary">
-      <p>Données disponibles pour la période : {{ monthNames[currentMonth] }} {{ currentYear }}</p>
-      <p>Total tâches planifiées : {{ tasks.length }} · Campagnes actives : {{ campaigns.length }}</p>
+    <div class="task-list">
+      <div *ngFor="let task of lateTasks" class="task-item">
+        <div class="task-icon late" [style.background]="getTaskTypeColor(task.type)">
+          <span class="material-symbols-outlined">{{ getTaskTypeIcon(task.type) }}</span>
+        </div>
+        <div class="task-content">
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-meta"><span>{{ task.parcel }}</span><span class="separator">•</span><span>{{
+              formatDate(task.date) }}</span></div>
+        </div>
+        <div class="task-actions">
+          <button *ngIf="canUpdateStatus" class="primary-btn small" (click)="updateTaskStatus(task, 'inprogress')">
+            Commencer
+          </button>
+          <button *ngIf="canDeleteTask" class="icon-btn danger" (click)="deleteTask(task)" title="Supprimer">
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- MODALS -->
+<!-- ===================== MODALS ===================== -->
 
-<!-- Task Modal -->
-<div *ngIf="showTaskModal" class="modal-overlay" (click)="closeTaskModal()">
+<!-- Task Modal (PRODUCTEUR / COOPERATIVE / ADMIN) -->
+<div *ngIf="showTaskModal && canCreateTask" class="modal-overlay" (click)="closeTaskModal()">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3>Nouvelle tâche</h3>
-      <button class="icon-btn" (click)="closeTaskModal()">
-        <span class="material-symbols-outlined">close</span>
-      </button>
+      <button class="icon-btn" (click)="closeTaskModal()"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Titre de la tâche</label>
-        <input type="text" [(ngModel)]="newTask.title" class="form-input" placeholder="Ex: Semis blé">
+        <label>Titre</label>
+        <input type="text" [(ngModel)]="newTask.title" class="form-input" placeholder="Ex: Irrigation parcelle A">
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -690,9 +561,9 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Description (optionnel)</label>
+        <label>Description</label>
         <textarea [(ngModel)]="newTask.description" class="form-input" rows="3"
-          placeholder="Détails de la tâche..."></textarea>
+          placeholder="Détails optionnels..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -702,14 +573,39 @@
   </div>
 </div>
 
-<!-- Campaign Modal -->
-<div *ngIf="showCampaignModal" class="modal-overlay" (click)="closeCampaignModal()">
+<!-- Status Update Modal (TECHNICIEN + ADMIN) -->
+<div *ngIf="showStatusModal && canUpdateStatus && selectedTaskForStatus" class="modal-overlay"
+  (click)="closeStatusModal()">
+  <div class="modal small-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Mettre à jour le statut</h3>
+      <button class="icon-btn" (click)="closeStatusModal()"><span
+          class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <p class="task-name-preview">{{ selectedTaskForStatus.title }}</p>
+      <div class="status-options">
+        <button class="status-option todo" (click)="updateTaskStatus(selectedTaskForStatus!, 'todo')">
+          <span class="material-symbols-outlined">radio_button_unchecked</span> À faire
+        </button>
+        <button class="status-option inprogress" (click)="updateTaskStatus(selectedTaskForStatus!, 'inprogress')">
+          <span class="material-symbols-outlined">pending</span> En cours
+        </button>
+        <button class="status-option done" (click)="updateTaskStatus(selectedTaskForStatus!, 'done')">
+          <span class="material-symbols-outlined">check_circle</span> Terminé
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Campaign Modal (COOPERATIVE / ADMIN) -->
+<div *ngIf="showCampaignModal && canManageCampaign" class="modal-overlay" (click)="closeCampaignModal()">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3>Nouvelle campagne</h3>
-      <button class="icon-btn" (click)="closeCampaignModal()">
-        <span class="material-symbols-outlined">close</span>
-      </button>
+      <button class="icon-btn" (click)="closeCampaignModal()"><span
+          class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
       <div class="form-group">
@@ -717,15 +613,8 @@
         <input type="text" [(ngModel)]="newCampaign.name" class="form-input" placeholder="Ex: Campagne printemps 2026">
       </div>
       <div class="form-group">
-        <label>Zone</label>
-        <select [(ngModel)]="newCampaign.zone" class="form-input">
-          <option value="">Sélectionner une zone</option>
-          <option value="Zone Nord">Zone Nord</option>
-          <option value="Zone Centre">Zone Centre</option>
-          <option value="Zone Sud">Zone Sud</option>
-          <option value="Zone Est">Zone Est</option>
-          <option value="Zone Ouest">Zone Ouest</option>
-        </select>
+        <label>Zone géographique</label>
+        <input type="text" [(ngModel)]="newCampaign.zone" class="form-input" placeholder="Ex: Zone Nord">
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -736,11 +625,6 @@
           <label>Date de fin</label>
           <input type="date" [(ngModel)]="newCampaign.endDate" class="form-input">
         </div>
-      </div>
-      <div class="form-group">
-        <label>Description</label>
-        <textarea [(ngModel)]="newCampaign.description" class="form-input" rows="3"
-          placeholder="Détails de la campagne..."></textarea>
       </div>
     </div>
     <div class="modal-footer">

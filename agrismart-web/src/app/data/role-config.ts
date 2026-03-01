@@ -1,6 +1,85 @@
 import { RoleConfig, RoleKey } from '../models/role.model';
 
 export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
+  viewer: {
+    key: 'viewer',
+    label: 'User',
+    orgLabel: 'User',
+    nav: [
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' }
+    ],
+    kpis: [
+      { label: 'Commandes actives', value: '4', trend: '2 en livraison', tone: 'info', icon: 'market' },
+      { label: 'Produits favoris', value: '18', trend: '+3 cette semaine', tone: 'brand', icon: 'leaf' },
+      { label: 'Nouveaux vendeurs', value: '7', trend: 'Ce mois', tone: 'success', icon: 'users' },
+      { label: 'Alertes prix', value: '5', trend: 'À surveiller', tone: 'warning', icon: 'alert' }
+    ],
+    panels: [
+      {
+        title: 'Marché recommandé',
+        subtitle: 'Selon votre historique',
+        items: [
+          'Tomates bio · 2.8 DT/kg · Promo',
+          'Huile d\'olive extra · 18 DT/L',
+          'Pommes de terre · 1.4 DT/kg'
+        ],
+        accent: 'emerald'
+      },
+      {
+        title: 'Suivi de commandes',
+        subtitle: 'Dernières mises à jour',
+        items: [
+          'CMD-2026-0192 · En préparation',
+          'CMD-2026-0187 · En route',
+          'CMD-2026-0179 · Livrée'
+        ],
+        accent: 'amber'
+      }
+    ]
+  },
+  producteur: {
+    key: 'producteur',
+    label: 'Producteur Agricole',
+    orgLabel: 'Agriculteur',
+    nav: [
+      { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
+      { label: 'Mes Parcelles', route: '/app/agri', icon: 'agri' },
+      { label: 'Dashboard IA', route: '/app/dashboard-ia', icon: 'cloud' },
+      { label: 'Formations', route: '/app/training', icon: 'training' },
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' },
+      { label: 'Alertes', route: '/app/alerts', icon: 'alerts' }
+    ],
+    kpis: [
+      { label: 'Parcelles actives', value: '5', trend: 'Surface 12 ha', tone: 'success', icon: 'pin' },
+      { label: 'Donnees capteurs', value: '18', trend: 'En temps reel', tone: 'info', icon: 'sensors' },
+      { label: 'Diagnostics', value: '3', trend: 'A valider', tone: 'warning', icon: 'brain' },
+      { label: 'Formations suivies', value: '12', trend: '+2 ce mois', tone: 'brand', icon: 'training' }
+    ],
+    panels: [
+      {
+        title: 'Alertes actives',
+        subtitle: 'Vos parcelles',
+        items: [
+          'Parcelle A · Humidite sol < 20% · Urgent',
+          'Parcelle C · Risque maladie fongique · Moyen',
+          'Parcelle B · Temperature optimale · OK'
+        ],
+        accent: 'rose'
+      },
+      {
+        title: 'Formations recommandees',
+        subtitle: 'Basees sur vos cultures',
+        items: [
+          'Irrigation efficace · Debutant',
+          'Gestion des maladies · Intermediaire',
+          'Biologie du sol · Avance'
+        ],
+        accent: 'emerald'
+      }
+    ]
+  },
   technicien: {
     key: 'technicien',
     label: 'Technicien Agricole',
@@ -8,6 +87,8 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
       { label: 'Gestion Agricole', route: '/app/agri', icon: 'agri' },
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'IA & Conseils', route: '/app/ai', icon: 'ai' },
       { label: 'Appui Technique', route: '/app/support', icon: 'support' },
       { label: 'Alertes', route: '/app/alerts', icon: 'alerts' }
@@ -91,6 +172,8 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     orgLabel: 'AgriDev International',
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'Formations', route: '/app/training', icon: 'training' },
       { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'Analyse & Impact', route: '/app/impact', icon: 'impact' }
@@ -133,6 +216,8 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     orgLabel: 'Ministère Agriculture',
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'Analyse & Impact', route: '/app/impact', icon: 'impact' },
       { label: 'Communications', route: '/app/communications', icon: 'report' },
       { label: 'Exports décision', route: '/app/exports-decision', icon: 'download' }
@@ -171,12 +256,14 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     label: 'Administrateur Système',
     orgLabel: 'AgriSmart Cloud',
     nav: [
-      { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
       { label: 'Administration', route: '/app/admin', icon: 'admin' },
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
+      { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'IoT & Passerelles', route: '/app/iot', icon: 'iot' },
       { label: 'Logs & Audit', route: '/app/logs', icon: 'logs' },
       { label: 'Modéles IA', route: '/app/modeles-ia', icon: 'ai' }
+  
     ],
     kpis: [
       { label: 'Utilisateurs actifs', value: '1,824', trend: '+6% ce mois', tone: 'info', icon: 'users' },
@@ -204,46 +291,6 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
           'Base temporelle · OK'
         ],
         accent: 'emerald'
-      }
-    ]
-  },
-  agriculteur: {
-    key: 'agriculteur',
-    label: 'Agriculteur / Producteur',
-    orgLabel: 'Exploitation Familiale',
-    nav: [
-      { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
-      { label: 'Dashboard IA', route: '/app/dashboard-ia', icon: 'cloud' },
-      { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
-      { label: 'Gestion Parcelles', route: '/app/agri', icon: 'agri' },
-      { label: 'Marché Agricole', route: '/app/market', icon: 'market' }
-    ],
-    kpis: [
-      { label: 'Surface cultivée', value: '12.5 ha', trend: '+1.5 ha cette saison', tone: 'info', icon: 'pin' },
-      { label: 'Récolte prévue', value: '145 t', trend: 'Est. Maïs/Blé', tone: 'success', icon: 'leaf' },
-      { label: 'Cours terminés', value: '4/12', trend: '+2 cette semaine', tone: 'brand', icon: 'training' },
-      { label: 'Alertes météo', value: '0', trend: 'Aucun risque', tone: 'neutral', icon: 'cloud' }
-    ],
-    panels: [
-      {
-        title: 'Tâches prioritaires',
-        subtitle: 'Prochains 48h',
-        items: [
-          'Irrigation Parcelle B · Aujourd\'hui 18h',
-          'Application engrais · Demain matin',
-          'Récolte zone C · Jeudi'
-        ],
-        accent: 'leaf'
-      },
-      {
-        title: 'Cours suggérés',
-        subtitle: 'Selon votre profil',
-        items: [
-          'Optimisation irrigation goutte-à-goutte',
-          'Protection naturelle contre les nuisibles',
-          'Vendre au meilleur prix sur le marché'
-        ],
-        accent: 'indigo'
       }
     ]
   }

@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RoleService } from '../../services/role.service';
+import { RoleKey } from '../../models/role.model';
+import { PlanningService, AgriTask } from '../../services/planning.service';
 
 interface Task {
-  id: number;
+  id: string;
   title: string;
   type: 'semis' | 'irrigation' | 'traitement' | 'recolte' | 'autre';
   parcel?: string;
@@ -47,13 +50,60 @@ interface CalendarDay {
   styleUrl: './planning.component.scss'
 })
 export class PlanningComponent implements OnInit {
-  // User role simulation
-  userRole: 'producteur' | 'cooperative' | 'technicien' | 'admin' | 'viewer' = 'producteur';
+  isLoading = false;
+  // Expose Math to template
+  // Real role from JWT via RoleService
+  get role(): RoleKey {
+    return this.roleService.role;
+  }
+
+  // --- Permission helpers ---
+  /** PRODUCTEUR, COOPERATIVE, ADMIN peuvent créer des tâches */
+  get canCreateTask(): boolean {
+    return this.role === 'producteur' || this.role === 'cooperative' || this.role === 'admin';
+  }
+
+  /** TECHNICIEN (et ADMIN) peuvent uniquement mettre à jour le statut des tâches assignées */
+  get canUpdateStatus(): boolean {
+    return this.role === 'technicien' || this.role === 'admin';
+  }
+
+  /** ADMIN peut supprimer des tâches */
+  get canDeleteTask(): boolean {
+    return this.role === 'admin';
+  }
+
+  /** COOPERATIVE, ADMIN gèrent les campagnes */
+  get canManageCampaign(): boolean {
+    return this.role === 'cooperative' || this.role === 'admin';
+  }
+
+  /** COOPERATIVE, ONG, ETAT, ADMIN peuvent modifier les campagnes */
+  get canModifyCampaign(): boolean {
+    return this.role === 'cooperative' || this.role === 'ong' || this.role === 'etat' || this.role === 'admin';
+  }
+
+  /** COOPERATIVE, TECHNICIEN, ADMIN peuvent gérer les ressources */
+  get canManageResources(): boolean {
+    return this.role === 'cooperative' || this.role === 'technicien' || this.role === 'admin';
+  }
+
+  /** ETAT, ADMIN ont accès aux stats nationales */
+  get canViewNationalStats(): boolean {
+    return this.role === 'etat' || this.role === 'admin';
+  }
+
+  /** Rôles en lecture seule */
+  get isReadOnly(): boolean {
+    return this.role === 'viewer';
+  }
 
   // Modal states
   showTaskModal = false;
   showCampaignModal = false;
   showResourceModal = false;
+  showStatusModal = false;
+  selectedTaskForStatus: any | null = null;
 
   // Calendar
   currentDate = new Date();
@@ -66,7 +116,7 @@ export class PlanningComponent implements OnInit {
   viewMode: 'month' | 'week' | 'list' = 'month';
 
   // Form data
-  newTask: Partial<Task> = {
+  newTask: any = {
     title: '',
     type: 'semis',
     parcel: '',
@@ -85,7 +135,7 @@ export class PlanningComponent implements OnInit {
   };
 
   // Data
-  tasks: Task[] = [];
+  tasks: any[] = [];
   campaigns: Campaign[] = [];
   resources: Resource[] = [];
 
@@ -116,38 +166,35 @@ export class PlanningComponent implements OnInit {
   monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
+  constructor(
+    private roleService: RoleService,
+    private planningService: PlanningService
+  ) { }
+
   ngOnInit() {
-    this.loadMockData();
+    this.refreshData();
     this.generateCalendar();
   }
 
-  loadMockData() {
-    // Mock tasks
-    this.tasks = [
-      { id: 1, title: 'Semis blé', type: 'semis', parcel: 'Parcelle A', date: new Date(2026, 1, 20), status: 'done', priority: 'high' },
-      { id: 2, title: 'Irrigation tomates', type: 'irrigation', parcel: 'Parcelle B', date: new Date(2026, 1, 18), status: 'done', priority: 'medium' },
-      { id: 3, title: 'Traitement fongicide', type: 'traitement', parcel: 'Parcelle A', date: new Date(2026, 1, 22), status: 'inprogress', priority: 'high' },
-      { id: 4, title: 'Récolte olives', type: 'recolte', parcel: 'Parcelle C', date: new Date(2026, 1, 25), status: 'todo', priority: 'medium' },
-      { id: 5, title: 'Préparation sol', type: 'autre', parcel: 'Parcelle D', date: new Date(2026, 1, 16), status: 'late', priority: 'high' },
-      { id: 6, title: 'Semis maïs', type: 'semis', parcel: 'Parcelle B', date: new Date(2026, 1, 28), status: 'todo', priority: 'medium' },
-      { id: 7, title: 'Irrigation blé', type: 'irrigation', parcel: 'Parcelle A', date: new Date(2026, 1, 24), status: 'todo', priority: 'low' }
-    ];
+  refreshData() {
+    this.isLoading = true;
+    this.planningService.getAllTasks().subscribe({
+      next: (tasks: any[]) => {
+        // Map backend Date if needed
+        this.tasks = tasks.map(t => ({
+          ...t,
+          date: t.dueDate ? new Date(t.dueDate) : new Date(t.createdAt || Date.now())
+        }));
+        this.generateCalendar();
+        this.isLoading = false;
+      },
+      error: () => this.isLoading = false
+    });
 
-    // Mock campaigns
-    this.campaigns = [
-      { id: 1, name: 'Campagne printemps 2026', zone: 'Zone Nord', startDate: new Date(2026, 2, 1), endDate: new Date(2026, 4, 31), participants: 12, status: 'En cours' },
-      { id: 2, name: 'Formation irrigation', zone: 'Zone Centre', startDate: new Date(2026, 1, 15), endDate: new Date(2026, 1, 16), participants: 8, status: 'Planifiée' },
-      { id: 3, name: 'Récolte collective olives', zone: 'Zone Sud', startDate: new Date(2026, 3, 1), endDate: new Date(2026, 3, 15), participants: 15, status: 'Planifiée' }
-    ];
-
-    // Mock resources
-    this.resources = [
-      { id: 1, name: 'Tracteur John Deere', type: 'Machine', availability: 'Disponible' },
-      { id: 2, name: 'Système irrigation goutte à goutte', type: 'Équipement', availability: 'Réservé', bookedBy: 'Ferme Martin' },
-      { id: 3, name: 'Semences bio blé', type: 'Intrant', availability: 'Disponible' },
-      { id: 4, name: 'Pulvérisateur', type: 'Machine', availability: 'En maintenance' }
-    ];
+    this.planningService.getCampaigns().subscribe(c => this.campaigns = c);
+    this.planningService.getResources().subscribe(r => this.resources = r);
   }
+
 
   // Calendar methods
   generateCalendar() {
@@ -155,67 +202,38 @@ export class PlanningComponent implements OnInit {
     const firstDay = new Date(this.currentYear, this.currentMonth, 1);
     const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
     const prevLastDay = new Date(this.currentYear, this.currentMonth, 0);
-
     const firstDayIndex = firstDay.getDay();
     const lastDayIndex = lastDay.getDay();
     const nextDays = 7 - lastDayIndex - 1;
 
-    // Previous month days
     for (let x = firstDayIndex; x > 0; x--) {
       const date = new Date(this.currentYear, this.currentMonth - 1, prevLastDay.getDate() - x + 1);
-      this.calendarDays.push({
-        date,
-        isCurrentMonth: false,
-        isToday: false,
-        tasks: this.getTasksForDate(date)
-      });
+      this.calendarDays.push({ date, isCurrentMonth: false, isToday: false, tasks: this.getTasksForDate(date) });
     }
-
-    // Current month days
     for (let i = 1; i <= lastDay.getDate(); i++) {
       const date = new Date(this.currentYear, this.currentMonth, i);
       const today = new Date();
-      this.calendarDays.push({
-        date,
-        isCurrentMonth: true,
-        isToday: date.toDateString() === today.toDateString(),
-        tasks: this.getTasksForDate(date)
-      });
+      this.calendarDays.push({ date, isCurrentMonth: true, isToday: date.toDateString() === today.toDateString(), tasks: this.getTasksForDate(date) });
     }
-
-    // Next month days
     for (let j = 1; j <= nextDays; j++) {
       const date = new Date(this.currentYear, this.currentMonth + 1, j);
-      this.calendarDays.push({
-        date,
-        isCurrentMonth: false,
-        isToday: false,
-        tasks: this.getTasksForDate(date)
-      });
+      this.calendarDays.push({ date, isCurrentMonth: false, isToday: false, tasks: this.getTasksForDate(date) });
     }
   }
 
-  getTasksForDate(date: Date): Task[] {
-    return this.tasks.filter(task =>
-      task.date.toDateString() === date.toDateString()
-    );
+  getTasksForDate(date: Date): any[] {
+    return this.tasks.filter(task => new Date(task.date).toDateString() === date.toDateString());
   }
 
   previousMonth() {
     this.currentMonth--;
-    if (this.currentMonth < 0) {
-      this.currentMonth = 11;
-      this.currentYear--;
-    }
+    if (this.currentMonth < 0) { this.currentMonth = 11; this.currentYear--; }
     this.generateCalendar();
   }
 
   nextMonth() {
     this.currentMonth++;
-    if (this.currentMonth > 11) {
-      this.currentMonth = 0;
-      this.currentYear++;
-    }
+    if (this.currentMonth > 11) { this.currentMonth = 0; this.currentYear++; }
     this.generateCalendar();
   }
 
@@ -231,68 +249,59 @@ export class PlanningComponent implements OnInit {
   }
 
   // Modal methods
-  openTaskModal() {
-    this.showTaskModal = true;
-  }
+  openTaskModal() { if (this.canCreateTask) this.showTaskModal = true; }
+  closeTaskModal() { this.showTaskModal = false; this.resetTaskForm(); }
 
-  closeTaskModal() {
-    this.showTaskModal = false;
-    this.resetTaskForm();
-  }
+  openCampaignModal() { if (this.canManageCampaign) this.showCampaignModal = true; }
+  closeCampaignModal() { this.showCampaignModal = false; }
 
-  openCampaignModal() {
-    this.showCampaignModal = true;
-  }
+  openResourceModal() { if (this.canManageResources) this.showResourceModal = true; }
+  closeResourceModal() { this.showResourceModal = false; }
 
-  closeCampaignModal() {
-    this.showCampaignModal = false;
+  openStatusModal(task: any) {
+    if (!this.canUpdateStatus) return;
+    this.selectedTaskForStatus = task;
+    this.showStatusModal = true;
   }
-
-  openResourceModal() {
-    this.showResourceModal = true;
-  }
-
-  closeResourceModal() {
-    this.showResourceModal = false;
-  }
+  closeStatusModal() { this.showStatusModal = false; this.selectedTaskForStatus = null; }
 
   // Task methods
   submitTask() {
-    const task: Task = {
-      id: this.tasks.length + 1,
-      title: this.newTask.title || '',
-      type: this.newTask.type || 'semis',
-      parcel: this.newTask.parcel,
-      date: this.newTask.date || new Date(),
-      status: 'todo',
-      priority: this.newTask.priority || 'medium',
-      description: this.newTask.description
+    if (!this.canCreateTask) return;
+    const taskData = {
+      ...this.newTask,
+      dueDate: this.newTask.date
     };
-
-    this.tasks.push(task);
-    this.generateCalendar();
-    this.closeTaskModal();
+    this.planningService.createTask(taskData).subscribe(() => {
+      this.refreshData();
+      this.closeTaskModal();
+    });
   }
 
   resetTaskForm() {
-    this.newTask = {
-      title: '',
-      type: 'semis',
-      parcel: '',
-      date: new Date(),
-      status: 'todo',
-      priority: 'medium',
-      description: ''
-    };
+    this.newTask = { title: '', type: 'semis', parcel: '', date: new Date(), status: 'todo', priority: 'medium', description: '' };
   }
 
-  updateTaskStatus(task: Task, newStatus: Task['status']) {
-    task.status = newStatus;
-    this.generateCalendar();
+  /** TECHNICIEN + ADMIN : mettre à jour uniquement le status */
+  updateTaskStatus(task: any, newStatus: string) {
+    if (!this.canUpdateStatus || !task.id) return;
+    this.planningService.updateTaskStatus(task.id, newStatus).subscribe(() => {
+      this.refreshData();
+      this.closeStatusModal();
+    });
+  }
+
+  /** ADMIN seulement : supprimer une tâche */
+  deleteTask(task: any) {
+    if (!this.canDeleteTask || !task.id) return;
+    this.planningService.deleteTask(task.id).subscribe(() => {
+      this.refreshData();
+    });
   }
 
   // Campaign methods
   submitCampaign() {
+    if (!this.canManageCampaign) return;
     const campaign: Campaign = {
       id: this.campaigns.length + 1,
       name: this.newCampaign.name,
@@ -302,7 +311,6 @@ export class PlanningComponent implements OnInit {
       participants: 0,
       status: 'Planifiée'
     };
-
     this.campaigns.push(campaign);
     this.closeCampaignModal();
   }
@@ -310,23 +318,15 @@ export class PlanningComponent implements OnInit {
   // Utility methods
   getStatusClass(status: string): string {
     const statusMap: { [key: string]: string } = {
-      'todo': 'status-todo',
-      'inprogress': 'status-progress',
-      'done': 'status-done',
-      'late': 'status-late',
-      'En cours': 'status-progress',
-      'Planifiée': 'status-planned',
+      'todo': 'status-todo', 'inprogress': 'status-progress', 'done': 'status-done',
+      'late': 'status-late', 'En cours': 'status-progress', 'Planifiée': 'status-planned',
       'Terminée': 'status-done'
     };
     return statusMap[status] || '';
   }
 
   getPriorityClass(priority: string): string {
-    const priorityMap: { [key: string]: string } = {
-      'low': 'priority-low',
-      'medium': 'priority-medium',
-      'high': 'priority-high'
-    };
+    const priorityMap: { [key: string]: string } = { 'low': 'priority-low', 'medium': 'priority-medium', 'high': 'priority-high' };
     return priorityMap[priority] || '';
   }
 
@@ -342,11 +342,8 @@ export class PlanningComponent implements OnInit {
 
   getTaskTypeColor(type: string): string {
     const colors: { [key: string]: string } = {
-      'semis': '#10b981',
-      'irrigation': '#3b82f6',
-      'traitement': '#f59e0b',
-      'recolte': '#8b5cf6',
-      'autre': '#6b7280'
+      'semis': '#10b981', 'irrigation': '#3b82f6', 'traitement': '#f59e0b',
+      'recolte': '#8b5cf6', 'autre': '#6b7280'
     };
     return colors[type] || '#6b7280';
   }
@@ -359,12 +356,15 @@ export class PlanningComponent implements OnInit {
     return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }).format(date);
   }
 
-  // Role switching
-  switchRole(role: 'producteur' | 'cooperative' | 'technicien' | 'admin' | 'viewer') {
-    this.userRole = role;
+  get roleLabel(): string {
+    const labels: Record<RoleKey, string> = {
+      producteur: 'Producteur', cooperative: 'Coopérative', admin: 'Administrateur',
+      technicien: 'Technicien', ong: 'ONG', etat: 'État', viewer: 'Observateur'
+    };
+    return labels[this.role] ?? this.role;
   }
 
-  get filteredTasks(): Task[] {
+  get filteredTasks(): any[] {
     return this.tasks.filter(task => {
       const parcelMatch = this.selectedParcel === 'all' || task.parcel === this.selectedParcel;
       const typeMatch = this.selectedTaskType === 'all' || task.type === this.selectedTaskType;
@@ -373,21 +373,34 @@ export class PlanningComponent implements OnInit {
     });
   }
 
-  get upcomingTasks(): Task[] {
+  /** TECHNICIEN : uniquement ses tâches assignées */
+  get myAssignedTasks(): any[] {
+    // In real app use the authenticated user's email
+    return this.tasks.filter(t => t.assignedTo === 'technicien@farm.tn');
+  }
+
+  get upcomingTasks(): any[] {
     const today = new Date();
     return this.tasks
-      .filter(task => task.date >= today && task.status !== 'done')
-      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .filter(task => new Date(task.date) >= today && task.status !== 'done')
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .slice(0, 5);
   }
 
-  get lateTasks(): Task[] {
+  get lateTasks(): any[] {
     return this.tasks.filter(t => t.status === 'late');
+  }
+
+  get doneTasks(): number {
+    return this.tasks.filter(t => t.status === 'done').length;
+  }
+
+  get inProgressTasks(): number {
+    return this.tasks.filter(t => t.status === 'inprogress').length;
   }
 
   get completionRate(): number {
     if (this.tasks.length === 0) return 0;
-    const completed = this.tasks.filter(t => t.status === 'done').length;
-    return Math.round((completed / this.tasks.length) * 100);
+    return Math.round((this.doneTasks / this.tasks.length) * 100);
   }
 }

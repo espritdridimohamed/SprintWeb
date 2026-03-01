@@ -22,15 +22,14 @@ interface DbRole {
 }
 
 @Component({
-  selector: 'app-admin',
+  selector: 'app-users-management',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './admin.component.html',
-  styleUrl: './admin.component.scss'
+  templateUrl: './users-management.component.html',
+  styleUrl: './users-management.component.scss'
 })
-export class AdminComponent implements OnInit {
+export class UsersManagementComponent implements OnInit {
   private readonly apiBaseUrl = 'http://localhost:8080/api';
-  private readonly millisecondsPerDay = 24 * 60 * 60 * 1000;
 
   users: DbUser[] = [];
   roles: DbRole[] = [];
@@ -54,16 +53,16 @@ export class AdminComponent implements OnInit {
   lastName = '';
   email = '';
   password = '';
-  selectedRole = '';
+  selectedRole = 'VIEWER';
   organization = 'AgriSmart';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.loadAdminData();
+    this.loadData();
   }
 
-  loadAdminData(): void {
+  loadData(): void {
     this.isLoading = true;
 
     forkJoin({
@@ -86,7 +85,6 @@ export class AdminComponent implements OnInit {
         }
 
         this.currentPage = 1;
-
         this.isLoading = false;
       },
       error: () => {
@@ -132,7 +130,7 @@ export class AdminComponent implements OnInit {
         this.isSubmitting = false;
         this.submitSuccess = 'Utilisateur créé avec succès.';
         this.resetForm();
-        this.loadAdminData();
+        this.loadData();
       },
       error: () => {
         this.isSubmitting = false;
@@ -141,107 +139,10 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  get totalUsers(): number {
-    return this.users.length;
-  }
-
-  get activeUsers(): number {
-    return this.users.filter((user) => {
-      if (!user.status) {
-        return true;
-      }
-
-      return user.status.toUpperCase() === 'ACTIVE';
-    }).length;
-  }
-
-  get totalRoles(): number {
-    return this.roles.length;
-  }
-
-  get activeRate(): number {
-    if (this.totalUsers === 0) {
-      return 0;
-    }
-
-    return Math.round((this.activeUsers * 100) / this.totalUsers);
-  }
-
-  get usersThisMonth(): number {
-    const monthAgo = Date.now() - 30 * this.millisecondsPerDay;
-    return this.users.filter((user) => {
-      if (!user.createdAt) {
-        return false;
-      }
-      return new Date(user.createdAt).getTime() >= monthAgo;
-    }).length;
-  }
-
-  get topRoleStat(): { name: string; count: number } {
-    const stats = this.roleStats;
-    if (stats.length === 0) {
-      return { name: '-', count: 0 };
-    }
-
-    return stats.reduce((top, current) => (current.count > top.count ? current : top), stats[0]);
-  }
-
-  get inactiveUsers(): number {
-    return this.users.filter((user) => (user.status ?? 'ACTIVE').toUpperCase() !== 'ACTIVE').length;
-  }
-
-  get newUsersThisWeek(): number {
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    return this.users.filter((user) => {
-      if (!user.createdAt) {
-        return false;
-      }
-      return new Date(user.createdAt).getTime() >= weekAgo;
-    }).length;
-  }
-
-  get roleStats(): Array<{ name: string; description: string; count: number }> {
-    return this.roles.map((role) => {
-      const count = this.users.filter((user) => user.roleId === role.id).length;
-      return {
-        name: role.name,
-        description: role.description ?? 'Sans description',
-        count
-      };
-    });
-  }
-
-  get signupTrendLast7Days(): Array<{ label: string; count: number; width: number }> {
-    const today = new Date();
-    const result: Array<{ label: string; count: number; width: number }> = [];
-
-    for (let offset = 6; offset >= 0; offset--) {
-      const dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - offset);
-      const dayEnd = new Date(dayStart.getTime() + this.millisecondsPerDay);
-
-      const count = this.users.filter((user) => {
-        if (!user.createdAt) {
-          return false;
-        }
-
-        const timestamp = new Date(user.createdAt).getTime();
-        return timestamp >= dayStart.getTime() && timestamp < dayEnd.getTime();
-      }).length;
-
-      result.push({
-        label: dayStart.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
-        count,
-        width: 0
-      });
-    }
-
-    const maxCount = Math.max(...result.map((item) => item.count), 1);
-    return result.map((item) => ({ ...item, width: (item.count * 100) / maxCount }));
-  }
-
   get filteredUsers(): DbUser[] {
     const normalizedSearch = this.searchTerm.trim().toLowerCase();
     const now = Date.now();
+    const msPerDay = 24 * 60 * 60 * 1000;
 
     return this.users.filter((user) => {
       const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
@@ -262,9 +163,9 @@ export class AdminComponent implements OnInit {
 
       const createdAtTime = user.createdAt ? new Date(user.createdAt).getTime() : 0;
       const matchesDate = this.selectedDateFilter === 'all'
-        || (this.selectedDateFilter === 'today' && createdAtTime >= now - this.millisecondsPerDay)
-        || (this.selectedDateFilter === '7d' && createdAtTime >= now - 7 * this.millisecondsPerDay)
-        || (this.selectedDateFilter === '30d' && createdAtTime >= now - 30 * this.millisecondsPerDay);
+        || (this.selectedDateFilter === 'today' && createdAtTime >= now - msPerDay)
+        || (this.selectedDateFilter === '7d' && createdAtTime >= now - 7 * msPerDay)
+        || (this.selectedDateFilter === '30d' && createdAtTime >= now - 30 * msPerDay);
 
       return matchesSearch && matchesRole && matchesStatus && matchesDate;
     });
@@ -284,10 +185,7 @@ export class AdminComponent implements OnInit {
   }
 
   get pageStartItem(): number {
-    if (this.totalFilteredUsers === 0) {
-      return 0;
-    }
-
+    if (this.totalFilteredUsers === 0) return 0;
     return (this.currentPage - 1) * this.pageSize + 1;
   }
 
@@ -299,36 +197,18 @@ export class AdminComponent implements OnInit {
     const pages: number[] = [];
     const start = Math.max(1, this.currentPage - 2);
     const end = Math.min(this.totalPages, start + 4);
-
-    for (let value = start; value <= end; value++) {
-      pages.push(value);
-    }
-
+    for (let v = start; v <= end; v++) pages.push(v);
     return pages;
   }
 
-  getRoleChartWidth(roleCount: number): number {
-    if (this.totalUsers === 0) {
-      return 0;
-    }
-
-    return (roleCount * 100) / this.totalUsers;
-  }
-
   getRoleNameById(roleId?: string): string {
-    if (!roleId) {
-      return 'Rôle non défini';
-    }
-
+    if (!roleId) return 'Rôle non défini';
     const role = this.roles.find((item) => item.id === roleId);
     return role?.name ?? 'Rôle non défini';
   }
 
   getUserCreatedAtLabel(user: DbUser): string {
-    if (!user.createdAt) {
-      return '-';
-    }
-
+    if (!user.createdAt) return '-';
     return new Date(user.createdAt).toLocaleDateString('fr-FR');
   }
 
@@ -345,22 +225,15 @@ export class AdminComponent implements OnInit {
   }
 
   goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages) {
-      return;
-    }
-
+    if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
   }
 
   saveUserRole(user: DbUser): void {
-    if (!user.id) {
-      return;
-    }
+    if (!user.id) return;
 
     const roleId = this.pendingRoleByUserId[user.id];
-    if (!roleId || roleId === user.roleId) {
-      return;
-    }
+    if (!roleId || roleId === user.roleId) return;
 
     const payload = {
       firstName: user.firstName,
@@ -374,7 +247,7 @@ export class AdminComponent implements OnInit {
       next: () => {
         this.submitSuccess = `Rôle de ${user.firstName} ${user.lastName} mis à jour.`;
         this.submitError = '';
-        this.loadAdminData();
+        this.loadData();
       },
       error: () => {
         this.submitError = 'Impossible de mettre à jour le rôle utilisateur.';
@@ -384,36 +257,26 @@ export class AdminComponent implements OnInit {
   }
 
   getPendingRole(user: DbUser): string {
-    if (!user.id) {
-      return user.roleId ?? '';
-    }
-
+    if (!user.id) return user.roleId ?? '';
     return this.pendingRoleByUserId[user.id] ?? user.roleId ?? '';
   }
 
   setPendingRole(user: DbUser, roleId: string): void {
-    if (!user.id) {
-      return;
-    }
-
+    if (!user.id) return;
     this.pendingRoleByUserId[user.id] = roleId;
   }
 
   deleteUser(user: DbUser): void {
-    if (!user.id) {
-      return;
-    }
+    if (!user.id) return;
 
     const confirmed = confirm(`Supprimer ${user.firstName} ${user.lastName} ?`);
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     this.http.delete(`${this.apiBaseUrl}/users/${user.id}`).subscribe({
       next: () => {
         this.submitSuccess = `Utilisateur ${user.firstName} ${user.lastName} supprimé.`;
         this.submitError = '';
-        this.loadAdminData();
+        this.loadData();
       },
       error: () => {
         this.submitError = 'Suppression impossible.';

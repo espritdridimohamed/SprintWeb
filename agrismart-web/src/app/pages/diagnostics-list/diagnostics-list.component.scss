@@ -130,8 +130,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .page-header {
   margin-bottom: $spacing-xl;
   display: flex;
-  flex-direction: column; // <-- force vertical
-  align-items: flex-start; // optionnel, aligne à gauche
+  flex-direction: column;
 
   .main-title {
     font-size: 2.5rem;
@@ -336,17 +335,17 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       font-weight: 600;
       white-space: nowrap;
 
-      &.confirme {
+      &.status-valid {
         background: $color-confirme-bg;
         color: $color-confirme;
       }
 
-      &.a-verifier {
+      &.status-pending {
         background: $color-a-verifier-bg;
         color: $color-a-verifier;
       }
 
-      &.en-attente {
+      &.status-rejected {
         background: $color-en-attente-bg;
         color: $color-en-attente;
       }
@@ -378,9 +377,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-size: 1.125rem;
         font-weight: 700;
 
-        &.high { color: $color-high; }
-        &.medium { color: $color-medium; }
-        &.low { color: $color-low; }
+        &.confidence-high { color: $color-high; }
+        &.confidence-medium { color: $color-medium; }
+        &.confidence-low { color: $color-low; }
       }
     }
 
@@ -395,9 +394,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border-radius: $radius-sm;
         transition: width 1s ease-out;
 
-        &.high { background: $color-high; }
-        &.medium { background: $color-medium; }
-        &.low { background: $color-low; }
+        &.confidence-high { background: $color-high; }
+        &.confidence-medium { background: $color-medium; }
+        &.confidence-low { background: $color-low; }
       }
     }
   }
@@ -500,40 +499,11 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-.filters-container {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.page-header {
-  animation: fadeIn 0.3s ease-out;
-}
-
 // ==========================================
 // RESPONSIVE
 // ==========================================
 
 @media (max-width: 768px) {
-  .top-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: $spacing-md;
-    padding: $spacing-md;
-
-    .header-right {
-      width: 100%;
-      justify-content: space-between;
-
-      .search-box {
-        display: none;
-      }
-    }
-  }
-
-  .secondary-nav {
-    padding: 0 $spacing-md;
-    gap: $spacing-sm;
-  }
-
   .content-container {
     padding: $spacing-md;
   }

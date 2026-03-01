@@ -29,28 +29,33 @@
       <a href="#">Mot de passe oublié ?</a>
     </div>
 
-    <button class="primary-btn login-btn" (click)="onLogin()">Se connecter</button>
-  </div>
-
-  <div class="login-info">
-    <h2>Plateforme Multi-Rôles</h2>
-    <p>AgriSmart adapte automatiquement votre interface selon votre rôle.</p>
-
-    <ul>
-      <li>Gestion intelligente des parcelles</li>
-      <li>Diagnostics par Intelligence Artificielle</li>
-      <li>Appui technique en temps réel</li>
-      <li>Planification collaborative</li>
-      <li>Analyse d'impact régional</li>
-    </ul>
-
-    <div class="demo-box">
-      <div class="demo-title">Comptes de démonstration</div>
-      <div class="demo-item">Technicien Agricole · technicien&#64;agrismart.com</div>
-      <div class="demo-item">Coopérative · coop&#64;agrismart.com</div>
-      <div class="demo-item">ONG · ong&#64;agrismart.com</div>
-      <div class="demo-item">État · etat&#64;agrismart.com</div>
-      <div class="demo-item">Admin · admin&#64;agrismart.com</div>
+    <div class="error-message" *ngIf="errorMessage">
+      {{ errorMessage }}
     </div>
+
+    <div class="social-message" *ngIf="socialMessage">
+      {{ socialMessage }}
+    </div>
+
+    <button class="primary-btn login-btn" (click)="onLogin()" [disabled]="isLoading">
+      {{ isLoading ? 'Connexion...' : 'Se connecter' }}
+    </button>
+
+    <div class="divider"><span>ou</span></div>
+
+    <button class="social-btn" (click)="onSocialSignup('google')">
+      <span class="material-symbols-outlined">public</span>
+      Continuer avec Google
+    </button>
+
+    <button class="social-btn" (click)="onSocialSignup('facebook')">
+      <span class="material-symbols-outlined">groups</span>
+      Continuer avec Facebook
+    </button>
+
+    <p class="signup-hint">
+      Nouveau sur AgriSmart ?
+      <a routerLink="/signup">Créer un compte</a>
+    </p>
   </div>
 </div>

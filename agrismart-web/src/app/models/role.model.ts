@@ -1,4 +1,4 @@
-export type RoleKey = 'technicien' | 'cooperative' | 'ong' | 'etat' | 'admin' | 'agriculteur';
+export type RoleKey = 'viewer' | 'producteur' | 'technicien' | 'cooperative' | 'ong' | 'etat' | 'admin';
 
 export interface NavItem {
   label: string;

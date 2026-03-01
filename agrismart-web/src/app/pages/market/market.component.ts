@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RoleService } from '../../services/role.service';
+import { RoleKey } from '../../models/role.model';
+import { MarketService, Offer } from '../../services/market.service';
 
+/*
 interface Offer {
-  id: number;
+  id: string;
   product: string;
   quantity: number;
   unit: string;
@@ -12,8 +16,10 @@ interface Offer {
   availability: string;
   status: 'pending' | 'validated' | 'sold';
   producer?: string;
+  ownerEmail?: string;
   date: Date;
 }
+*/
 
 interface PriceData {
   product: string;
@@ -47,11 +53,39 @@ interface GroupedOffer {
   styleUrl: './market.component.scss'
 })
 export class MarketComponent implements OnInit {
-  // User role simulation - in real app, this would come from auth service
-  userRole: 'producteur' | 'cooperative' | 'admin' | 'viewer' = 'producteur';
-
   // Expose Math to template
   Math = Math;
+  isLoading = false;
+
+  // Real role from JWT via RoleService
+  get role(): RoleKey {
+    return this.roleService.role;
+  }
+
+  // --- Permission helpers (role-based) ---
+  get canCreateOffer(): boolean {
+    return this.role === 'producteur';
+  }
+
+  get canValidateOffer(): boolean {
+    return this.role === 'cooperative' || this.role === 'admin';
+  }
+
+  get canEditPrices(): boolean {
+    return this.role === 'admin';
+  }
+
+  get canCreateGroupedOffer(): boolean {
+    return this.role === 'cooperative' || this.role === 'admin';
+  }
+
+  get canViewTransactions(): boolean {
+    return this.role === 'cooperative' || this.role === 'admin';
+  }
+
+  get isReadOnly(): boolean {
+    return this.role === 'technicien' || this.role === 'ong' || this.role === 'etat' || this.role === 'viewer';
+  }
 
   // Modal states
   showOfferModal = false;
@@ -99,119 +133,88 @@ export class MarketComponent implements OnInit {
   products = ['Tomates', 'Blé', 'Olives', 'Pommes de terre', 'Agrumes'];
   regions = ['Nord', 'Centre', 'Sud', 'Est', 'Ouest'];
 
+  constructor(
+    private roleService: RoleService,
+    private marketService: MarketService
+  ) { }
+
   ngOnInit() {
-    this.loadMockData();
+    this.refreshData();
   }
 
-  loadMockData() {
-    // Mock offers
-    this.offers = [
-      { id: 1, product: 'Tomates', quantity: 500, unit: 'kg', price: 2.5, quality: 'Bio', availability: 'immediate', status: 'validated', producer: 'Ferme Martin', date: new Date() },
-      { id: 2, product: 'Blé', quantity: 1000, unit: 'kg', price: 0.8, quality: 'Standard', availability: '1 semaine', status: 'pending', producer: 'Coop Nord', date: new Date() },
-      { id: 3, product: 'Olives', quantity: 300, unit: 'kg', price: 4.2, quality: 'Premium', availability: 'immediate', status: 'validated', producer: 'Domaine Sud', date: new Date() },
-      { id: 4, product: 'Pommes de terre', quantity: 800, unit: 'kg', price: 1.2, quality: 'Standard', availability: '3 jours', status: 'sold', producer: 'Ferme Dupont', date: new Date() }
-    ];
+  refreshData() {
+    this.isLoading = true;
+    this.marketService.getAllOffers().subscribe({
+      next: (offers) => {
+        this.offers = offers;
+        const currentUserEmail = JSON.parse(localStorage.getItem('agrismart_user') || '{}').email;
+        this.myOffers = offers.filter(o => o.ownerEmail === currentUserEmail);
+        this.isLoading = false;
+      },
+      error: () => this.isLoading = false
+    });
 
-    // Mock my offers (for producteur)
-    this.myOffers = [
-      { id: 5, product: 'Tomates', quantity: 200, unit: 'kg', price: 2.8, quality: 'Bio', availability: 'immediate', status: 'validated', date: new Date() },
-      { id: 6, product: 'Agrumes', quantity: 150, unit: 'kg', price: 3.5, quality: 'Premium', availability: 'immediate', status: 'pending', date: new Date() }
-    ];
+    this.marketService.getPrices().subscribe(prices => {
+      this.priceData = prices;
+    });
 
-    // Mock price data
-    this.priceData = [
-      { product: 'Tomates', region: 'Nord', currentPrice: 2.5, previousPrice: 2.3, trend: 8.7 },
-      { product: 'Blé', region: 'Centre', currentPrice: 0.8, previousPrice: 0.77, trend: 3.9 },
-      { product: 'Olives', region: 'Sud', currentPrice: 4.2, previousPrice: 4.3, trend: -2.3 },
-      { product: 'Pommes de terre', region: 'Nord', currentPrice: 1.2, previousPrice: 1.15, trend: 4.3 },
-      { product: 'Agrumes', region: 'Est', currentPrice: 3.5, previousPrice: 3.2, trend: 9.4 }
-    ];
-
-    // Mock grouped offers (for cooperative)
+    // Ces données restent en dur tant que leurs controlleurs ne sont pas migrés
     this.groupedOffers = [
       { id: 1, name: 'Pack semences printemps', producers: 4, totalQuantity: 2500, status: 'En négociation' },
       { id: 2, name: 'Fertilisants bio', producers: 2, totalQuantity: 1200, status: 'Validé' },
       { id: 3, name: 'Irrigation goutte à goutte', producers: 3, totalQuantity: 800, status: 'En attente' }
     ];
 
-    // Mock transactions (for cooperative)
     this.transactions = [
       { id: 1, type: 'Vente groupée - Tomates', amount: 12500, status: 'Complétée', date: new Date('2026-02-10') },
       { id: 2, type: 'Vente groupée - Blé', amount: 8900, status: 'En cours', date: new Date('2026-02-12') },
       { id: 3, type: 'Vente groupée - Olives', amount: 15600, status: 'Complétée', date: new Date('2026-02-08') }
     ];
-
-    // Mock price alerts
-    this.priceAlerts = [
-      { product: 'Tomates', threshold: 3.0, type: 'above', active: true },
-      { product: 'Blé', threshold: 0.7, type: 'below', active: true }
-    ];
   }
 
   // Modal methods
-  openOfferModal() {
-    this.showOfferModal = true;
-  }
+  openOfferModal() { if (this.canCreateOffer) this.showOfferModal = true; }
+  closeOfferModal() { this.showOfferModal = false; this.resetOfferForm(); }
 
-  closeOfferModal() {
-    this.showOfferModal = false;
-    this.resetOfferForm();
-  }
+  openGroupedOfferModal() { if (this.canCreateGroupedOffer) this.showGroupedOfferModal = true; }
+  closeGroupedOfferModal() { this.showGroupedOfferModal = false; }
 
-  openGroupedOfferModal() {
-    this.showGroupedOfferModal = true;
-  }
+  openPriceAlertModal() { if (this.canCreateOffer) this.showPriceAlertModal = true; }
+  closePriceAlertModal() { this.showPriceAlertModal = false; }
 
-  closeGroupedOfferModal() {
-    this.showGroupedOfferModal = false;
-  }
-
-  openPriceAlertModal() {
-    this.showPriceAlertModal = true;
-  }
-
-  closePriceAlertModal() {
-    this.showPriceAlertModal = false;
-  }
-
-  // Offer methods
+  // Offer CRUD
   submitOffer() {
-    const offer: Offer = {
-      id: this.offers.length + 1,
-      product: this.newOffer.product || '',
-      quantity: this.newOffer.quantity || 0,
-      unit: this.newOffer.unit || 'kg',
-      price: this.newOffer.price || 0,
-      quality: this.newOffer.quality || 'standard',
-      availability: this.newOffer.availability || 'immediate',
-      status: 'pending',
-      date: new Date()
-    };
-
-    this.myOffers.unshift(offer);
-    this.offers.unshift(offer);
-    this.closeOfferModal();
+    if (!this.canCreateOffer) return;
+    this.marketService.createOffer(this.newOffer).subscribe({
+      next: () => {
+        this.refreshData();
+        this.closeOfferModal();
+      }
+    });
   }
 
   resetOfferForm() {
-    this.newOffer = {
-      product: '',
-      quantity: 0,
-      unit: 'kg',
-      price: 0,
-      quality: 'standard',
-      availability: 'immediate'
-    };
+    this.newOffer = { product: '', quantity: 0, unit: 'kg', price: 0, quality: 'standard', availability: 'immediate' };
   }
 
-  // Price alert methods
-  submitPriceAlert() {
-    this.priceAlerts.push({
-      product: this.priceAlert.product,
-      threshold: this.priceAlert.threshold,
-      type: this.priceAlert.type,
-      active: true
+  validateOffer(offer: Offer) {
+    if (!this.canValidateOffer || !offer.id) return;
+    this.marketService.validateOffer(offer.id).subscribe(() => {
+      this.refreshData();
     });
+  }
+
+  deleteOffer(offer: Offer) {
+    if (!offer.id) return;
+    if (!this.canEditPrices && this.role !== 'producteur') return;
+    this.marketService.deleteOffer(offer.id).subscribe(() => {
+      this.refreshData();
+    });
+  }
+
+  submitPriceAlert() {
+    if (!this.canCreateOffer) return;
+    this.priceAlerts.push({ product: this.priceAlert.product, threshold: this.priceAlert.threshold, type: this.priceAlert.type, active: true });
     this.closePriceAlertModal();
   }
 
@@ -242,9 +245,21 @@ export class MarketComponent implements OnInit {
     return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short' }).format(date);
   }
 
-  // Role switching (for demo purposes)
-  switchRole(role: 'producteur' | 'cooperative' | 'admin' | 'viewer') {
-    this.userRole = role;
+  get roleLabel(): string {
+    const labels: Record<RoleKey, string> = {
+      producteur: 'Producteur',
+      cooperative: 'Coopérative',
+      admin: 'Administrateur',
+      technicien: 'Technicien',
+      ong: 'ONG',
+      etat: 'État',
+      viewer: 'Observateur'
+    };
+    return labels[this.role] ?? this.role;
+  }
+
+  get pendingOffersCount(): number {
+    return this.offers.filter(o => o.status === 'pending').length;
   }
 
   get filteredPriceData(): PriceData[] {
