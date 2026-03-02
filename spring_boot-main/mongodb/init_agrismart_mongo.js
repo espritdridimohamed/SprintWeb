@@ -387,13 +387,13 @@ ensureIndex("fileStorage", { ownerUserId: 1, createdAt: -1 }, { name: "ix_file_s
 
 // Seed roles
 const roles = [
-  { name: "BUYER", description: "Marketplace buyer" },
-  { name: "PRODUCTEUR", description: "Farmer/producer" },
-  { name: "TECHNICIEN", description: "Agricultural technician" },
-  { name: "COOPERATIVE", description: "Cooperative user" },
-  { name: "ONG", description: "NGO user" },
-  { name: "ETAT", description: "State actor" },
-  { name: "ADMIN", description: "Platform administrator" }
+  { name: "VIEWER", description: "Viewer" },
+  { name: "PRODUCTEUR", description: "Agriculteur" },
+  { name: "TECHNICIEN", description: "Technicien Agricole" },
+  { name: "COOPERATIVE", description: "Coopérative Agricole" },
+  { name: "ONG", description: "ONG" },
+  { name: "ETAT", description: "Acteur Étatique" },
+  { name: "ADMIN", description: "Administrateur Système" }
 ];
 
 roles.forEach((r) => {
