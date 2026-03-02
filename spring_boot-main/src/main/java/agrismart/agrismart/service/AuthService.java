@@ -139,7 +139,7 @@ public class AuthService {
 
         RegisterRequest request = pendingSignup.request;
 
-        Role role = roleRepository.findByNameIgnoreCase(request.getRole())
+        Role role = roleRepository.findFirstByNameIgnoreCase(request.getRole())
             .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRole()));
 
         User user = new User(
@@ -205,7 +205,7 @@ public class AuthService {
         }
         
         // Lookup roleId from role name
-        Role role = roleRepository.findByNameIgnoreCase(request.getRole())
+        Role role = roleRepository.findFirstByNameIgnoreCase(request.getRole())
             .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRole()));
 
         User user = new User(
@@ -271,7 +271,7 @@ public class AuthService {
         }
 
         // Find the VIEWER role
-        Role role = roleRepository.findByNameIgnoreCase("viewer")
+        Role role = roleRepository.findFirstByNameIgnoreCase("viewer")
             .orElseThrow(() -> new RuntimeException("Role VIEWER not found. Please restart the server."));
 
         // Create user with random password (they'll use Google to login)
@@ -333,7 +333,7 @@ public class AuthService {
             throw new RuntimeException("FACEBOOK_ACCOUNT_EXISTS");
         }
 
-        Role role = roleRepository.findByNameIgnoreCase("viewer")
+        Role role = roleRepository.findFirstByNameIgnoreCase("viewer")
             .orElseThrow(() -> new RuntimeException("Role VIEWER not found. Please restart the server."));
 
         User user = new User(

@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface RoleRepository extends MongoRepository<Role, String> {
     Optional<Role> findByName(String name);
-    Optional<Role> findByNameIgnoreCase(String name);
+    Optional<Role> findFirstByNameIgnoreCase(String name);
 }

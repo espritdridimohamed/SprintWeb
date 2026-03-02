@@ -36,7 +36,7 @@ public class DataInitializer implements CommandLineRunner {
                 "ADMIN", "PRODUCTEUR", "COOPERATIVE", "TECHNICIEN", "ONG", "ETAT", "VIEWER");
 
         for (String name : roleNames) {
-            if (roleRepository.findByNameIgnoreCase(name).isEmpty()) {
+            if (roleRepository.findFirstByNameIgnoreCase(name).isEmpty()) {
                 roleRepository.save(new Role(name, "Rôle " + name.toLowerCase()));
                 System.out.println("Rôle créé : " + name);
             }
@@ -45,7 +45,7 @@ public class DataInitializer implements CommandLineRunner {
         // 2. Initialiser l'administrateur par défaut
         String adminEmail = "admin@agrismart.tn";
         if (userRepository.findByEmail(adminEmail).isEmpty()) {
-            Role adminRole = roleRepository.findByNameIgnoreCase("ADMIN")
+            Role adminRole = roleRepository.findFirstByNameIgnoreCase("ADMIN")
                     .orElseThrow(() -> new RuntimeException("Rôle ADMIN non trouvé après initialisation"));
 
             User admin = new User(

@@ -45,9 +45,10 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
       { label: 'Mes Parcelles', route: '/app/agri', icon: 'agri' },
-      { label: 'IA & Conseils', route: '/app/ai', icon: 'ai' },
-      { label: 'Support Technicien', route: '/app/support', icon: 'support' },
-      { label: 'Formations', route: '/app/training', icon: 'training' },
+      { label: 'Tableau de bord IA', route: '/app/dashboard-ia', icon: 'auto_awesome' },
+      { label: 'Liste Diagnostics', route: '/app/diagnostics', icon: 'brain' },
+      { label: 'Support Technique', route: '/app/support', icon: 'support' },
+      { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
       { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'Alertes', route: '/app/alerts', icon: 'alerts' }
@@ -90,7 +91,9 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
       { label: 'Gestion Agricole', route: '/app/agri', icon: 'agri' },
       { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
       { label: 'Planification', route: '/app/planning', icon: 'calendar' },
-      { label: 'IA & Conseils', route: '/app/ai', icon: 'ai' },
+      { label: 'Tableau de bord IA', route: '/app/dashboard-ia', icon: 'auto_awesome' },
+      { label: 'Liste Diagnostics', route: '/app/diagnostics', icon: 'brain' },
+      { label: 'Configuration IA', route: '/app/modeles-ia', icon: 'settings' },
       { label: 'Appui Technique', route: '/app/support', icon: 'support' },
       { label: 'Alertes', route: '/app/alerts', icon: 'alerts' }
     ],
@@ -264,7 +267,8 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
       { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'IoT & Passerelles', route: '/app/iot', icon: 'iot' },
       { label: 'Logs & Audit', route: '/app/logs', icon: 'logs' },
-      { label: 'Modèles IA', route: '/app/ai', icon: 'ai' }
+      { label: 'Tableau de bord IA', route: '/app/dashboard-ia', icon: 'auto_awesome' },
+      { label: 'Configuration IA', route: '/app/modeles-ia', icon: 'settings' }
     ],
     kpis: [
       { label: 'Utilisateurs actifs', value: '1,824', trend: '+6% ce mois', tone: 'info', icon: 'users' },

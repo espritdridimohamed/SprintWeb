@@ -25,6 +25,12 @@ import { MarketplaceViewComponent } from './pages/marketplace-view/marketplace-v
 import { ProductDetailViewComponent } from './pages/product-detail-view/product-detail-view.component';
 import { UsersManagementComponent } from './pages/users-management/users-management.component';
 import { SetNewPasswordComponent } from './pages/set-new-password/set-new-password.component';
+import { ELearningComponent } from './pages/elearning/elearning.component';
+import { CoursePlayerComponent } from './pages/course-player/course-player.component';
+import { DashboardIaComponent } from './pages/dashboard-ia/dashboard-ia.component';
+import { DiagnosticsListComponent } from './pages/diagnostics-list/diagnostics-list.component';
+import { ModelesIaComponent } from './pages/modeles-ia/modeles-ia.component';
+import { TicketConversationComponent } from './pages/ticket-conversation/ticket-conversation.component';
 
 export const routes: Routes = [
 	{ path: '', component: LandingPageComponent },
@@ -42,7 +48,11 @@ export const routes: Routes = [
 			{ path: 'profile', component: ProfileComponent, canActivate: [roleGuard], data: { roles: ['viewer', 'producteur', 'technicien', 'cooperative', 'ong', 'etat', 'admin'] } },
 			{ path: 'agri', component: AgriComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'technicien', 'cooperative'] } },
 			{ path: 'ai', component: AiComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'technicien', 'admin'] } },
+			{ path: 'dashboard-ia', component: DashboardIaComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'technicien', 'admin'] } },
+			{ path: 'diagnostics', component: DiagnosticsListComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'technicien', 'admin'] } },
+			{ path: 'modeles-ia', component: ModelesIaComponent, canActivate: [roleGuard], data: { roles: ['technicien', 'admin'] } },
 			{ path: 'support', component: SupportComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'technicien'] } },
+			{ path: 'support/conversation/:id', component: TicketConversationComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'technicien'] } },
 			{ path: 'planning', component: PlanningComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'cooperative', 'technicien', 'ong', 'etat', 'admin', 'viewer'] } },
 			{ path: 'market', component: MarketComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'cooperative', 'technicien', 'ong', 'etat', 'admin', 'viewer'] } },
 			{ path: 'training', component: TrainingComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'cooperative', 'ong'] } },
@@ -55,6 +65,8 @@ export const routes: Routes = [
 			{ path: 'rapports', component: RapportsComponent, canActivate: [roleGuard], data: { roles: ['cooperative'] } },
 			{ path: 'iot', component: IotComponent, canActivate: [roleGuard], data: { roles: ['admin'] } },
 			{ path: 'logs', component: LogsComponent, canActivate: [roleGuard], data: { roles: ['admin'] } },
+			{ path: 'e-learning', component: ELearningComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'cooperative', 'technicien', 'ong', 'etat', 'admin', 'viewer'] } },
+			{ path: 'course/:id', component: CoursePlayerComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'cooperative', 'technicien', 'ong', 'etat', 'admin', 'viewer'] } },
 			{ path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 		]
 	},

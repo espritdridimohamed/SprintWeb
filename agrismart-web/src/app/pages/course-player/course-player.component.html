@@ -1,4 +1,4 @@
-<div class="player-layout">
+<div class="player-layout" *ngIf="!loading && course && selectedLesson">
     <!-- Sidebar: Path / Curriculum -->
     <aside class="curriculum-sidebar">
         <div class="sidebar-header">
@@ -7,7 +7,7 @@
                 Retour aux cours
             </button>
             <div class="course-meta">
-                <h2>{{ courseTitle }}</h2>
+                <h2>{{ course.title }}</h2>
                 <div class="overall-progress">
                     <div class="progress-bar">
                         <div class="progress-fill" [style.width.%]="totalProgress"></div>
@@ -18,7 +18,7 @@
         </div>
 
         <div class="chapters-list">
-            <div *ngFor="let chapter of chapters" class="chapter-group" [class.open]="chapter.isOpen">
+            <div *ngFor="let chapter of course.chapters" class="chapter-group" [class.open]="chapter.isOpen">
                 <div class="chapter-header" (click)="toggleChapter(chapter)">
                     <span class="material-symbols-outlined toggle-icon">
                         {{ chapter.isOpen ? 'expand_more' : 'chevron_right' }}
@@ -28,7 +28,7 @@
 
                 <div class="lessons-list" *ngIf="chapter.isOpen">
                     <div *ngFor="let lesson of chapter.lessons" class="lesson-item"
-                        [class.active]="selectedLesson.id === lesson.id" (click)="selectLesson(lesson)">
+                        [class.active]="selectedLesson.title === lesson.title" (click)="selectLesson(lesson)">
 
                         <div class="lesson-status" (click)="markAsDone(lesson, $event)">
                             <span class="material-symbols-outlined" [class.done]="lesson.completed">
@@ -40,10 +40,11 @@
                             <span class="lesson-title">{{ lesson.title }}</span>
                             <div class="lesson-meta">
                                 <span class="material-symbols-outlined meta-icon">
-                                    {{ lesson.type === 'video' ? 'movie' : lesson.type === 'pdf' ? 'picture_as_pdf' :
-                                    'description' }}
+                                    {{ lesson.type === 'video' || lesson.type === 'youtube' ? 'movie' :
+                                    lesson.type === 'pdf' ? 'picture_as_pdf' :
+                                    lesson.type === 'word' ? 'description' : 'article' }}
                                 </span>
-                                {{ lesson.duration }}
+                                {{ lesson.duration || (lesson.type | uppercase) }}
                             </div>
                         </div>
                     </div>
@@ -56,7 +57,8 @@
     <main class="content-viewer">
         <header class="content-header">
             <div class="lesson-context">
-                <span class="chapter-label">CHAPITRE : {{ chapters[0].title }}</span>
+                <span class="chapter-label" *ngIf="course.chapters.length > 0">CHAPITRE : {{ course.chapters[0].title
+                    }}</span>
                 <h1>{{ selectedLesson.title }}</h1>
             </div>
             <div class="header-actions">
@@ -70,16 +72,50 @@
         </header>
 
         <div class="lesson-content fade-in">
-            <!-- Video Mock -->
-            <div *ngIf="selectedLesson.type === 'video'" class="video-placeholder">
-                <div class="play-overlay">
-                    <span class="material-symbols-outlined">play_circle</span>
+            <!-- Video Content (YouTube or Direct) -->
+            <div *ngIf="selectedLesson.type === 'video' || selectedLesson.type === 'youtube'"
+                class="video-container card-premium">
+                <!-- YouTube Embed -->
+                <div class="video-wrapper"
+                    *ngIf="selectedLesson.content && (selectedLesson.content.includes('youtube.com') || selectedLesson.content.includes('youtu.be'))">
+                    <iframe [src]="getSafeVideoUrl(selectedLesson.content)" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
                 </div>
-                <img src="https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=1200&q=80"
-                    alt="Video cover">
+
+                <!-- Direct Video File -->
+                <div class="video-wrapper"
+                    *ngIf="selectedLesson.content && !selectedLesson.content.includes('youtube.com') && !selectedLesson.content.includes('youtu.be')">
+                    <video controls [src]="selectedLesson.content" class="native-player"></video>
+                </div>
+
+                <div class="video-empty" *ngIf="!selectedLesson.content">
+                    <span class="material-symbols-outlined">video_library</span>
+                    <p>Aucun lien vidéo configuré pour cette leçon.</p>
+                </div>
             </div>
 
-            <div class="text-content" [innerHTML]="selectedLesson.content"></div>
+            <!-- PDF / Word Content -->
+            <div *ngIf="selectedLesson.type === 'pdf' || selectedLesson.type === 'word'"
+                class="file-content-card card-premium">
+                <div class="file-icon">
+                    <span class="material-symbols-outlined">
+                        {{ selectedLesson.type === 'pdf' ? 'picture_as_pdf' : 'description' }}
+                    </span>
+                </div>
+                <div class="file-details">
+                    <h3>Document de formation</h3>
+                    <p>Ce chapitre contient un document externe à consulter.</p>
+                    <a [href]="selectedLesson.content" target="_blank" class="primary-btn">
+                        <span class="material-symbols-outlined">visibility</span>
+                        Consulter le document
+                    </a>
+                </div>
+            </div>
+
+            <!-- Text Content -->
+            <div *ngIf="selectedLesson.type === 'text'" class="text-content" [innerHTML]="selectedLesson.content"></div>
 
             <div class="completion-banner" *ngIf="!selectedLesson.completed">
                 <div class="banner-text">
@@ -104,4 +140,8 @@
             </div>
         </div>
     </main>
+</div>
+
+<div class="loading-state" *ngIf="loading">
+    <p>Chargement du cours...</p>
 </div>

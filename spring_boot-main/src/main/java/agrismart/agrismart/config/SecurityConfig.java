@@ -46,6 +46,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // Auth endpoints are public
                         .requestMatchers("/api/auth/**").permitAll()
+                        // Public uploads and upload endpoint
+                        .requestMatchers("/api/upload/**", "/uploads/**").permitAll()
                         // Everything else requires authentication
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session

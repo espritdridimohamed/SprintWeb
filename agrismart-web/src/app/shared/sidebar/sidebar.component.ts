@@ -30,7 +30,10 @@ export class SidebarComponent {
     admin: 'admin_panel_settings',
     iot: 'sensors',
     logs: 'receipt_long',
-    users_mgmt: 'manage_accounts'
+    users_mgmt: 'manage_accounts',
+    auto_awesome: 'auto_awesome',
+    brain: 'psychology',
+    settings: 'settings'
   };
 
   getIcon(key: string): string {

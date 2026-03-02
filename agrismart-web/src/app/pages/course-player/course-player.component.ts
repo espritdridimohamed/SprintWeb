@@ -2,21 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-
-interface Lesson {
-  id: number;
-  title: string;
-  completed: boolean;
-  content: string;
-  type: 'video' | 'text' | 'pdf';
-  duration: string;
-}
-
-interface Chapter {
-  title: string;
-  lessons: Lesson[];
-  isOpen: boolean;
-}
+import { ELearningService, Course, Chapter, Lesson } from '../../services/elearning.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-course-player',
@@ -26,41 +13,54 @@ interface Chapter {
   styleUrl: './course-player.component.scss'
 })
 export class CoursePlayerComponent implements OnInit {
-  courseTitle = 'Optimisation de l\'irrigation goutte-à-goutte';
-  chapters: Chapter[] = [
-    {
-      title: 'Introduction et Fondamentaux',
-      isOpen: true,
-      lessons: [
-        { id: 1, title: 'Bienvenue au cours', completed: true, type: 'video', duration: '2:30', content: 'Bienvenue dans ce module de formation sur l\'irrigation. Dans cette vidéo, nous allons voir les bases du système goutte-à-goutte.' },
-        { id: 2, title: 'Pourquoi le goutte-à-goutte ?', completed: true, type: 'text', duration: '10 min', content: '<p>L\'irrigation goutte-à-goutte est une méthode d\'irrigation qui permet d\'économiser l\'eau et l\'engrais en laissant l\'eau s\'égoutter lentement vers les racines des plantes...</p><ul><li>Économie d\'eau</li><li>Précision</li><li>Rendement accru</li></ul>' }
-      ]
-    },
-    {
-      title: 'Installation du Système',
-      isOpen: true,
-      lessons: [
-        { id: 3, title: 'Matériel nécessaire', completed: false, type: 'pdf', duration: '5 pages', content: 'Voici la liste complète du matériel nécessaire pour installer votre système : tuyaux, raccords, filtres, et régulateurs de pression.' },
-        { id: 4, title: 'Configuration du terrain', completed: false, type: 'video', duration: '15:45', content: 'Cette vidéo vous montre comment préparer votre sol et disposer vos lignes d\'irrigation de manière optimale.' },
-        { id: 5, title: 'Raccordement à la source d\'eau', completed: false, type: 'text', duration: '15 min', content: 'Le raccordement est l\'étape la plus cruciale. Assurez-vous d\'avoir une pression constante.' }
-      ]
-    },
-    {
-      title: 'Maintenance et IA',
-      isOpen: false,
-      lessons: [
-        { id: 6, title: 'Nettoyage des filtres', completed: false, type: 'video', duration: '5:20', content: 'Apprenez à entretenir vos filtres pour éviter les obstructions.' },
-        { id: 7, title: 'Utilisation de l\'IA AgriSmart', completed: false, type: 'text', duration: '12 min', content: 'Comment utiliser nos capteurs connectés pour automatiser votre arrosage.' }
-      ]
-    }
-  ];
+  course: Course | null = null;
+  selectedLesson: Lesson | null = null;
+  loading = true;
 
-  selectedLesson: Lesson = this.chapters[0].lessons[0];
-
-  constructor(private router: Router, private route: ActivatedRoute) { }
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private elearningService: ELearningService,
+    private sanitizer: DomSanitizer
+  ) { }
 
   ngOnInit() {
-    // Find lesson by params if needed
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.elearningService.getCourseById(id).subscribe(course => {
+        this.course = course;
+        this.loading = false;
+        if (course.chapters && course.chapters.length > 0 && course.chapters[0].lessons && course.chapters[0].lessons.length > 0) {
+          this.selectedLesson = course.chapters[0].lessons[0];
+        } else {
+          // Fallback Lesson if none exist
+          this.selectedLesson = {
+            title: 'Contenu en cours de préparation',
+            content: 'Le contenu de ce chapitre sera bientôt disponible.',
+            type: 'text',
+            completed: false
+          };
+        }
+      });
+    }
+  }
+
+  getSafeVideoUrl(url: string): SafeResourceUrl {
+    if (!url) return '';
+
+    // YouTube treatment
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      let videoId = '';
+      if (url.includes('v=')) {
+        videoId = url.split('v=')[1].split('&')[0];
+      } else if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1].split('?')[0];
+      }
+      return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}`);
+    }
+
+    // Direct link or other
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   selectLesson(lesson: Lesson) {
@@ -81,7 +81,9 @@ export class CoursePlayerComponent implements OnInit {
   }
 
   get totalProgress(): number {
-    const allLessons = this.chapters.flatMap(c => c.lessons);
+    if (!this.course || !this.course.chapters || this.course.chapters.length === 0) return 0;
+    const allLessons = this.course.chapters.flatMap(c => c.lessons || []);
+    if (allLessons.length === 0) return 0;
     const completed = allLessons.filter(l => l.completed).length;
     return Math.round((completed / allLessons.length) * 100);
   }

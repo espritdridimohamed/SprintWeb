@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RoleService } from '../../services/role.service';
+import { ELearningService, Course, Chapter, Lesson } from '../../services/elearning.service';
 
 interface CoursePart {
     title: string;
@@ -18,31 +19,20 @@ interface CoursePart {
 })
 export class ELearningComponent implements OnInit {
     isCreating = false;
+    isEditing = false;
+    currentCourseId: string | null = null;
     courseTitle = '';
-    parts: CoursePart[] = [{ title: '', content: '' }];
+    courseDescription = '';
+    courseImage = '';
+    courseTag = '';
 
-    // Management Data
-    courses = [
-        { id: 1, name: 'Irrigation de précision', parts: 5, size: '12 Mo', status: 'Publié', image: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=400&q=80', progress: 0 },
-        { id: 2, name: 'Gestion des sols arides', parts: 3, size: '8 Mo', status: 'Brouillon', image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80', progress: 0 }
-    ];
+    chapters: Chapter[] = [{ title: 'Introduction', lessons: [], isOpen: true }];
 
-    // Student Data
-    studentCourses = [
-        { id: 1, title: 'Optimisation de l\'irrigation', instructor: 'Dr. Sarah Toumi', progress: 65, totalParts: 8, image: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=400&q=80', tag: 'Technique' },
-        { id: 2, title: 'Commercialisation locale', instructor: 'Jean-Pierre Adam', progress: 20, totalParts: 12, image: 'https://images.unsplash.com/photo-1488459711612-da6ad8d39a6a?auto=format&fit=crop&w=400&q=80', tag: 'Business' },
-        { id: 3, title: 'Engrais Bio : Guide Complet', instructor: 'Fermes du Vallon', progress: 0, totalParts: 5, image: 'https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?auto=format&fit=crop&w=400&q=80', tag: 'Durable' },
-        { id: 4, title: 'Santé animale et diagnostic', instructor: 'Global Livestock', progress: 90, totalParts: 15, image: 'https://images.unsplash.com/photo-1547496613-4e193fb3546a?auto=format&fit=crop&w=400&q=80', tag: 'Elevage' }
-    ];
+    // Real Data
+    managementCourses: Course[] = [];
+    studentCourses: Course[] = [];
 
-    activeCourse = {
-        id: 1,
-        title: 'Optimisation de l\'irrigation goutte-à-goutte',
-        instructor: 'Dr. Sarah Toumi',
-        progress: 65,
-        image: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80',
-        nextLesson: 'Installation des Micro-Aspergeurs'
-    };
+    activeCourse: any = null;
 
     currentRole = 'admin';
 
@@ -58,11 +48,23 @@ export class ELearningComponent implements OnInit {
 
     constructor(
         private roleService: RoleService,
+        private elearningService: ELearningService,
         private router: Router
     ) { }
 
     ngOnInit() {
         this.currentRole = this.roleService.role;
+        this.loadCourses();
+    }
+
+    loadCourses() {
+        this.elearningService.getCourses().subscribe(courses => {
+            this.managementCourses = courses;
+            this.studentCourses = courses;
+            if (courses.length > 0) {
+                this.activeCourse = courses[0]; // Simple logic for demo
+            }
+        });
     }
 
     get isManagementMode(): boolean {
@@ -71,16 +73,34 @@ export class ELearningComponent implements OnInit {
 
     startCreating() {
         this.isCreating = true;
+        this.isEditing = false;
+        this.resetForm();
     }
 
     addPart() {
-        this.parts.push({ title: '', content: '' });
+        this.chapters.push({ title: '', lessons: [], isOpen: true });
     }
 
     removePart(index: number) {
-        if (this.parts.length > 1) {
-            this.parts.splice(index, 1);
+        if (this.chapters.length > 1) {
+            this.chapters.splice(index, 1);
         }
+    }
+
+    addSection(chapterIndex: number) {
+        if (!this.chapters[chapterIndex].lessons) {
+            this.chapters[chapterIndex].lessons = [];
+        }
+        this.chapters[chapterIndex].lessons.push({
+            title: '',
+            content: '',
+            type: 'text',
+            completed: false
+        });
+    }
+
+    removeSection(chapterIndex: number, sectionIndex: number) {
+        this.chapters[chapterIndex].lessons.splice(sectionIndex, 1);
     }
 
     openPublishPopup() {
@@ -108,15 +128,32 @@ export class ELearningComponent implements OnInit {
     }
 
     confirmPublish() {
-        const selectedMembers = this.members.filter(m => m.selected);
-        console.log('Publishing course to:', {
+        const course: Course = {
+            id: this.currentCourseId || undefined,
             title: this.courseTitle,
-            recipients: this.selectAll ? 'All members' : selectedMembers.map(m => m.name),
-            parts: this.parts
-        });
+            description: this.courseDescription || 'Formation AgriSmart', // Default value
+            image: this.courseImage || 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80', // Default value
+            tag: this.courseTag || 'Technique',
+            chapters: this.chapters,
+            instructorName: 'Admin / ONG'
+        };
 
+        if (this.isEditing && this.currentCourseId) {
+            this.elearningService.updateCourse(this.currentCourseId, course).subscribe(() => {
+                this.finishSaving();
+            });
+        } else {
+            this.elearningService.createCourse(course).subscribe(() => {
+                this.finishSaving();
+            });
+        }
+    }
+
+    finishSaving() {
         this.isPublishPopupOpen = false;
         this.isCreating = false;
+        this.isEditing = false;
+        this.loadCourses();
         this.resetForm();
     }
 
@@ -129,12 +166,54 @@ export class ELearningComponent implements OnInit {
         this.resetForm();
     }
 
-    resetForm() {
-        this.courseTitle = '';
-        this.parts = [{ title: '', content: '' }];
+    editCourse(course: Course) {
+        this.isCreating = true;
+        this.isEditing = true;
+        this.currentCourseId = course.id!;
+        this.courseTitle = course.title;
+        this.courseDescription = course.description || '';
+        this.courseImage = course.image || '';
+        this.courseTag = course.tag || '';
+        this.chapters = JSON.parse(JSON.stringify(course.chapters)); // Deep copy
     }
 
-    openCourse(courseId: number) {
+    deleteCourse(id: string) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce cours ?')) {
+            this.elearningService.deleteCourse(id).subscribe(() => {
+                this.loadCourses();
+            });
+        }
+    }
+
+    onFileSelected(event: any, section: Lesson) {
+        const file = event.target.files[0];
+        if (file) {
+            section.uploading = true;
+            this.elearningService.uploadFile(file).subscribe({
+                next: (res: any) => {
+                    section.content = res.url;
+                    section.fileName = file.name;
+                    section.uploading = false;
+                },
+                error: (err) => {
+                    console.error('Upload failed', err);
+                    alert('Le chargement du fichier a échoué.');
+                    section.uploading = false;
+                }
+            });
+        }
+    }
+
+    resetForm() {
+        this.currentCourseId = null;
+        this.courseTitle = '';
+        this.courseDescription = '';
+        this.courseImage = '';
+        this.courseTag = '';
+        this.chapters = [{ title: 'Introduction', lessons: [], isOpen: true }];
+    }
+
+    openCourse(courseId: string) {
         this.router.navigate(['/app/course', courseId]);
     }
 }
