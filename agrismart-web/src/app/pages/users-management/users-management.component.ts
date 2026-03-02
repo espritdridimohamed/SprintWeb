@@ -34,6 +34,7 @@ export class UsersManagementComponent implements OnInit {
   users: DbUser[] = [];
   roles: DbRole[] = [];
   pendingRoleByUserId: Record<string, string> = {};
+  pendingStatusByUserId: Record<string, string> = {};
 
   isLoading = false;
   isCreateModalOpen = false;
@@ -52,7 +53,6 @@ export class UsersManagementComponent implements OnInit {
   firstName = '';
   lastName = '';
   email = '';
-  password = '';
   selectedRole = 'VIEWER';
   organization = 'AgriSmart';
 
@@ -74,10 +74,17 @@ export class UsersManagementComponent implements OnInit {
         this.roles = roles ?? [];
 
         this.pendingRoleByUserId = {};
+        this.pendingStatusByUserId = {};
         this.users.forEach((user) => {
-          if (user.id && user.roleId) {
+          if (!user.id) {
+            return;
+          }
+
+          if (user.roleId) {
             this.pendingRoleByUserId[user.id] = user.roleId;
           }
+
+          this.pendingStatusByUserId[user.id] = this.normalizeStatus(user.status);
         });
 
         if (this.roles.length > 0 && !this.roles.some((role) => role.name === this.selectedRole)) {
@@ -109,7 +116,7 @@ export class UsersManagementComponent implements OnInit {
     this.submitError = '';
     this.submitSuccess = '';
 
-    if (!this.firstName || !this.lastName || !this.email || !this.password || !this.selectedRole) {
+    if (!this.firstName || !this.lastName || !this.email || !this.selectedRole) {
       this.submitError = 'Veuillez remplir tous les champs obligatoires.';
       return;
     }
@@ -120,21 +127,20 @@ export class UsersManagementComponent implements OnInit {
       firstName: this.firstName,
       lastName: this.lastName,
       email: this.email,
-      password: this.password,
       role: this.selectedRole,
       organization: this.organization || 'AgriSmart'
     };
 
-    this.http.post(`${this.apiBaseUrl}/auth/register`, payload).subscribe({
+    this.http.post(`${this.apiBaseUrl}/users/invite`, payload).subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.submitSuccess = 'Utilisateur créé avec succès.';
+        this.submitSuccess = 'Compte créé. Un mot de passe temporaire a été envoyé par e-mail.';
         this.resetForm();
         this.loadData();
       },
       error: () => {
         this.isSubmitting = false;
-        this.submitError = 'Création impossible. Email déjà utilisé ou serveur indisponible.';
+        this.submitError = 'Invitation impossible. Email déjà utilisé ou serveur indisponible.';
       }
     });
   }
@@ -232,25 +238,30 @@ export class UsersManagementComponent implements OnInit {
   saveUserRole(user: DbUser): void {
     if (!user.id) return;
 
-    const roleId = this.pendingRoleByUserId[user.id];
-    if (!roleId || roleId === user.roleId) return;
+    const roleId = this.pendingRoleByUserId[user.id] ?? user.roleId;
+    const status = this.normalizeStatus(this.pendingStatusByUserId[user.id] ?? user.status);
+
+    const hasRoleChanged = !!roleId && roleId !== user.roleId;
+    const hasStatusChanged = status !== this.normalizeStatus(user.status);
+
+    if (!hasRoleChanged && !hasStatusChanged) return;
 
     const payload = {
       firstName: user.firstName,
       lastName: user.lastName,
       organization: user.organization ?? 'AgriSmart',
       roleId,
-      status: user.status ?? 'ACTIVE'
+      status
     };
 
     this.http.put(`${this.apiBaseUrl}/users/${user.id}`, payload).subscribe({
       next: () => {
-        this.submitSuccess = `Rôle de ${user.firstName} ${user.lastName} mis à jour.`;
+        this.submitSuccess = `Compte de ${user.firstName} ${user.lastName} mis à jour.`;
         this.submitError = '';
         this.loadData();
       },
       error: () => {
-        this.submitError = 'Impossible de mettre à jour le rôle utilisateur.';
+        this.submitError = 'Impossible de mettre à jour le rôle/statut utilisateur.';
         this.submitSuccess = '';
       }
     });
@@ -264,6 +275,24 @@ export class UsersManagementComponent implements OnInit {
   setPendingRole(user: DbUser, roleId: string): void {
     if (!user.id) return;
     this.pendingRoleByUserId[user.id] = roleId;
+  }
+
+  getPendingStatus(user: DbUser): string {
+    if (!user.id) return this.normalizeStatus(user.status);
+    return this.pendingStatusByUserId[user.id] ?? this.normalizeStatus(user.status);
+  }
+
+  setPendingStatus(user: DbUser, status: string): void {
+    if (!user.id) return;
+    this.pendingStatusByUserId[user.id] = this.normalizeStatus(status);
+  }
+
+  getStatusLabel(status?: string): string {
+    return this.normalizeStatus(status) === 'ACTIVE' ? 'Active' : 'Inactive';
+  }
+
+  getStatusClass(status?: string): string {
+    return this.normalizeStatus(status) === 'ACTIVE' ? 'status-active' : 'status-inactive';
   }
 
   deleteUser(user: DbUser): void {
@@ -289,7 +318,10 @@ export class UsersManagementComponent implements OnInit {
     this.firstName = '';
     this.lastName = '';
     this.email = '';
-    this.password = '';
     this.organization = 'AgriSmart';
+  }
+
+  private normalizeStatus(status?: string): string {
+    return (status ?? 'ACTIVE').toUpperCase() === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE';
   }
 }

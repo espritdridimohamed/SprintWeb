@@ -33,11 +33,6 @@
     </div>
 
     <div class="form-group">
-      <label>Password</label>
-      <input type="password" [(ngModel)]="password" placeholder="••••••••" />
-    </div>
-
-    <div class="form-group">
       <label>Role</label>
       <select [(ngModel)]="selectedRole">
         <option *ngFor="let role of roles" [value]="role.name">{{ role.name }}</option>
@@ -56,7 +51,7 @@
   <div class="form-actions">
     <button class="secondary-btn" (click)="closeCreateUser()">Cancel</button>
     <button class="primary-btn" (click)="createUser()" [disabled]="isSubmitting">
-      {{ isSubmitting ? 'Creating...' : 'Create User' }}
+      {{ isSubmitting ? 'Sending...' : 'Send Invitation' }}
     </button>
   </div>
 </div>
@@ -112,8 +107,10 @@
           <th>Name</th>
           <th>Email</th>
           <th>Current Role</th>
+          <th>Current Status</th>
           <th>Registered</th>
           <th>New Role</th>
+          <th>New Status</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -124,6 +121,9 @@
           <td>
             <span class="role-badge">{{ getRoleNameById(user.roleId) }}</span>
           </td>
+          <td>
+            <span class="status-badge" [class]="getStatusClass(user.status)">{{ getStatusLabel(user.status) }}</span>
+          </td>
           <td>{{ getUserCreatedAtLabel(user) }}</td>
           <td>
             <select class="role-select" [ngModel]="getPendingRole(user)" (ngModelChange)="setPendingRole(user, $event)">
@@ -131,8 +131,14 @@
             </select>
           </td>
           <td>
+            <select class="role-select" [ngModel]="getPendingStatus(user)" (ngModelChange)="setPendingStatus(user, $event)">
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </td>
+          <td>
             <div class="actions">
-              <button class="icon-action edit" (click)="saveUserRole(user)" title="Save role change">
+              <button class="icon-action edit" (click)="saveUserRole(user)" title="Save role and status changes">
                 <span class="material-symbols-outlined">save</span>
               </button>
               <button class="icon-action delete" (click)="deleteUser(user)" title="Delete user">

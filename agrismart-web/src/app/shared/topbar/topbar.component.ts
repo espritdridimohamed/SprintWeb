@@ -15,9 +15,20 @@ export class TopbarComponent {
   @Input() orgLabel = '';
   @Input() showELearning = false;
 
+  showLogoutModal = false;
+
   constructor(private authService: AuthService, private router: Router) {}
 
-  logout(): void {
+  openLogoutModal(): void {
+    this.showLogoutModal = true;
+  }
+
+  closeLogoutModal(): void {
+    this.showLogoutModal = false;
+  }
+
+  confirmLogout(): void {
+    this.showLogoutModal = false;
     this.authService.logout();
     this.router.navigate(['/login']);
   }

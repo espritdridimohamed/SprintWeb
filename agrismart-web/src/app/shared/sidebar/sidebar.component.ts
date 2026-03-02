@@ -29,7 +29,8 @@ export class SidebarComponent {
     exports: 'download',
     admin: 'admin_panel_settings',
     iot: 'sensors',
-    logs: 'receipt_long'
+    logs: 'receipt_long',
+    users_mgmt: 'manage_accounts'
   };
 
   getIcon(key: string): string {

@@ -1,223 +1,63 @@
-<div class="page-header">
+<div class="page-header section-gap">
   <div>
-    <div class="page-title">Administration</div>
-    <div class="page-subtitle">Gestion des utilisateurs, des rôles et du cycle de vie des comptes</div>
-  </div>
-  <button class="primary-btn" (click)="openCreateUser()">Créer utilisateur</button>
-</div>
-
-<div class="card create-user-card" *ngIf="isCreateModalOpen">
-  <div class="card-title">Nouveau compte</div>
-
-  <div class="form-grid">
-    <div class="form-group">
-      <label>Prénom</label>
-      <input type="text" [(ngModel)]="firstName" />
-    </div>
-
-    <div class="form-group">
-      <label>Nom</label>
-      <input type="text" [(ngModel)]="lastName" />
-    </div>
-
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" [(ngModel)]="email" />
-    </div>
-
-    <div class="form-group">
-      <label>Mot de passe</label>
-      <input type="password" [(ngModel)]="password" />
-    </div>
-
-    <div class="form-group">
-      <label>Rôle</label>
-      <select [(ngModel)]="selectedRole" class="form-input">
-        <option value="" disabled>Sélectionner un rôle</option>
-        <option *ngFor="let role of roles" [value]="role.name">{{ role.name }}</option>
-      </select>
-      <small *ngIf="roles.length === 0" class="text-warning">Chargement des rôles...</small>
-    </div>
-
-    <div class="form-group">
-      <label>Organisation</label>
-      <input type="text" [(ngModel)]="organization" />
-    </div>
-  </div>
-
-  <div class="feedback error" *ngIf="submitError">{{ submitError }}</div>
-  <div class="feedback success" *ngIf="submitSuccess">{{ submitSuccess }}</div>
-
-  <div class="form-actions">
-    <button class="secondary-btn" (click)="closeCreateUser()">Fermer</button>
-    <button class="primary-btn" (click)="createUser()" [disabled]="isSubmitting">
-      {{ isSubmitting ? 'Création...' : 'Créer' }}
-    </button>
+    <div class="page-title">Dashboard</div>
+    <div class="page-subtitle">System overview, analytics and key metrics</div>
   </div>
 </div>
+<section class="admin-hero section-gap">
+  <div class="hero-header">
+    <div class="hero-title">Administration Système - AgriSmart</div>
+  </div>
 
-<div class="grid-3 summary-cards">
-  <div class="card">
-    <div class="card-title">
-      <span class="material-symbols-outlined">groups</span>
-      Utilisateurs total
+  <div class="hero-kpis main-kpis">
+    <div class="hero-kpi-card" *ngFor="let metric of mainCards" [class]="metric.tone">
+      <span class="material-symbols-outlined hero-kpi-icon">{{ metric.icon }}</span>
+      <div class="hero-kpi-value">{{ metric.value }}</div>
+      <div class="hero-kpi-label">{{ metric.label }}</div>
     </div>
-    <div class="stat-value">{{ totalUsers }}</div>
   </div>
-  <div class="card">
-    <div class="card-title">
-      <span class="material-symbols-outlined">verified_user</span>
-      Utilisateurs actifs
-    </div>
-    <div class="stat-value">{{ activeUsers }}</div>
-  </div>
-  <div class="card">
-    <div class="card-title">
-      <span class="material-symbols-outlined">admin_panel_settings</span>
-      Rôles configurés
-    </div>
-    <div class="stat-value">{{ totalRoles }}</div>
-  </div>
-</div>
 
-<div class="grid-3 section-gap">
-  <div class="card mini-stat-card">
-    <div class="mini-stat-label">Taux utilisateurs actifs</div>
-    <div class="mini-stat-value">{{ activeRate }}%</div>
+  <div class="hero-kpis secondary-kpis">
+    <div class="hero-kpi-card secondary" *ngFor="let metric of secondaryCards" [class]="metric.tone">
+      <span class="material-symbols-outlined hero-kpi-icon">{{ metric.icon }}</span>
+      <div class="hero-kpi-value">{{ metric.value }}</div>
+      <div class="hero-kpi-label">{{ metric.label }}</div>
+    </div>
   </div>
-  <div class="card mini-stat-card">
-    <div class="mini-stat-label">Nouveaux comptes (30 jours)</div>
-    <div class="mini-stat-value">{{ usersThisMonth }}</div>
-  </div>
-  <div class="card mini-stat-card">
-    <div class="mini-stat-label">Rôle majoritaire</div>
-    <div class="mini-stat-value">{{ topRoleStat.name }} · {{ topRoleStat.count }}</div>
-  </div>
-</div>
+</section>
+
+
+
+
 
 <div class="grid-2 section-gap">
   <div class="card">
     <div class="card-title">Répartition des rôles (chart)</div>
-    <div class="chart-rows">
-      <div class="chart-row" *ngFor="let item of roleStats">
-        <div class="chart-label">{{ item.name }}</div>
-        <div class="chart-track">
-          <div class="chart-fill" [style.width.%]="getRoleChartWidth(item.count)"></div>
+    <div class="role-bars-wrap">
+      <div class="role-bars-grid">
+        <div class="role-bar-column" *ngFor="let item of roleBarChartStats">
+          <div class="role-bar-track">
+            <div class="role-bar-fill" [style.height.%]="getRoleBarHeight(item.count)"></div>
+          </div>
+          <div class="role-bar-label">{{ item.name }}</div>
+          <div class="role-bar-value">{{ item.count }}</div>
         </div>
-        <div class="chart-value">{{ item.count }}</div>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">Inscriptions (7 derniers jours)</div>
-    <div class="trend-rows">
-      <div class="trend-row" *ngFor="let day of signupTrendLast7Days">
-        <div class="trend-label">{{ day.label }}</div>
-        <div class="trend-track">
-          <div class="trend-fill" [style.width.%]="day.width"></div>
+    <div class="card-title">Nouveaux utilisateurs (7 jours)</div>
+    <div class="role-bars-wrap">
+      <div class="role-bars-grid users-bars-grid">
+        <div class="role-bar-column" *ngFor="let item of signupTrendLast7Days">
+          <div class="role-bar-track users-bar-track">
+            <div class="role-bar-fill users-bar-fill" [style.height.%]="item.height"></div>
+          </div>
+          <div class="role-bar-label">{{ item.label }}</div>
+          <div class="role-bar-value">{{ item.count }}</div>
         </div>
-        <div class="trend-value">{{ day.count }}</div>
       </div>
     </div>
   </div>
-</div>
-
-<div class="card section-gap" *ngIf="!isLoading">
-  <div class="card-title">Gestion des utilisateurs</div>
-
-  <div class="table-toolbar">
-    <div class="toolbar-search">
-      <span class="material-symbols-outlined">search</span>
-      <input
-        type="text"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="onFiltersChanged()"
-        placeholder="Rechercher par nom, email ou rôle"
-      />
-    </div>
-
-    <select [(ngModel)]="selectedRoleFilter" (ngModelChange)="onFiltersChanged()">
-      <option value="all">Tous les rôles</option>
-      <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
-    </select>
-
-    <select [(ngModel)]="selectedStatusFilter" (ngModelChange)="onFiltersChanged()">
-      <option value="all">Tous statuts</option>
-      <option value="active">Actifs</option>
-      <option value="inactive">Inactifs</option>
-    </select>
-
-    <select [(ngModel)]="selectedDateFilter" (ngModelChange)="onFiltersChanged()">
-      <option value="all">Toutes dates</option>
-      <option value="today">Aujourd'hui</option>
-      <option value="7d">7 derniers jours</option>
-      <option value="30d">30 derniers jours</option>
-    </select>
-
-    <button class="secondary-btn" (click)="resetFilters()">Réinitialiser</button>
-  </div>
-
-  <div class="table-meta">
-    <span>Résultats: {{ totalFilteredUsers }}</span>
-    <span *ngIf="totalFilteredUsers > 0">Affichage {{ pageStartItem }}-{{ pageEndItem }}</span>
-  </div>
-
-  <div class="users-table-wrap" *ngIf="users.length > 0; else emptyUsers">
-    <table class="users-table">
-      <thead>
-        <tr>
-          <th>Nom</th>
-          <th>Email</th>
-          <th>Rôle actuel</th>
-          <th>Inscription</th>
-          <th>Nouveau rôle</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let user of paginatedUsers">
-          <td>{{ user.firstName }} {{ user.lastName }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ getRoleNameById(user.roleId) }}</td>
-          <td>{{ getUserCreatedAtLabel(user) }}</td>
-          <td>
-            <select class="role-select" [ngModel]="getPendingRole(user)" (ngModelChange)="setPendingRole(user, $event)">
-              <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
-            </select>
-          </td>
-          <td>
-            <div class="actions">
-              <button class="icon-action edit" (click)="saveUserRole(user)" title="Mettre à jour le rôle">
-                <span class="material-symbols-outlined">save</span>
-              </button>
-              <button class="icon-action delete" (click)="deleteUser(user)" title="Supprimer utilisateur">
-                <span class="material-symbols-outlined">delete</span>
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="table-empty" *ngIf="totalFilteredUsers === 0">Aucun utilisateur trouvé pour ces filtres.</div>
-
-    <div class="pagination" *ngIf="totalFilteredUsers > pageSize">
-      <button class="secondary-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">Précédent</button>
-      <button
-        class="page-btn"
-        *ngFor="let page of visiblePageNumbers"
-        [class.active]="page === currentPage"
-        (click)="goToPage(page)">
-        {{ page }}
-      </button>
-      <button class="secondary-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Suivant</button>
-    </div>
-  </div>
-
-  <ng-template #emptyUsers>
-    <div class="list">
-      <div class="list-item">Aucun utilisateur en base.</div>
-    </div>
-  </ng-template>
 </div>

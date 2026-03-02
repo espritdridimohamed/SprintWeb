@@ -3,8 +3,8 @@ import { RoleConfig, RoleKey } from '../models/role.model';
 export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
   viewer: {
     key: 'viewer',
-    label: 'User',
-    orgLabel: 'User',
+    label: 'Viewer',
+    orgLabel: 'Viewer',
     nav: [
       { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
       { label: 'Planification', route: '/app/planning', icon: 'calendar' }
@@ -257,7 +257,8 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     label: 'Administrateur Système',
     orgLabel: 'AgriSmart Cloud',
     nav: [
-      { label: 'Administration', route: '/app/admin', icon: 'admin' },
+      { label: 'Dashboard', route: '/app/admin', icon: 'dashboard' },
+      { label: 'Users Management', route: '/app/users-management', icon: 'users_mgmt' },
       { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
       { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'E-learning', route: '/app/e-learning', icon: 'school' },

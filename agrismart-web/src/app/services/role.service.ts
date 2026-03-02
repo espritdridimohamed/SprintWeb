@@ -40,21 +40,23 @@ export class RoleService {
       return 'technicien';
     }
 
-    const storedRole = localStorage.getItem(this.roleStorageKey) as RoleKey | null;
-    if (!storedRole) {
+    const raw = localStorage.getItem(this.roleStorageKey);
+    if (!raw) {
       return 'technicien';
     }
+    if (raw === 'buyer') return 'viewer';
 
+    const storedRole = raw as RoleKey;
     const validRoles: RoleKey[] = ['viewer', 'producteur', 'technicien', 'cooperative', 'ong', 'etat', 'admin'];
-    return validRoles.includes(storedRole) ? storedRole : 'viewer';
+    return validRoles.includes(storedRole) ? storedRole : 'technicien';
   }
 
   private mapBackendRoleToRoleKey(backendRole: string): RoleKey {
     const normalized = backendRole.trim().toUpperCase();
 
     switch (normalized) {
-      case 'BUYER':
       case 'VIEWER':
+      case 'BUYER':
         return 'viewer';
       case 'PRODUCTEUR':
         return 'producteur';

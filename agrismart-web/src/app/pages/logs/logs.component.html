@@ -1,44 +1,59 @@
 <div class="page-header logs-page-header">
-  <h1 class="page-title logs-page-title">Logs & Audit</h1>
-  <p class="page-subtitle logs-page-subtitle">Journal d'activité et traçabilité des opérations</p>
+  <div>
+    <div class="page-title logs-page-title">Logs & Audit</div>
+    <div class="page-subtitle logs-page-subtitle">Journal d'activité et traçabilité des opérations</div>
+  </div>
+  <span class="logs-tag">Surveillance en direct</span>
 </div>
 
 <div class="content-area">
   <div class="card logs-loading" *ngIf="isLoading">Chargement des logs...</div>
 
-  <div class="grid-4" *ngIf="!isLoading">
-    <div class="card metric-card">
-      <div class="metric-label">Connexions (24h)</div>
-      <div class="metric-value">{{ todayConnections }}</div>
+  <section class="logs-hero" *ngIf="!isLoading">
+    <div class="logs-kpis">
+      <div class="logs-kpi-card info">
+        <span class="material-symbols-outlined logs-kpi-icon">login</span>
+        <div class="logs-kpi-value">{{ todayConnections }}</div>
+        <div class="logs-kpi-label">Connexions (24h)</div>
+      </div>
+      <div class="logs-kpi-card brand">
+        <span class="material-symbols-outlined logs-kpi-icon">receipt_long</span>
+        <div class="logs-kpi-value">{{ logsPerDay }}</div>
+        <div class="logs-kpi-label">Logs / jour</div>
+      </div>
+      <div class="logs-kpi-card success">
+        <span class="material-symbols-outlined logs-kpi-icon">verified_user</span>
+        <div class="logs-kpi-value">{{ activeUsers }}</div>
+        <div class="logs-kpi-label">Comptes actifs</div>
+      </div>
+      <div class="logs-kpi-card warning">
+        <span class="material-symbols-outlined logs-kpi-icon">shield</span>
+        <div class="logs-kpi-value">{{ securityScore }}%</div>
+        <div class="logs-kpi-label">Score sécurité</div>
+      </div>
     </div>
-    <div class="card metric-card">
-      <div class="metric-label">Logs / jour</div>
-      <div class="metric-value">{{ logsPerDay }}</div>
-    </div>
-    <div class="card metric-card">
-      <div class="metric-label">Comptes actifs</div>
-      <div class="metric-value">{{ activeUsers }}</div>
-    </div>
-    <div class="card metric-card">
-      <div class="metric-label">Score sécurité</div>
-      <div class="metric-value">{{ securityScore }}%</div>
-    </div>
-  </div>
+  </section>
 
   <div class="grid-2 logs-section-gap" *ngIf="!isLoading">
-    <div class="card">
-      <h3 class="card-title">Tendance des inscriptions (7 jours)</h3>
+    <section class="card logs-panel">
+      <div class="card-head">
+        <h3 class="card-title">Tendance des inscriptions (7 jours)</h3>
+        <span class="material-symbols-outlined">bar_chart</span>
+      </div>
       <div class="mini-bars">
         <div class="mini-bar-col" *ngFor="let point of signupTrendLast7Days">
-          <div class="mini-bar" [style.height.%]="point.height"></div>
+          <div class="mini-bar" [style.height.px]="point.height"></div>
           <div class="mini-bar-value">{{ point.count }}</div>
           <div class="mini-bar-label">{{ point.label }}</div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="card">
-      <h3 class="card-title">Répartition activité par rôle</h3>
+    <section class="card logs-panel">
+      <div class="card-head">
+        <h3 class="card-title">Répartition activité par rôle</h3>
+        <span class="material-symbols-outlined">stacked_bar_chart</span>
+      </div>
       <div class="role-chart">
         <div class="role-chart-row" *ngFor="let item of roleActivityChart">
           <div class="role-name">{{ item.role }}</div>
@@ -48,12 +63,15 @@
           <div class="role-count">{{ item.count }}</div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 
   <div class="grid-2 logs-section-gap" *ngIf="!isLoading">
-    <div class="card">
-      <h3 class="card-title">Activités récentes</h3>
+    <section class="card logs-panel">
+      <div class="card-head">
+        <h3 class="card-title">Activités récentes</h3>
+        <span class="material-symbols-outlined">history</span>
+      </div>
       <div class="activity-list">
         <div class="list-item" *ngFor="let activity of recentActivities">
           <div class="activity-main">
@@ -67,10 +85,13 @@
         </div>
         <div class="list-item" *ngIf="recentActivities.length === 0">Aucune activité récente</div>
       </div>
-    </div>
+    </section>
 
-    <div class="card">
-      <h3 class="card-title">Alertes sécurité</h3>
+    <section class="card logs-panel">
+      <div class="card-head">
+        <h3 class="card-title">Alertes sécurité</h3>
+        <span class="material-symbols-outlined">security</span>
+      </div>
       <div class="list">
         <div class="list-item" *ngFor="let alert of securityAlerts">
           <span class="material-symbols-outlined icon icon-success">check_circle</span>
@@ -91,6 +112,6 @@
           </div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </div>

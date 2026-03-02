@@ -1,9 +1,7 @@
 package agrismart.agrismart.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
 @NoArgsConstructor
 public class AuthResponse {
     private String token;
@@ -12,6 +10,14 @@ public class AuthResponse {
     private String firstName;
     private String lastName;
     private String profilePictureUrl;
+
+    public AuthResponse(String token, String email, String role, String firstName, String lastName) {
+        this.token = token;
+        this.email = email;
+        this.role = role;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }

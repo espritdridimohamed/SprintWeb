@@ -204,6 +204,27 @@
   border: 1px solid #bbf7d0;
 }
 
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.status-badge.status-active {
+  background: #edf7ee;
+  color: #1d4d2f;
+  border-color: #bdd8c0;
+}
+
+.status-badge.status-inactive {
+  background: #fef3f2;
+  color: #b42318;
+  border-color: #fecdca;
+}
+
 .role-select {
   border: 1px solid var(--card-border);
   border-radius: 10px;
