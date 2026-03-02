@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Date;
 import java.util.Map;
+import java.util.stream.Collectors;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 @RestController
 @RequestMapping("/api/users")
@@ -107,5 +110,27 @@ public class UserController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    /**
+     * DEBUG endpoint to check current user's authorities.
+     * Helps diagnose role/permission issues.
+     */
+    @GetMapping("/me/debug")
+    public ResponseEntity<Map<String, Object>> debugCurrentUser(Authentication auth) {
+        if (auth == null) {
+            return ResponseEntity.ok(Map.of("authenticated", false, "message", "No authentication found"));
+        }
+
+        List<String> authorities = auth.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of(
+            "authenticated", true,
+            "principal", auth.getName(),
+            "authorities", authorities,
+            "authClass", auth.getClass().getSimpleName()
+        ));
     }
 }

@@ -25,14 +25,15 @@ public class RoleService {
     }
 
     public void initializeRoles() {
-        // Migrate old "buyer" role to "viewer"
-        roleRepository.findByName("buyer").ifPresent(buyerRole -> {
-            buyerRole.setName("viewer");
+        // Migrate old "buyer" role to "VIEWER"
+        roleRepository.findByNameIgnoreCase("buyer").ifPresent(buyerRole -> {
+            buyerRole.setName("VIEWER");
             buyerRole.setDescription("Viewer");
             roleRepository.save(buyerRole);
         });
 
-        String[] roleNames = {"producteur", "technicien", "cooperative", "ong", "etat", "admin", "viewer"};
+        // Use UPPERCASE role names to match DataInitializer and @PreAuthorize checks
+        String[] roleNames = {"PRODUCTEUR", "TECHNICIEN", "COOPERATIVE", "ONG", "ETAT", "ADMIN", "VIEWER"};
         String[] roleDescriptions = {
             "Agriculteur",
             "Technicien Agricole",
@@ -44,7 +45,7 @@ public class RoleService {
         };
 
         for (int i = 0; i < roleNames.length; i++) {
-            if (roleRepository.findByName(roleNames[i]).isEmpty()) {
+            if (roleRepository.findByNameIgnoreCase(roleNames[i]).isEmpty()) {
                 roleRepository.save(new Role(roleNames[i], roleDescriptions[i]));
             }
         }
