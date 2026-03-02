@@ -1,9 +1,12 @@
 package agrismart.agrismart.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import java.util.Date;
 
 @Document(collection = "tasks")
@@ -12,16 +15,41 @@ import java.util.Date;
 public class AgriTask {
     @Id
     private String id;
+
+    @Field("planId")
+    private ObjectId planId;
+
+    @Field("plotId")
+    private ObjectId plotId;
+
     private String title;
     private String description;
     private String type;
+
+    @Field("taskType")
+    private String taskType;
+
     private String parcel;
-    private String status; // pending, in-progress, completed
-    private String priority; // low, medium, high
+    private String status;
+    private String priority;
     private Date date;
+
+    @Field("dueDate")
+    private Date dueDate;
+
     private String ownerEmail;
-    private String assignedTo; // email
+    private String assignedTo;
+
+    @Field("assignedToUserId")
+    private ObjectId assignedToUserId;
+
+    @Field("notes")
+    private String notes;
+
     private Date createdAt;
+
+    @Field("completedAt")
+    private Date completedAt;
 
     public String getId() {
         return id;
@@ -29,6 +57,22 @@ public class AgriTask {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public ObjectId getPlanId() {
+        return planId;
+    }
+
+    public void setPlanId(ObjectId planId) {
+        this.planId = planId;
+    }
+
+    public ObjectId getPlotId() {
+        return plotId;
+    }
+
+    public void setPlotId(ObjectId plotId) {
+        this.plotId = plotId;
     }
 
     public String getTitle() {
@@ -45,6 +89,30 @@ public class AgriTask {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(String taskType) {
+        this.taskType = taskType;
+    }
+
+    public String getParcel() {
+        return parcel;
+    }
+
+    public void setParcel(String parcel) {
+        this.parcel = parcel;
     }
 
     public String getStatus() {
@@ -71,20 +139,12 @@ public class AgriTask {
         this.date = date;
     }
 
-    public String getType() {
-        return type;
+    public Date getDueDate() {
+        return dueDate;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getParcel() {
-        return parcel;
-    }
-
-    public void setParcel(String parcel) {
-        this.parcel = parcel;
+    public void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
     }
 
     public String getOwnerEmail() {
@@ -103,11 +163,35 @@ public class AgriTask {
         this.assignedTo = assignedTo;
     }
 
+    public ObjectId getAssignedToUserId() {
+        return assignedToUserId;
+    }
+
+    public void setAssignedToUserId(ObjectId assignedToUserId) {
+        this.assignedToUserId = assignedToUserId;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
     public Date getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Date getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(Date completedAt) {
+        this.completedAt = completedAt;
     }
 }

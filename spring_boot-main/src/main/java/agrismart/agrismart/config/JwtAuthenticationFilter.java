@@ -1,5 +1,9 @@
 package agrismart.agrismart.config;
 
+import agrismart.agrismart.model.Role;
+import agrismart.agrismart.model.User;
+import agrismart.agrismart.repository.RoleRepository;
+import agrismart.agrismart.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +33,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response,
@@ -57,8 +67,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Only set auth if not already set
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Role authority must be prefixed with ROLE_ for hasRole() to work
-            String authority = "ROLE_" + role.toUpperCase();
+            String roleValue = role;
+            if (roleValue == null || roleValue.isBlank()) {
+                roleValue = resolveRoleFromDb(email);
+            }
+
+            String normalizedRole = roleValue == null ? "" : roleValue.trim().toUpperCase();
+            if (normalizedRole.startsWith("ROLE_")) {
+                normalizedRole = normalizedRole.substring(5);
+            }
+
+            normalizedRole = switch (normalizedRole) {
+                case "ADMINISTRATEUR", "ADMINISTRATOR", "SYSTEM_ADMIN", "SUPERADMIN" -> "ADMIN";
+                case "FARMER", "PRODUCER" -> "PRODUCTEUR";
+                case "TECH" -> "TECHNICIEN";
+                case "COOP", "COOPERATIF" -> "COOPERATIVE";
+                case "STATE", "GOV" -> "ETAT";
+                default -> normalizedRole;
+            };
+
+            if (normalizedRole.isBlank()) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String authority = "ROLE_" + normalizedRole;
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     email,
                     null,
@@ -67,5 +100,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private String resolveRoleFromDb(String email) {
+        return userRepository.findByEmail(email)
+                .map(User::getRoleId)
+                .flatMap(roleRepository::findById)
+                .map(Role::getName)
+                .orElse(null);
     }
 }

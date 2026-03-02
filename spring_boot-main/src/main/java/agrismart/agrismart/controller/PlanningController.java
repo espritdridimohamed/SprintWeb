@@ -2,6 +2,7 @@ package agrismart.agrismart.controller;
 
 import agrismart.agrismart.model.AgriTask;
 import agrismart.agrismart.repository.TaskRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,13 +42,25 @@ public class PlanningController {
 
     // POST /api/planning/tasks — PRODUCTEUR, COOPERATIVE, ADMIN
     @PostMapping("/tasks")
-    @PreAuthorize("hasRole('PRODUCTEUR') or hasRole('COOPERATIVE') or hasRole('ADMIN')")
+    @PreAuthorize("@planningController.canCreateTasks(authentication)")
     public ResponseEntity<AgriTask> createTask(
             @RequestBody AgriTask task,
             Authentication auth) {
         task.setOwnerEmail(auth.getName());
         task.setStatus("todo");
         task.setCreatedAt(new java.util.Date());
+        if (task.getPlanId() == null) {
+            task.setPlanId(new ObjectId());
+        }
+        if (task.getDueDate() == null) {
+            task.setDueDate(task.getDate() != null ? task.getDate() : new java.util.Date());
+        }
+        if (task.getTaskType() == null || task.getTaskType().isBlank()) {
+            task.setTaskType(task.getType());
+        }
+        if (task.getNotes() == null) {
+            task.setNotes(task.getDescription());
+        }
         return ResponseEntity.ok(taskRepository.save(task));
     }
 
@@ -63,10 +76,13 @@ public class PlanningController {
                     task.setTitle(body.getTitle());
                     task.setDescription(body.getDescription());
                     task.setType(body.getType());
+                    task.setTaskType(body.getType());
                     task.setParcel(body.getParcel());
                     task.setPriority(body.getPriority());
                     task.setDate(body.getDate());
+                    task.setDueDate(body.getDate());
                     task.setAssignedTo(body.getAssignedTo());
+                    task.setNotes(body.getDescription());
                     return ResponseEntity.ok(taskRepository.save(task));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -90,6 +106,9 @@ public class PlanningController {
         return taskRepository.findById(id)
                 .map(task -> {
                     task.setStatus(newStatus);
+                    if ("done".equalsIgnoreCase(newStatus) || "completed".equalsIgnoreCase(newStatus)) {
+                        task.setCompletedAt(new Date());
+                    }
                     return ResponseEntity.ok(taskRepository.save(task));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -210,5 +229,17 @@ public class PlanningController {
         return taskRepository.findById(id)
                 .map(t -> email.equals(t.getAssignedTo()))
                 .orElse(false);
+    }
+
+    /** Vérifie si le user peut créer une tâche (tolérant aux variantes ROLE_/case) */
+    public boolean canCreateTasks(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
+
+        return authentication.getAuthorities().stream()
+                .map(a -> a.getAuthority() == null ? "" : a.getAuthority().trim().toUpperCase())
+                .map(a -> a.startsWith("ROLE_") ? a.substring(5) : a)
+                .anyMatch(a -> a.equals("ADMIN") || a.equals("COOPERATIVE") || a.equals("PRODUCTEUR"));
     }
 }
