@@ -486,7 +486,6 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException("FACEBOOK_TOKEN_INVALID");
         }
->>>>>>> origin/mohamed
     }
 
     public Optional<User> findByEmail(String email) {
