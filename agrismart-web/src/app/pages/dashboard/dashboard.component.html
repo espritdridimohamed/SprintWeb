@@ -132,19 +132,22 @@
 
 <!-- ═══ NON-ADMIN VISUAL DASHBOARD ═══ -->
 <ng-template #standardDashboard>
-  <div class="page-header">
+  <div class="page-header" [class.producteur-header]="isProducteurView">
     <div>
       <div class="page-title">Tableau de bord</div>
-      <div class="page-subtitle">Vue visuelle pour {{ roleConfig.label }}</div>
+      <div class="page-subtitle" *ngIf="isProducteurView; else defaultSubtitle">Vue producteur · pilotage quotidien des parcelles</div>
+      <ng-template #defaultSubtitle>
+        <div class="page-subtitle">Vue visuelle pour {{ roleConfig.label }}</div>
+      </ng-template>
     </div>
-    <span class="tag">Statistiques en direct</span>
+    <span class="tag" [class.producteur-tag]="isProducteurView">{{ isProducteurView ? 'Suivi terrain en direct' : 'Statistiques en direct' }}</span>
   </div>
 
-  <div class="grid-4">
+  <div class="grid-4" [class.producteur-kpi-grid]="isProducteurView">
     <app-kpi-card *ngFor="let kpi of roleConfig.kpis" [item]="kpi"></app-kpi-card>
   </div>
 
-  <div class="visual-grid section-gap">
+  <div class="visual-grid section-gap" [class.producteur-visual]="isProducteurView">
     <section class="card chart-card">
       <div class="card-head">
         <div>

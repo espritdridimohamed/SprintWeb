@@ -260,6 +260,60 @@
   margin-top: 18px;
 }
 
+.producteur-header {
+  padding: 4px 0 2px;
+}
+
+.producteur-tag {
+  background: rgba(107, 159, 62, 0.16);
+}
+
+.producteur-focus {
+  margin-top: 6px;
+  background: linear-gradient(120deg, rgba(107, 159, 62, 0.1), rgba(107, 159, 62, 0.04));
+  border: 1px solid rgba(107, 159, 62, 0.28);
+}
+
+.focus-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.focus-block {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--card-border);
+}
+
+.focus-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.focus-value {
+  margin-top: 3px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.focus-actions {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.producteur-kpi-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.producteur-visual {
+  grid-template-columns: 1fr;
+}
+
 .metric-card {
   display: flex;
   flex-direction: column;
@@ -358,6 +412,14 @@
 @media (max-width: 900px) {
   .dashboard-panels {
     grid-template-columns: 1fr;
+  }
+
+  .focus-row {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-actions {
+    justify-content: flex-start;
   }
 
   .chart-row {

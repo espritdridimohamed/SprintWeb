@@ -54,7 +54,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     kpis: [
       { label: 'Parcelles actives', value: '5', trend: 'Surface 12 ha', tone: 'success', icon: 'pin' },
       { label: 'Diagnostics', value: '3', trend: 'A valider', tone: 'warning', icon: 'brain', route: '/app/dashboard-ia' },
-      { label: 'Formations suivies', value: '12', trend: '+2 ce mois', tone: 'brand', icon: 'training' }
+      { label: 'Formations suivies', value: '12', trend: '+2 ce mois', tone: 'brand', icon: 'training', route: '/app/e-learning' }
     ],
     panels: [
       {
