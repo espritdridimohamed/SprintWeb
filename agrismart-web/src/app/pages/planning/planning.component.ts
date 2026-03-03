@@ -68,6 +68,11 @@ export class PlanningComponent implements OnInit {
     return this.role === 'technicien' || this.role === 'admin';
   }
 
+  /** PRODUCTEUR (owner), COOPERATIVE, ADMIN peuvent valider une tâche */
+  get canValidateTask(): boolean {
+    return this.role === 'producteur' || this.role === 'cooperative' || this.role === 'admin';
+  }
+
   /** ADMIN peut supprimer des tâches */
   get canDeleteTask(): boolean {
     return this.role === 'admin';
@@ -288,6 +293,14 @@ export class PlanningComponent implements OnInit {
     this.planningService.updateTaskStatus(task.id, newStatus).subscribe(() => {
       this.refreshData();
       this.closeStatusModal();
+    });
+  }
+
+  /** Basculer le statut d'une tâche entre done et todo */
+  toggleTaskDone(task: any) {
+    if (!this.canValidateTask || !task.id) return;
+    this.planningService.toggleTaskDone(task.id).subscribe(() => {
+      this.refreshData();
     });
   }
 

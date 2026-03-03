@@ -36,6 +36,10 @@ export class PlanningService {
         return this.http.put<AgriTask>(`${this.apiUrl}/tasks/${id}/status`, { status });
     }
 
+    toggleTaskDone(id: string): Observable<AgriTask> {
+        return this.http.put<AgriTask>(`${this.apiUrl}/tasks/${id}/toggle-done`, {});
+    }
+
     deleteTask(id: string): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/tasks/${id}`);
     }

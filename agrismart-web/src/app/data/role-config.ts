@@ -46,8 +46,6 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
       { label: 'Mes Parcelles', route: '/app/agri', icon: 'agri' },
       { label: 'Tableau de bord IA', route: '/app/dashboard-ia', icon: 'auto_awesome' },
-      { label: 'Liste Diagnostics', route: '/app/diagnostics', icon: 'brain' },
-      { label: 'Support Technique', route: '/app/support', icon: 'support' },
       { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
       { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
       { label: 'Planification', route: '/app/planning', icon: 'calendar' },
@@ -55,8 +53,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     ],
     kpis: [
       { label: 'Parcelles actives', value: '5', trend: 'Surface 12 ha', tone: 'success', icon: 'pin' },
-      { label: 'Donnees capteurs', value: '18', trend: 'En temps reel', tone: 'info', icon: 'sensors' },
-      { label: 'Diagnostics', value: '3', trend: 'A valider', tone: 'warning', icon: 'brain' },
+      { label: 'Diagnostics', value: '3', trend: 'A valider', tone: 'warning', icon: 'brain', route: '/app/dashboard-ia' },
       { label: 'Formations suivies', value: '12', trend: '+2 ce mois', tone: 'brand', icon: 'training' }
     ],
     panels: [

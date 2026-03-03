@@ -114,6 +114,30 @@ public class PlanningController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * PUT /api/planning/tasks/{id}/toggle-done
+     * Bascule le statut d'une tâche entre "done" et "todo".
+     * Accessible au propriétaire (PRODUCTEUR), COOPERATIVE et ADMIN.
+     */
+    @PutMapping("/tasks/{id}/toggle-done")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('COOPERATIVE') or "
+            + "(hasRole('PRODUCTEUR') and @planningController.isTaskOwner(#id, authentication.name))")
+    public ResponseEntity<AgriTask> toggleTaskDone(
+            @PathVariable String id) {
+        return taskRepository.findById(id)
+                .map(task -> {
+                    if ("done".equalsIgnoreCase(task.getStatus())) {
+                        task.setStatus("todo");
+                        task.setCompletedAt(null);
+                    } else {
+                        task.setStatus("done");
+                        task.setCompletedAt(new Date());
+                    }
+                    return ResponseEntity.ok(taskRepository.save(task));
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     // DELETE /api/planning/tasks/{id} — ADMIN seulement
     @DeleteMapping("/tasks/{id}")
     @PreAuthorize("hasRole('ADMIN')")

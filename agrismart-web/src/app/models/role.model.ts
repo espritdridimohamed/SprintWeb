@@ -12,6 +12,7 @@ export interface KpiItem {
   trend?: string;
   tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'brand';
   icon?: string;
+  route?: string;
 }
 
 export interface PanelItem {

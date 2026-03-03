@@ -1,86 +1,157 @@
+<!-- Page Header -->
 <div class="page-header">
-  <h1 class="page-title">Alertes & Notifications</h1>
-  <p class="page-subtitle">Suivi en temps réel des événements importants</p>
+  <div>
+    <h1 class="page-title">Alertes & Notifications</h1>
+    <p class="page-subtitle">Créez et gérez les alertes pour vos parcelles</p>
+  </div>
+  <div class="page-actions">
+    <button class="primary-btn" (click)="openForm()">
+      <span class="material-symbols-outlined">add_alert</span>
+      Nouvelle alerte
+    </button>
+  </div>
 </div>
 
-<div class="content-area">
-  <!-- Active Alerts Section -->
-  <div class="grid-2">
-    <div class="card">
-      <h3 class="card-title">Alertes actives</h3>
-      <div class="list">
-        <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #ef4444;">alert</span>
-          <span>Sécheresse imminente</span>
-          <span class="tag" style="background: #fee2e2; color: #991b1b;">Urgent</span>
-        </div>
-        <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #f97316;">warning</span>
-          <span>Risque de maladie fongique</span>
-          <span class="tag" style="background: #fed7aa; color: #9a3412;">Moyen</span>
-        </div>
-        <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #eab308;">info</span>
-          <span>Disponibilité de ressources</span>
-          <span class="tag" style="background: #fef3c7; color: #78350f;">Info</span>
-        </div>
+<!-- Success Message -->
+<div *ngIf="successMessage" class="success-banner">
+  <span class="material-symbols-outlined">check_circle</span>
+  {{ successMessage }}
+</div>
+
+<!-- Alert Creation Form -->
+<div *ngIf="showForm" class="card alert-form-card">
+  <div class="form-header">
+    <h3>Publier une alerte</h3>
+    <button class="icon-btn" (click)="closeForm()">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+  <div class="form-body">
+    <div class="form-group">
+      <label>Titre de l'alerte *</label>
+      <input type="text" [(ngModel)]="newAlert.title" class="form-input" placeholder="Ex: Risque de gel sur parcelle Nord">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Sévérité</label>
+        <select [(ngModel)]="newAlert.severity" class="form-input">
+          <option value="info">Info</option>
+          <option value="warning">Moyen</option>
+          <option value="urgent">Urgent</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Cible (parcelle, zone...)</label>
+        <input type="text" [(ngModel)]="newAlert.target" class="form-input" placeholder="Ex: Parcelle A">
       </div>
     </div>
-
-    <div class="card">
-      <h3 class="card-title">Statistiques</h3>
-      <div class="list">
-        <div class="list-item">
-          <span class="stat-label">Alertes urgentes</span>
-          <span class="stat-value">3</span>
-        </div>
-        <div class="list-item">
-          <span class="stat-label">Alertes actives</span>
-          <span class="stat-value">8</span>
-        </div>
-        <div class="list-item">
-          <span class="stat-label">Résolues ce mois</span>
-          <span class="stat-value">24</span>
-        </div>
-      </div>
+    <div class="form-group">
+      <label>Message *</label>
+      <textarea [(ngModel)]="newAlert.message" class="form-input" rows="4" placeholder="Décrivez l'alerte en détail..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="ghost-btn" (click)="closeForm()">Annuler</button>
+      <button class="primary-btn" (click)="submitAlert()" [disabled]="!newAlert.title?.trim() || !newAlert.message?.trim()">
+        <span class="material-symbols-outlined">send</span>
+        Envoyer l'alerte
+      </button>
     </div>
   </div>
+</div>
 
-  <!-- Alert History Section -->
-  <div class="grid-2" style="margin-top: var(--spacing-6);">
-    <div class="card">
-      <h3 class="card-title">Historique des alertes</h3>
-      <div class="list">
-        <div class="list-item" style="opacity: 0.7;">
-          <span class="material-symbols-outlined">check_circle</span>
-          <span>Alerte sécheresse · Résolu le 15 Nov</span>
-        </div>
-        <div class="list-item" style="opacity: 0.7;">
-          <span class="material-symbols-outlined">check_circle</span>
-          <span>Irrigation défaillante · Résolu le 12 Nov</span>
-        </div>
-        <div class="list-item" style="opacity: 0.7;">
-          <span class="material-symbols-outlined">check_circle</span>
-          <span>Maladie détectée · Résolu le 10 Nov</span>
+<!-- Loading -->
+<div *ngIf="isLoading" class="loading-state">
+  <span class="material-symbols-outlined spin">sync</span>
+  Chargement...
+</div>
+
+<!-- KPI cards -->
+<div class="grid-3" *ngIf="!isLoading">
+  <div class="card stat-card">
+    <div class="stat-icon urgent"><span class="material-symbols-outlined">error</span></div>
+    <div>
+      <div class="card-title">Alertes actives</div>
+      <div class="stat-value">{{ activeAlerts.length }}</div>
+    </div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-icon success"><span class="material-symbols-outlined">check_circle</span></div>
+    <div>
+      <div class="card-title">Résolues</div>
+      <div class="stat-value">{{ resolvedAlerts.length }}</div>
+    </div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-icon info"><span class="material-symbols-outlined">notifications</span></div>
+    <div>
+      <div class="card-title">Total</div>
+      <div class="stat-value">{{ alerts.length }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Active Alerts -->
+<div class="card section-gap" *ngIf="!isLoading">
+  <div class="card-header">
+    <div class="card-title">
+      <span class="material-symbols-outlined text-danger">notifications_active</span>
+      Alertes actives ({{ activeAlerts.length }})
+    </div>
+  </div>
+  <div class="alert-list">
+    <div *ngFor="let alert of activeAlerts" class="alert-item" [ngClass]="'severity-' + alert.severity">
+      <div class="alert-icon">
+        <span class="material-symbols-outlined">{{ getSeverityIcon(alert.severity) }}</span>
+      </div>
+      <div class="alert-content">
+        <div class="alert-title">{{ alert.title }}</div>
+        <div class="alert-message">{{ alert.message }}</div>
+        <div class="alert-meta">
+          <span *ngIf="alert.target"><span class="material-symbols-outlined small-icon">location_on</span> {{ alert.target }}</span>
+          <span><span class="material-symbols-outlined small-icon">schedule</span> {{ formatDate(alert.createdAt) }}</span>
+          <span *ngIf="alert.createdBy"><span class="material-symbols-outlined small-icon">person</span> {{ alert.createdBy }}</span>
         </div>
       </div>
+      <div class="alert-actions">
+        <span class="severity-tag" [ngClass]="'tag-' + alert.severity">{{ getSeverityLabel(alert.severity) }}</span>
+        <button class="resolve-btn" (click)="resolveAlert(alert)" title="Marquer résolue">
+          <span class="material-symbols-outlined">check_circle</span> Résoudre
+        </button>
+        <button *ngIf="isAdmin" class="icon-btn danger" (click)="deleteAlert(alert)" title="Supprimer">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </div>
     </div>
+    <div *ngIf="activeAlerts.length === 0" class="empty-state">
+      <span class="material-symbols-outlined">notifications_off</span>
+      <p>Aucune alerte active</p>
+    </div>
+  </div>
+</div>
 
-    <div class="card">
-      <h3 class="card-title">Actions recommandées</h3>
-      <div class="list">
-        <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #6b9f3e;">recommend</span>
-          <span>Augmenter fréquence irrigation</span>
+<!-- Resolved Alerts -->
+<div class="card section-gap" *ngIf="!isLoading && resolvedAlerts.length > 0">
+  <div class="card-header">
+    <div class="card-title">
+      <span class="material-symbols-outlined" style="color: #10b981;">history</span>
+      Historique ({{ resolvedAlerts.length }})
+    </div>
+  </div>
+  <div class="alert-list">
+    <div *ngFor="let alert of resolvedAlerts" class="alert-item resolved">
+      <div class="alert-icon resolved-icon">
+        <span class="material-symbols-outlined">check_circle</span>
+      </div>
+      <div class="alert-content">
+        <div class="alert-title">{{ alert.title }}</div>
+        <div class="alert-meta">
+          <span>Résolue le {{ formatDate(alert.resolvedAt) }}</span>
         </div>
-        <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #6b9f3e;">recommend</span>
-          <span>Appliquer traitement phytosanitaire</span>
-        </div>
-        <div class="list-item">
-          <span class="material-symbols-outlined" style="color: #6b9f3e;">recommend</span>
-          <span>Vérifier capteurs de température</span>
-        </div>
+      </div>
+      <div class="alert-actions">
+        <button *ngIf="isAdmin" class="icon-btn danger" (click)="deleteAlert(alert)" title="Supprimer">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
       </div>
     </div>
   </div>

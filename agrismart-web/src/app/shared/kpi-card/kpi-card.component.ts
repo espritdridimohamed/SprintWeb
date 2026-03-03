@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { KpiItem } from '../../models/role.model';
 
 @Component({
@@ -11,6 +12,14 @@ import { KpiItem } from '../../models/role.model';
 })
 export class KpiCardComponent {
   @Input() item!: KpiItem;
+
+  constructor(private router: Router) {}
+
+  navigate(): void {
+    if (this.item.route) {
+      this.router.navigate([this.item.route]);
+    }
+  }
 
   private readonly iconMap: Record<string, string> = {
     users: 'group',

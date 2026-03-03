@@ -169,7 +169,7 @@
       </div>
     </section>
 
-    <section class="card distribution-card">
+    <section class="card distribution-card" *ngIf="!isProducteurView">
       <div class="card-head">
         <div>
           <div class="card-title">{{ visualData.distributionTitle }}</div>

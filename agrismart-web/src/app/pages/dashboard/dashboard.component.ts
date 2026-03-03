@@ -248,6 +248,10 @@ export class DashboardComponent implements OnInit {
     return this.roleService.role === 'admin';
   }
 
+  get isProducteurView(): boolean {
+    return this.roleService.role === 'producteur';
+  }
+
   /* ── Visual data for all roles ── */
   get visualData(): RoleVisualData {
     return ROLE_VISUALS[this.roleService.role];

@@ -1,20 +1,34 @@
 <header class="topbar">
-  <div>
-    <div class="page-title">Tableau de bord</div>
-    <div class="page-sub">Plateforme multi-rôles · {{ roleLabel }}</div>
-  </div>
-
   <div class="topbar-actions">
     <button *ngIf="showELearning" class="primary-btn small" (click)="goToELearning()">
       <span class="material-symbols-outlined">school</span>
       E-learning
     </button>
-    <div class="search">
-      <span class="material-symbols-outlined search-icon">search</span>
-      <input type="text" placeholder="Rechercher..." />
+    <div class="notif-wrapper">
+      <button class="icon-btn notif-btn" (click)="toggleNotifDropdown()">
+        <span class="material-symbols-outlined">notifications</span>
+        <span *ngIf="activeAlerts.length > 0" class="notif-badge">{{ activeAlerts.length }}</span>
+      </button>
+      <div *ngIf="showNotifDropdown" class="notif-dropdown">
+        <div class="notif-header">
+          <span class="notif-title">Notifications</span>
+          <button class="notif-link" (click)="goToAlerts()">Voir tout</button>
+        </div>
+        <div class="notif-list">
+          <div *ngFor="let alert of activeAlerts" class="notif-item" [ngClass]="'notif-' + alert.severity" (click)="goToAlerts()">
+            <span class="material-symbols-outlined notif-icon">{{ getSeverityIcon(alert.severity) }}</span>
+            <div class="notif-content">
+              <div class="notif-item-title">{{ alert.title }}</div>
+              <div class="notif-time">{{ formatTimeAgo(alert.createdAt) }}</div>
+            </div>
+          </div>
+          <div *ngIf="activeAlerts.length === 0" class="notif-empty">
+            <span class="material-symbols-outlined">notifications_off</span>
+            Aucune notification
+          </div>
+        </div>
+      </div>
     </div>
-    <button class="icon-btn"><span class="material-symbols-outlined">notifications</span></button>
-    <button class="icon-btn"><span class="material-symbols-outlined">mail</span></button>
     <button class="icon-btn" (click)="openLogoutModal()" title="Se déconnecter">
       <span class="material-symbols-outlined">logout</span>
     </button>
