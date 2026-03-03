@@ -262,9 +262,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
       { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
       { label: 'Planification', route: '/app/planning', icon: 'calendar' },
       { label: 'E-learning', route: '/app/e-learning', icon: 'school' },
-      { label: 'IoT & Passerelles', route: '/app/iot', icon: 'iot' },
       { label: 'Logs & Audit', route: '/app/logs', icon: 'logs' },
-      { label: 'Tableau de bord IA', route: '/app/dashboard-ia', icon: 'auto_awesome' },
       { label: 'Configuration IA', route: '/app/modeles-ia', icon: 'settings' }
     ],
     kpis: [

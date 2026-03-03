@@ -1203,6 +1203,14 @@
         margin: 0;
         font-size: 18px;
         font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            color: var(--brand);
+        }
     }
 }
 
@@ -1324,34 +1332,195 @@ textarea.form-input {
 }
 
 /* Admin Alert Modal styles */
-.alert-summary-card {
-    padding: 12px;
-    background: #f8fafc;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border: 1px solid #e2e8f0;
 
-    .prod-info {
+.alert-modal {
+    max-width: 560px;
+}
+
+/* Product Banner */
+.alert-product-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(107, 159, 62, 0.08), rgba(107, 159, 62, 0.03));
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    gap: 16px;
+
+    .banner-left {
         display: flex;
-        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
 
-        strong {
-            font-size: 15px;
+        .material-symbols-outlined {
+            font-size: 32px;
+            color: var(--accent);
+            min-width: 32px;
         }
 
-        span {
-            color: #64748b;
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            .product-name {
+                font-weight: 600;
+                font-size: 15px;
+                color: var(--text);
+            }
+
+            .product-quality {
+                font-size: 12px;
+                color: var(--text-muted);
+                text-transform: capitalize;
+            }
+        }
+    }
+
+    .banner-right {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .price-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             font-weight: 600;
+        }
+
+        .price-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
         }
     }
 }
 
+/* Form Sections */
+.alert-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+
+    .section {
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--card-border);
+
+        &:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text);
+
+            .material-symbols-outlined {
+                font-size: 20px;
+                color: var(--accent);
+            }
+        }
+    }
+}
+
+.alert-textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+}
+
+/* Price Info */
+.price-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: var(--card);
+    border-radius: 8px;
+    font-size: 13px;
+
+    .material-symbols-outlined {
+        font-size: 18px;
+        color: var(--text-muted);
+        flex-shrink: 0;
+    }
+
+    .info-positive {
+        color: #10b981;
+        font-weight: 500;
+    }
+
+    .info-negative {
+        color: #ef4444;
+        font-weight: 500;
+    }
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 0;
+
+    label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+
+    textarea {
+        font-family: inherit;
+    }
+}
+
+/* Price Input Wrapper */
+.price-input-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    .currency {
+        position: absolute;
+        left: 12px;
+        font-weight: 700;
+        color: var(--text);
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    .form-input {
+        padding-left: 36px !important;
+        text-align: right;
+        font-weight: 600;
+    }
+}
+
+/* Warning Button */
 .primary-btn.warning {
     background: #f59e0b;
-    border-color: #d97706 !important;
-    color: white !important;
+    border: 1px solid #f59e0b;
+    color: white;
+    font-weight: 600;
 
     &:hover {
         background: #d97706;
+        border-color: #d97706;
+    }
+
+    .material-symbols-outlined {
+        font-size: 18px;
     }
 }

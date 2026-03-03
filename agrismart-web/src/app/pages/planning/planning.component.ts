@@ -183,10 +183,15 @@ export class PlanningComponent implements OnInit {
 
   refreshData() {
     this.isLoading = true;
+    const currentUserEmail = JSON.parse(localStorage.getItem('agrismart_user') || '{}').email;
+    
     this.planningService.getAllTasks().subscribe({
       next: (tasks: any[]) => {
+        // Filter tasks to show only those created by the current user
+        const filteredTasks = tasks.filter(t => t.ownerEmail === currentUserEmail);
+        
         // Map backend Date if needed
-        this.tasks = tasks.map(t => ({
+        this.tasks = filteredTasks.map(t => ({
           ...t,
           date: t.dueDate ? new Date(t.dueDate) : new Date(t.createdAt || Date.now())
         }));

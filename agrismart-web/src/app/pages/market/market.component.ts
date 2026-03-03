@@ -80,7 +80,7 @@ export class MarketComponent implements OnInit {
   }
 
   get canViewTransactions(): boolean {
-    return this.role === 'cooperative' || this.role === 'admin';
+    return this.role === 'cooperative';
   }
 
   get isReadOnly(): boolean {
@@ -92,6 +92,10 @@ export class MarketComponent implements OnInit {
   showGroupedOfferModal = false;
   showPriceAlertModal = false;
   showAdminAlertModal = false;
+
+  // Edit mode
+  isEditMode = false;
+  editingOffer: Offer | null = null;
 
   selectedOfferForAlert: Offer | null = null;
   adminAlertMessage = '';
@@ -208,8 +212,38 @@ export class MarketComponent implements OnInit {
   }
 
   // Modal methods
-  openOfferModal() { if (this.canCreateOffer) this.showOfferModal = true; }
-  closeOfferModal() { this.showOfferModal = false; this.resetOfferForm(); }
+  openOfferModal() {
+    if (this.canCreateOffer) {
+      this.isEditMode = false;
+      this.editingOffer = null;
+      this.newOffer = {
+        product: '',
+        quantity: 0,
+        unit: 'kg',
+        price: 0,
+        quality: 'standard',
+        availability: 'immediate',
+        imageUrl: '',
+        description: ''
+      };
+      this.showOfferModal = true;
+    }
+  }
+
+  editOffer(offer: Offer) {
+    if (this.canCreateOffer && (offer.status === 'pending' || offer.status === 'validated')) {
+      this.isEditMode = true;
+      this.editingOffer = offer;
+      this.newOffer = { ...offer };
+      this.showOfferModal = true;
+    }
+  }
+  closeOfferModal() { 
+    this.showOfferModal = false; 
+    this.isEditMode = false;
+    this.editingOffer = null;
+    this.resetOfferForm(); 
+  }
 
   openGroupedOfferModal() { if (this.canCreateGroupedOffer) this.showGroupedOfferModal = true; }
   closeGroupedOfferModal() { this.showGroupedOfferModal = false; }
@@ -220,12 +254,24 @@ export class MarketComponent implements OnInit {
   // Offer CRUD
   submitOffer() {
     if (!this.canCreateOffer) return;
-    this.marketService.createOffer(this.newOffer).subscribe({
-      next: () => {
-        this.refreshData();
-        this.closeOfferModal();
-      }
-    });
+    
+    if (this.isEditMode && this.editingOffer && this.editingOffer.id) {
+      // Update existing offer
+      this.marketService.updateOffer(this.editingOffer.id, this.newOffer).subscribe({
+        next: () => {
+          this.refreshData();
+          this.closeOfferModal();
+        }
+      });
+    } else {
+      // Create new offer
+      this.marketService.createOffer(this.newOffer).subscribe({
+        next: () => {
+          this.refreshData();
+          this.closeOfferModal();
+        }
+      });
+    }
   }
 
   resetOfferForm() {

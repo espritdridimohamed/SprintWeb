@@ -18,10 +18,6 @@
       <span class="material-symbols-outlined">add</span>
       Publier une offre
     </button>
-    <button *ngIf="canCreateOffer" class="ghost-btn" (click)="openPriceAlertModal()">
-      <span class="material-symbols-outlined">notifications</span>
-      Alertes prix
-    </button>
     <!-- COOPERATIVE / ADMIN -->
     <button *ngIf="canCreateGroupedOffer" class="primary-btn" (click)="openGroupedOfferModal()">
       <span class="material-symbols-outlined">inventory_2</span>
@@ -121,6 +117,10 @@
           <div class="card-footer">
             <span class="offer-date">{{ formatDate(offer.date) }}</span>
             <div class="card-btns">
+              <button *ngIf="offer.status === 'pending' || offer.status === 'validated'" class="icon-btn" (click)="editOffer(offer)"
+                title="Modifier">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
               <button *ngIf="offer.status === 'pending'" class="icon-btn danger" (click)="deleteOffer(offer)"
                 title="Supprimer">
                 <span class="material-symbols-outlined">delete</span>
@@ -139,9 +139,6 @@
     <div class="card">
       <div class="card-header">
         <div class="card-title">Alertes de prix</div>
-        <button class="icon-btn" (click)="openPriceAlertModal()">
-          <span class="material-symbols-outlined">add</span>
-        </button>
       </div>
       <div class="alerts-list">
         <div *ngFor="let alert of priceAlerts" class="alert-item">
@@ -374,48 +371,6 @@
 
 <!-- ===================== ADMIN VIEW ===================== -->
 <div *ngIf="role === 'admin'" class="section-gap">
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">Paramétrage</div>
-      <div class="admin-settings">
-        <div class="setting-item">
-          <span class="material-symbols-outlined">percent</span>
-          <div><strong>Commission plateforme</strong><span>3.5% par transaction</span></div>
-          <button class="icon-btn"><span class="material-symbols-outlined">edit</span></button>
-        </div>
-        <div class="setting-item">
-          <span class="material-symbols-outlined">gavel</span>
-          <div><strong>Règles de validation</strong><span>Validation automatique &gt; 100kg</span></div>
-          <button class="icon-btn"><span class="material-symbols-outlined">edit</span></button>
-        </div>
-        <div class="setting-item">
-          <span class="material-symbols-outlined">category</span>
-          <div><strong>Catégories produits</strong><span>{{ products.length }} catégories actives</span></div>
-          <button class="icon-btn"><span class="material-symbols-outlined">edit</span></button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Supervision</div>
-      <div class="supervision-stats">
-        <div class="supervision-item">
-          <div class="supervision-icon warning"><span class="material-symbols-outlined">report_problem</span></div>
-          <div><strong>3 litiges en cours</strong><span>Nécessitent une intervention</span></div>
-        </div>
-        <div class="supervision-item">
-          <div class="supervision-icon success"><span class="material-symbols-outlined">check_circle</span></div>
-          <div><strong>156 transactions validées</strong><span>Ce mois-ci</span></div>
-        </div>
-        <div class="supervision-item">
-          <div class="supervision-icon info"><span class="material-symbols-outlined">pending</span></div>
-          <div><strong>24 offres en attente</strong><span>Validation requise</span></div>
-          <button class="ghost-btn small" (click)="validateOffer(offers[0])">Traiter</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Price management (ADMIN exclusive) -->
   <div class="card section-gap">
     <div class="card-title">Prix de référence <span class="badge admin-badge">Admin</span></div>
@@ -728,7 +683,7 @@
 <div *ngIf="showOfferModal && canCreateOffer" class="modal-overlay" (click)="closeOfferModal()">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h3>Publier une offre</h3>
+      <h3>{{ isEditMode ? 'Modifier l\'offre' : 'Publier une offre' }}</h3>
       <button class="icon-btn" (click)="closeOfferModal()"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
@@ -808,7 +763,7 @@
     </div>
     <div class="modal-footer">
       <button class="ghost-btn" (click)="closeOfferModal()">Annuler</button>
-      <button class="primary-btn" (click)="submitOffer()">Publier l'offre</button>
+      <button class="primary-btn" (click)="submitOffer()">{{ isEditMode ? 'Mettre à jour' : 'Publier l\'offre' }}</button>
     </div>
   </div>
 </div>
@@ -882,28 +837,65 @@
 </div>
 
 <!-- Admin Price Alert Modal -->
-<div class="modal-overlay" *ngIf="showAdminAlertModal">
-  <div class="modal-card">
+<div class="modal-overlay" *ngIf="showAdminAlertModal" (click)="closeAdminAlertModal()">
+  <div class="modal alert-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h3>Envoyer une alerte de prix</h3>
+      <h3>Alerte prix producteur</h3>
       <button class="icon-btn" (click)="closeAdminAlertModal()">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
     <div class="modal-body">
-      <div class="alert-summary-card" *ngIf="selectedOfferForAlert">
-        <div class="prod-info">
-          <strong>{{ selectedOfferForAlert.product }}</strong>
-          <span>Actuel: {{ formatCurrency(selectedOfferForAlert.price) }}</span>
+      <!-- Product Info Banner -->
+      <div class="alert-product-banner" *ngIf="selectedOfferForAlert">
+        <div class="banner-left">
+          <span class="material-symbols-outlined">eco</span>
+          <div class="product-info">
+            <div class="product-name">{{ selectedOfferForAlert.product }}</div>
+            <div class="product-quality" *ngIf="selectedOfferForAlert.quality">{{ selectedOfferForAlert.quality }}</div>
+          </div>
+        </div>
+        <div class="banner-right">
+          <div class="price-label">Prix demandé</div>
+          <div class="price-value">{{ formatCurrency(selectedOfferForAlert.price) }}</div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Message d'avertissement</label>
-        <textarea [(ngModel)]="adminAlertMessage" class="form-input" rows="3"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Prix recommandé (TND)</label>
-        <input type="number" [(ngModel)]="adminAlertSuggestedPrice" class="form-input">
+
+      <!-- Form Sections -->
+      <div class="alert-form-section">
+        <!-- Message Section -->
+        <div class="section">
+          <div class="section-header">
+            <span class="material-symbols-outlined">message</span>
+            <span>Votre message</span>
+          </div>
+          <div class="form-group">
+            <textarea [(ngModel)]="adminAlertMessage" class="form-input alert-textarea" rows="4" placeholder="Communiquez votre conseil au producteur..."></textarea>
+          </div>
+        </div>
+
+        <!-- Price Section -->
+        <div class="section" *ngIf="selectedOfferForAlert">
+          <div class="section-header">
+            <span class="material-symbols-outlined">local_offer</span>
+            <span>Prix recommandé</span>
+          </div>
+          <div class="form-group">
+            <div class="price-input-wrapper">
+              <span class="currency">DT</span>
+              <input type="number" [(ngModel)]="adminAlertSuggestedPrice" class="form-input" placeholder="0.00" step="0.01">
+            </div>
+            <div class="price-info" *ngIf="adminAlertSuggestedPrice">
+              <span class="material-symbols-outlined">info</span>
+              <span *ngIf="adminAlertSuggestedPrice > selectedOfferForAlert.price" class="info-positive">
+                +{{ formatCurrency(adminAlertSuggestedPrice - selectedOfferForAlert.price) }} vs prix actuel
+              </span>
+              <span *ngIf="adminAlertSuggestedPrice < selectedOfferForAlert.price" class="info-negative">
+                -{{ formatCurrency(selectedOfferForAlert.price - adminAlertSuggestedPrice) }} vs prix actuel
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">

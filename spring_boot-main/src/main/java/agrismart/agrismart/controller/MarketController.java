@@ -1,6 +1,8 @@
 package agrismart.agrismart.controller;
 
+import agrismart.agrismart.model.Alert;
 import agrismart.agrismart.model.Offer;
+import agrismart.agrismart.repository.AlertRepository;
 import agrismart.agrismart.repository.OfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,9 @@ public class MarketController {
 
     @Autowired
     private OfferRepository offerRepository;
+
+    @Autowired
+    private AlertRepository alertRepository;
 
     // ─── GET /api/market/offers — tous les rôles authentifiés ─────────────────
     @GetMapping("/offers")
@@ -117,14 +122,28 @@ public class MarketController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Offer> sendPriceAlert(
             @PathVariable String id,
-            @RequestBody Map<String, Object> body) {
+            @RequestBody Map<String, Object> body,
+            Authentication auth) {
         return offerRepository.findById(id)
                 .map(offer -> {
                     offer.setAdminWarning((String) body.get("message"));
                     if (body.get("suggestedPrice") != null) {
                         offer.setSuggestedPrice(Double.valueOf(body.get("suggestedPrice").toString()));
                     }
-                    return ResponseEntity.ok(offerRepository.save(offer));
+                    offerRepository.save(offer);
+                    
+                    // Create a notification/alert for the producer
+                    Alert alert = new Alert();
+                    alert.setTitle("Alerte prix sur votre offre");
+                    alert.setMessage((String) body.get("message"));
+                    alert.setSeverity("warning");
+                    alert.setTarget(offer.getOwnerEmail()); // Target is the producer's email
+                    alert.setCreatedBy(auth.getName()); // Created by admin
+                    alert.setCreatedAt(new Date());
+                    alert.setResolved(false);
+                    alertRepository.save(alert);
+                    
+                    return ResponseEntity.ok(offer);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

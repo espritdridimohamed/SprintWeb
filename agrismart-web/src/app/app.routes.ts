@@ -17,7 +17,6 @@ import { CommunicationsComponent } from './pages/communications/communications.c
 import { ExportsDecisionComponent } from './pages/exports-decision/exports-decision.component';
 import { AlertsComponent } from './pages/alerts/alerts.component';
 import { RapportsComponent } from './pages/rapports/rapports.component';
-import { IotComponent } from './pages/iot/iot.component';
 import { LogsComponent } from './pages/logs/logs.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
@@ -63,7 +62,6 @@ export const routes: Routes = [
 			{ path: 'exports-decision', component: ExportsDecisionComponent, canActivate: [roleGuard], data: { roles: ['etat'] } },
 			{ path: 'alerts', component: AlertsComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'technicien', 'cooperative'] } },
 			{ path: 'rapports', component: RapportsComponent, canActivate: [roleGuard], data: { roles: ['cooperative'] } },
-			{ path: 'iot', component: IotComponent, canActivate: [roleGuard], data: { roles: ['admin'] } },
 			{ path: 'logs', component: LogsComponent, canActivate: [roleGuard], data: { roles: ['admin'] } },
 			{ path: 'e-learning', component: ELearningComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'cooperative', 'technicien', 'ong', 'etat', 'admin', 'viewer'] } },
 			{ path: 'course/:id', component: CoursePlayerComponent, canActivate: [roleGuard], data: { roles: ['producteur', 'cooperative', 'technicien', 'ong', 'etat', 'admin', 'viewer'] } },

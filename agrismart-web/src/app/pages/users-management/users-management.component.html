@@ -64,16 +64,6 @@
   </div>
 
   <div class="table-toolbar">
-    <div class="toolbar-search">
-      <span class="material-symbols-outlined">search</span>
-      <input
-        type="text"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="onFiltersChanged()"
-        placeholder="Search by name, email or role"
-      />
-    </div>
-
     <select [(ngModel)]="selectedRoleFilter" (ngModelChange)="onFiltersChanged()">
       <option value="all">All Roles</option>
       <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
