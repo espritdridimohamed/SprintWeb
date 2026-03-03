@@ -91,6 +91,11 @@ export class MarketComponent implements OnInit {
   showOfferModal = false;
   showGroupedOfferModal = false;
   showPriceAlertModal = false;
+  showAdminAlertModal = false;
+
+  selectedOfferForAlert: Offer | null = null;
+  adminAlertMessage = '';
+  adminAlertSuggestedPrice = 0;
 
   // Form data
   newOffer: Partial<Offer> = {
@@ -99,7 +104,9 @@ export class MarketComponent implements OnInit {
     unit: 'kg',
     price: 0,
     quality: 'standard',
-    availability: 'immediate'
+    availability: 'immediate',
+    imageUrl: '',
+    description: ''
   };
 
   priceAlert = {
@@ -115,6 +122,8 @@ export class MarketComponent implements OnInit {
   transactions: Transaction[] = [];
   groupedOffers: GroupedOffer[] = [];
   priceAlerts: any[] = [];
+  registeredImages: any[] = [];
+  isUploading = false;
 
   // Statistics
   stats = {
@@ -140,6 +149,7 @@ export class MarketComponent implements OnInit {
 
   ngOnInit() {
     this.refreshData();
+    this.loadImages();
   }
 
   refreshData() {
@@ -172,6 +182,31 @@ export class MarketComponent implements OnInit {
     ];
   }
 
+  loadImages() {
+    this.marketService.getUploadedFiles().subscribe(files => {
+      this.registeredImages = files;
+    });
+  }
+
+  handleImageUpload(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.isUploading = true;
+      this.marketService.uploadFile(file).subscribe({
+        next: (res) => {
+          this.newOffer.imageUrl = res.url;
+          this.loadImages();
+          this.isUploading = false;
+        },
+        error: () => this.isUploading = false
+      });
+    }
+  }
+
+  selectImage(url: string) {
+    this.newOffer.imageUrl = url;
+  }
+
   // Modal methods
   openOfferModal() { if (this.canCreateOffer) this.showOfferModal = true; }
   closeOfferModal() { this.showOfferModal = false; this.resetOfferForm(); }
@@ -194,7 +229,7 @@ export class MarketComponent implements OnInit {
   }
 
   resetOfferForm() {
-    this.newOffer = { product: '', quantity: 0, unit: 'kg', price: 0, quality: 'standard', availability: 'immediate' };
+    this.newOffer = { product: '', quantity: 0, unit: 'kg', price: 0, quality: 'standard', availability: 'immediate', imageUrl: '', description: '' };
   }
 
   validateOffer(offer: Offer) {
@@ -216,6 +251,35 @@ export class MarketComponent implements OnInit {
     if (!this.canCreateOffer) return;
     this.priceAlerts.push({ product: this.priceAlert.product, threshold: this.priceAlert.threshold, type: this.priceAlert.type, active: true });
     this.closePriceAlertModal();
+  }
+
+  // Admin Price Alert methods
+  openAdminAlertModal(offer: Offer) {
+    this.selectedOfferForAlert = offer;
+    this.adminAlertMessage = `Le prix de cet article (${this.formatCurrency(offer.price)}) semble anormal. Nous vous recommandons de le réviser.`;
+    this.adminAlertSuggestedPrice = offer.price * 0.9; // Default suggestion -10%
+    this.showAdminAlertModal = true;
+  }
+
+  closeAdminAlertModal() {
+    this.showAdminAlertModal = false;
+    this.selectedOfferForAlert = null;
+  }
+
+  confirmPriceAlert() {
+    if (!this.selectedOfferForAlert?.id) return;
+    this.marketService.sendPriceAlert(
+      this.selectedOfferForAlert.id,
+      this.adminAlertMessage,
+      this.adminAlertSuggestedPrice
+    ).subscribe(() => {
+      this.refreshData();
+      this.closeAdminAlertModal();
+    });
+  }
+
+  get adminPriceAlerts(): Offer[] {
+    return this.myOffers.filter(o => !!o.adminWarning);
   }
 
   // Utility methods
@@ -241,8 +305,10 @@ export class MarketComponent implements OnInit {
     return new Intl.NumberFormat('fr-TN', { style: 'currency', currency: 'TND' }).format(amount);
   }
 
-  formatDate(date: Date): string {
-    return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short' }).format(date);
+  formatDate(date: Date | string | undefined): string {
+    if (!date) return '—';
+    const d = typeof date === 'string' ? new Date(date) : date;
+    return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short' }).format(d);
   }
 
   get roleLabel(): string {
@@ -256,6 +322,11 @@ export class MarketComponent implements OnInit {
       viewer: 'Observateur'
     };
     return labels[this.role] ?? this.role;
+  }
+
+  get marketOffers(): Offer[] {
+    const currentUserEmail = JSON.parse(localStorage.getItem('agrismart_user') || '{}').email;
+    return this.offers.filter(o => o.status === 'validated' && o.ownerEmail !== currentUserEmail);
   }
 
   get pendingOffersCount(): number {

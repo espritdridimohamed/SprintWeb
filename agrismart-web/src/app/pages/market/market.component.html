@@ -91,29 +91,41 @@
         <div class="card-title">Mes offres</div>
         <span class="badge">{{ myOffers.length }}</span>
       </div>
-      <div class="offers-list">
-        <div *ngFor="let offer of myOffers" class="offer-item">
-          <div class="offer-main">
-            <div class="offer-product">
-              <span class="material-symbols-outlined">eco</span>
-              <strong>{{ offer.product }}</strong>
-            </div>
-            <div class="offer-details">
-              <span>{{ offer.quantity }} {{ offer.unit }}</span>
-              <span class="separator">•</span>
-              <span>{{ formatCurrency(offer.price) }}/{{ offer.unit }}</span>
-              <span class="separator">•</span>
-              <span class="tag-quality">{{ offer.quality }}</span>
-            </div>
-          </div>
-          <div class="offer-actions">
-            <span class="status-badge" [ngClass]="getStatusClass(offer.status)">
+      <div class="offers-grid">
+        <div *ngFor="let offer of myOffers" class="offer-card">
+          <div class="card-img-wrapper">
+            <img
+              [src]="offer.imageUrl || 'https://images.unsplash.com/photo-1592419044706-39796d40f98c?auto=format&fit=crop&w=400&q=80'"
+              alt="Produit" class="card-img">
+            <span class="status-badge-overlay" [ngClass]="getStatusClass(offer.status)">
               {{ offer.status === 'pending' ? 'En attente' : offer.status === 'validated' ? 'Validée' : 'Vendue' }}
             </span>
-            <button *ngIf="offer.status === 'pending'" class="icon-btn danger" (click)="deleteOffer(offer)"
-              title="Supprimer">
-              <span class="material-symbols-outlined">delete</span>
-            </button>
+          </div>
+          <div class="card-content">
+            <div class="card-product">
+              <strong>{{ offer.product }}</strong>
+              <span class="quality-tag">{{ offer.quality }}</span>
+            </div>
+            <p class="card-description" *ngIf="offer.description">{{ offer.description }}</p>
+            <div class="card-meta">
+              <div class="meta-item">
+                <span class="material-symbols-outlined">scale</span>
+                {{ offer.quantity }} {{ offer.unit }}
+              </div>
+              <div class="meta-item">
+                <span class="material-symbols-outlined">payments</span>
+                {{ formatCurrency(offer.price) }}/{{ offer.unit }}
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="offer-date">{{ formatDate(offer.date) }}</span>
+            <div class="card-btns">
+              <button *ngIf="offer.status === 'pending'" class="icon-btn danger" (click)="deleteOffer(offer)"
+                title="Supprimer">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
           </div>
         </div>
         <div *ngIf="myOffers.length === 0" class="empty-state">
@@ -144,10 +156,80 @@
           </div>
           <span class="alert-status active">Active</span>
         </div>
-        <div *ngIf="priceAlerts.length === 0" class="empty-state">
+
+        <!-- Admin Alerts for Producer -->
+        <div *ngFor="let alert of adminPriceAlerts" class="alert-item admin-warning">
+          <div class="alert-icon warning">
+            <span class="material-symbols-outlined">report_problem</span>
+          </div>
+          <div class="alert-content">
+            <div class="alert-header">
+              <strong>Alerte Admin : {{ alert.product }}</strong>
+              <span class="alert-date">{{ formatDate(alert.date) }}</span>
+            </div>
+            <p class="admin-msg">{{ alert.adminWarning }}</p>
+            <div class="suggestion" *ngIf="alert.suggestedPrice">
+              <span>Prix recommandé : </span>
+              <strong>{{ formatCurrency(alert.suggestedPrice) }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="priceAlerts.length === 0 && adminPriceAlerts.length === 0" class="empty-state">
           <span class="material-symbols-outlined">notifications_off</span>
           <p>Aucune alerte configurée</p>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Explorer le Marché (Offres des autres) -->
+  <div class="card section-gap">
+    <div class="card-header">
+      <div class="card-title">Explorer le marché</div>
+      <span class="badge">{{ marketOffers.length }} offres disponibles</span>
+    </div>
+    <div class="offers-grid">
+      <div *ngFor="let offer of marketOffers" class="offer-card">
+        <div class="card-img-wrapper">
+          <img
+            [src]="offer.imageUrl || 'https://images.unsplash.com/photo-1592419044706-39796d40f98c?auto=format&fit=crop&w=400&q=80'"
+            alt="Produit" class="card-img">
+          <div class="producer-badge-overlay">
+            <span class="material-symbols-outlined">person</span>
+            {{ offer.ownerEmail ? offer.ownerEmail.split('@')[0] : 'Inconnu' }}
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-product">
+            <strong>{{ offer.product }}</strong>
+            <span class="quality-tag">{{ offer.quality }}</span>
+          </div>
+          <p class="card-description" *ngIf="offer.description">{{ offer.description }}</p>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="material-symbols-outlined">scale</span>
+              {{ offer.quantity }} {{ offer.unit }}
+            </div>
+            <div class="meta-item">
+              <span class="material-symbols-outlined">payments</span>
+              {{ formatCurrency(offer.price) }}/{{ offer.unit }}
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="offer-date">Publié le {{ formatDate(offer.date) }}</span>
+          <div class="card-btns">
+            <button class="primary-btn small">
+              <span class="material-symbols-outlined">chat</span>
+              Contacter
+            </button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="marketOffers.length === 0" class="empty-state">
+        <span class="material-symbols-outlined">search_off</span>
+        <p>Aucune autre offre disponible pour le moment</p>
       </div>
     </div>
   </div>
@@ -377,6 +459,9 @@
           <button *ngIf="offer.status === 'pending'" class="icon-btn success" (click)="validateOffer(offer)"
             title="Valider">
             <span class="material-symbols-outlined">check</span>
+          </button>
+          <button class="icon-btn warning" (click)="openAdminAlertModal(offer)" title="Alerte prix">
+            <span class="material-symbols-outlined">notification_important</span>
           </button>
           <button class="icon-btn danger" (click)="deleteOffer(offer)" title="Supprimer">
             <span class="material-symbols-outlined">delete</span>
@@ -681,6 +766,37 @@
         </select>
       </div>
       <div class="form-group">
+        <label>Image de l'article</label>
+        <div class="image-selector-container">
+          <!-- Upload New -->
+          <div class="upload-box" [class.uploading]="isUploading">
+            <input type="file" (change)="handleImageUpload($event)" accept="image/*" id="market-img-upload" hidden>
+            <label for="market-img-upload" class="upload-label">
+              <span class="material-symbols-outlined">{{ isUploading ? 'sync' : 'add_photo_alternate' }}</span>
+              <span>{{ isUploading ? 'Téléchargement...' : 'Nouvelle image' }}</span>
+            </label>
+          </div>
+
+          <!-- Image Gallery -->
+          <div class="image-gallery">
+            <div *ngFor="let img of registeredImages" class="gallery-item"
+              [class.selected]="newOffer.imageUrl === img.url" (click)="selectImage(img.url)">
+              <img [src]="img.url" [alt]="img.name">
+              <div class="selection-check" *ngIf="newOffer.imageUrl === img.url">
+                <span class="material-symbols-outlined">check_circle</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <input type="text" [(ngModel)]="newOffer.imageUrl" class="form-input" placeholder="Ou collez une URL directe..."
+          style="margin-top: 10px;">
+      </div>
+      <div class="form-group">
+        <label>Description (optionnelle)</label>
+        <textarea [(ngModel)]="newOffer.description" class="form-input" rows="3"
+          placeholder="Détails du produit..."></textarea>
+      </div>
+      <div class="form-group">
         <label>Disponibilité</label>
         <select [(ngModel)]="newOffer.availability" class="form-input">
           <option value="immediate">Immédiate</option>
@@ -761,6 +877,41 @@
     <div class="modal-footer">
       <button class="ghost-btn" (click)="closeGroupedOfferModal()">Annuler</button>
       <button class="primary-btn" (click)="closeGroupedOfferModal()">Créer l'offre</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Price Alert Modal -->
+<div class="modal-overlay" *ngIf="showAdminAlertModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Envoyer une alerte de prix</h3>
+      <button class="icon-btn" (click)="closeAdminAlertModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="alert-summary-card" *ngIf="selectedOfferForAlert">
+        <div class="prod-info">
+          <strong>{{ selectedOfferForAlert.product }}</strong>
+          <span>Actuel: {{ formatCurrency(selectedOfferForAlert.price) }}</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Message d'avertissement</label>
+        <textarea [(ngModel)]="adminAlertMessage" class="form-input" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Prix recommandé (TND)</label>
+        <input type="number" [(ngModel)]="adminAlertSuggestedPrice" class="form-input">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="ghost-btn" (click)="closeAdminAlertModal()">Annuler</button>
+      <button class="primary-btn warning" (click)="confirmPriceAlert()">
+        <span class="material-symbols-outlined">send</span>
+        Envoyer l'alerte
+      </button>
     </div>
   </div>
 </div>

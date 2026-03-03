@@ -12,6 +12,10 @@ export interface Offer {
     quality: string;
     availability: string;
     status: 'pending' | 'validated' | 'sold';
+    imageUrl?: string;
+    description?: string;
+    adminWarning?: string;
+    suggestedPrice?: number;
     ownerEmail?: string;
     date?: Date;
 }
@@ -44,5 +48,19 @@ export class MarketService {
 
     getPrices(): Observable<any[]> {
         return this.http.get<any[]>(`${this.apiUrl}/prices`);
+    }
+
+    getUploadedFiles(): Observable<any[]> {
+        return this.http.get<any[]>('http://localhost:8080/api/upload/files');
+    }
+
+    uploadFile(file: File): Observable<{ url: string; fileName: string }> {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.http.post<{ url: string; fileName: string }>('http://localhost:8080/api/upload', formData);
+    }
+
+    sendPriceAlert(offerId: string, message: string, suggestedPrice?: number): Observable<Offer> {
+        return this.http.post<Offer>(`${this.apiUrl}/offers/${offerId}/price-alert`, { message, suggestedPrice });
     }
 }

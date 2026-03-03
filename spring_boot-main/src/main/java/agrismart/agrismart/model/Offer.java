@@ -20,10 +20,14 @@ public class Offer {
     private String availability;
     private String status; // pending, validated, sold
     private String ownerEmail;
+    private String imageUrl;
+    private String description;
     private Date date;
+    private String adminWarning;
+    private Double suggestedPrice;
 
     public Offer(String product, Integer quantity, String unit, Double price, String quality, String availability,
-            String ownerEmail) {
+            String ownerEmail, String imageUrl, String description) {
         this.product = product;
         this.quantity = quantity;
         this.unit = unit;
@@ -31,6 +35,8 @@ public class Offer {
         this.quality = quality;
         this.availability = availability;
         this.ownerEmail = ownerEmail;
+        this.imageUrl = imageUrl;
+        this.description = description;
         this.status = "pending";
         this.date = new Date();
     }
@@ -107,6 +113,12 @@ public class Offer {
         this.ownerEmail = ownerEmail;
     }
 
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
     public Date getDate() {
         return date;
     }
@@ -114,4 +126,10 @@ public class Offer {
     public void setDate(Date date) {
         this.date = date;
     }
+
+    public String getAdminWarning() { return adminWarning; }
+    public void setAdminWarning(String adminWarning) { this.adminWarning = adminWarning; }
+
+    public Double getSuggestedPrice() { return suggestedPrice; }
+    public void setSuggestedPrice(Double suggestedPrice) { this.suggestedPrice = suggestedPrice; }
 }

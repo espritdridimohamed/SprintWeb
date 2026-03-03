@@ -86,7 +86,7 @@
             </div>
             <p class="results-count">Showing 1,248 high-quality products from certified sellers</p>
 
-            <div class="product-grid">
+            <div class="product-grid" *ngIf="!isLoading">
                 <div class="product-card" *ngFor="let product of products" (click)="viewDetails(product.id)">
                     <div class="product-image">
                         <span class="tag" *ngIf="product.tag" [class.new]="product.tag === 'NEW'"
@@ -113,6 +113,15 @@
                         </div>
                     </div>
                 </div>
+                <div *ngIf="products.length === 0" class="empty-marketplace">
+                    <span class="material-symbols-outlined">sentiment_dissatisfied</span>
+                    <p>No validated products available at the moment.</p>
+                </div>
+            </div>
+
+            <div class="loading-state" *ngIf="isLoading">
+                <div class="spinner"></div>
+                <p>Loading the marketplace...</p>
             </div>
 
             <!-- Pagination -->

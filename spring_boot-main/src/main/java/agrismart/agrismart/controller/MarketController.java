@@ -61,6 +61,8 @@ public class MarketController {
                     offer.setPrice(body.getPrice());
                     offer.setQuality(body.getQuality());
                     offer.setAvailability(body.getAvailability());
+                    offer.setImageUrl(body.getImageUrl());
+                    offer.setDescription(body.getDescription());
                     return ResponseEntity.ok(offerRepository.save(offer));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -108,6 +110,23 @@ public class MarketController {
         body.put("id", UUID.randomUUID().toString());
         body.put("status", "En attente");
         return ResponseEntity.ok(body); // Simulation
+    }
+
+    // ─── POST /api/market/offers/{id}/price-alert — ADMIN seulement ────────────────
+    @PostMapping("/offers/{id}/price-alert")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Offer> sendPriceAlert(
+            @PathVariable String id,
+            @RequestBody Map<String, Object> body) {
+        return offerRepository.findById(id)
+                .map(offer -> {
+                    offer.setAdminWarning((String) body.get("message"));
+                    if (body.get("suggestedPrice") != null) {
+                        offer.setSuggestedPrice(Double.valueOf(body.get("suggestedPrice").toString()));
+                    }
+                    return ResponseEntity.ok(offerRepository.save(offer));
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // ─── Ownership helper ──────────────────────────────────────────────────────
