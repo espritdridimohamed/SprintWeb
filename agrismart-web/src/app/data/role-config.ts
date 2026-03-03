@@ -129,13 +129,8 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     orgLabel: 'Coopérative Agricole du Nord',
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
-      { label: 'Gestion Agricole', route: '/app/agri', icon: 'agri' },
       { label: 'Planification', route: '/app/planning', icon: 'calendar' },
-      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
-      { label: 'Formations', route: '/app/training', icon: 'training' },
-      { label: 'Recommandations', route: '/app/recommendations', icon: 'auto_awesome' },
-      { label: 'Alertes', route: '/app/alerts', icon: 'alerts' },
-      { label: 'Rapports', route: '/app/rapports', icon: 'reports' }
+      { label: 'Alertes', route: '/app/alerts', icon: 'alerts' }
     ],
     kpis: [
       { label: 'Membres actifs', value: '156', trend: '+12 ce mois', tone: 'info', icon: 'users' },
@@ -217,11 +212,7 @@ export const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     orgLabel: 'Ministère Agriculture',
     nav: [
       { label: 'Tableau de bord', route: '/app/dashboard', icon: 'dashboard' },
-      { label: 'Agro-Marché', route: '/app/market', icon: 'market' },
-      { label: 'Planification', route: '/app/planning', icon: 'calendar' },
-      { label: 'Analyse & Impact', route: '/app/impact', icon: 'impact' },
-      { label: 'Communications', route: '/app/communications', icon: 'report' },
-      { label: 'Exports décision', route: '/app/exports-decision', icon: 'download' }
+      { label: 'Agro-Marché', route: '/app/market', icon: 'market' }
     ],
     kpis: [
       { label: 'Alertes nationales', value: '18', trend: 'Dernières 48h', tone: 'danger', icon: 'alert' },

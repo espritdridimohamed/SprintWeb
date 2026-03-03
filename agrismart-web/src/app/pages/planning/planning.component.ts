@@ -8,7 +8,7 @@ import { PlanningService, AgriTask } from '../../services/planning.service';
 interface Task {
   id: string;
   title: string;
-  type: 'semis' | 'irrigation' | 'traitement' | 'recolte' | 'autre';
+  type: 'semis' | 'irrigation' | 'traitement' | 'recolte' | 'autre' | 'reunion';
   parcel?: string;
   date: Date;
   status: 'todo' | 'inprogress' | 'done' | 'late';
@@ -61,6 +61,10 @@ export class PlanningComponent implements OnInit {
   /** PRODUCTEUR, COOPERATIVE, ADMIN peuvent créer des tâches */
   get canCreateTask(): boolean {
     return this.role === 'producteur' || this.role === 'cooperative' || this.role === 'admin';
+  }
+
+  get isCooperativeView(): boolean {
+    return this.role === 'cooperative';
   }
 
   /** TECHNICIEN (et ADMIN) peuvent uniquement mettre à jour le statut des tâches assignées */
@@ -165,7 +169,8 @@ export class PlanningComponent implements OnInit {
     { value: 'irrigation', label: 'Irrigation', icon: 'water_drop' },
     { value: 'traitement', label: 'Traitement', icon: 'science' },
     { value: 'recolte', label: 'Récolte', icon: 'inventory' },
-    { value: 'autre', label: 'Autre', icon: 'more_horiz' }
+    { value: 'autre', label: 'Autre', icon: 'more_horiz' },
+    { value: 'reunion', label: 'Réunion', icon: 'groups' }
   ];
 
   monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
@@ -187,8 +192,8 @@ export class PlanningComponent implements OnInit {
     
     this.planningService.getAllTasks().subscribe({
       next: (tasks: any[]) => {
-        // Filter tasks to show only those created by the current user
-        const filteredTasks = tasks.filter(t => t.ownerEmail === currentUserEmail);
+        // Show own tasks + cooperative meetings to all planning-access roles
+        const filteredTasks = tasks.filter(t => t.ownerEmail === currentUserEmail || t.type === 'reunion');
         
         // Map backend Date if needed
         this.tasks = filteredTasks.map(t => ({
@@ -259,7 +264,14 @@ export class PlanningComponent implements OnInit {
   }
 
   // Modal methods
-  openTaskModal() { if (this.canCreateTask) this.showTaskModal = true; }
+  openTaskModal() {
+    if (!this.canCreateTask) return;
+    if (this.isCooperativeView) {
+      this.newTask.type = 'reunion';
+      this.newTask.priority = 'medium';
+    }
+    this.showTaskModal = true;
+  }
   closeTaskModal() { this.showTaskModal = false; this.resetTaskForm(); }
 
   openCampaignModal() { if (this.canManageCampaign) this.showCampaignModal = true; }
@@ -280,6 +292,7 @@ export class PlanningComponent implements OnInit {
     if (!this.canCreateTask) return;
     const taskData = {
       ...this.newTask,
+      type: this.isCooperativeView ? 'reunion' : this.newTask.type,
       dueDate: this.newTask.date
     };
     this.planningService.createTask(taskData).subscribe(() => {
@@ -290,6 +303,9 @@ export class PlanningComponent implements OnInit {
 
   resetTaskForm() {
     this.newTask = { title: '', type: 'semis', parcel: '', date: new Date(), status: 'todo', priority: 'medium', description: '' };
+    if (this.isCooperativeView) {
+      this.newTask.type = 'reunion';
+    }
   }
 
   /** TECHNICIEN + ADMIN : mettre à jour uniquement le status */
@@ -361,7 +377,7 @@ export class PlanningComponent implements OnInit {
   getTaskTypeColor(type: string): string {
     const colors: { [key: string]: string } = {
       'semis': '#10b981', 'irrigation': '#3b82f6', 'traitement': '#f59e0b',
-      'recolte': '#8b5cf6', 'autre': '#6b7280'
+      'recolte': '#8b5cf6', 'autre': '#6b7280', 'reunion': '#7c3aed'
     };
     return colors[type] || '#6b7280';
   }

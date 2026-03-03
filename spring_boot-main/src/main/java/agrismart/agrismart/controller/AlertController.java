@@ -30,14 +30,28 @@ public class AlertController {
     // GET /api/alerts — toutes les alertes (actives d'abord)
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<Alert>> getAll() {
+    public ResponseEntity<List<Alert>> getAll(Authentication auth) {
+        boolean isProducteur = auth.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_PRODUCTEUR".equalsIgnoreCase(a.getAuthority()));
+
+        if (isProducteur) {
+            return ResponseEntity.ok(alertRepository.findByTargetOrderByCreatedAtDesc(auth.getName()));
+        }
+
         return ResponseEntity.ok(alertRepository.findAllByOrderByCreatedAtDesc());
     }
 
     // GET /api/alerts/active — alertes non résolues
     @GetMapping("/active")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<Alert>> getActive() {
+    public ResponseEntity<List<Alert>> getActive(Authentication auth) {
+        boolean isProducteur = auth.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_PRODUCTEUR".equalsIgnoreCase(a.getAuthority()));
+
+        if (isProducteur) {
+            return ResponseEntity.ok(alertRepository.findByTargetAndResolvedFalseOrderByCreatedAtDesc(auth.getName()));
+        }
+
         return ResponseEntity.ok(alertRepository.findByResolvedFalseOrderByCreatedAtDesc());
     }
 

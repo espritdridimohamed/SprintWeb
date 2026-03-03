@@ -23,16 +23,11 @@
       <span class="material-symbols-outlined">inventory_2</span>
       Créer offre groupée
     </button>
-    <!-- Read-only badge -->
-    <span *ngIf="isReadOnly" class="role-badge">
-      <span class="material-symbols-outlined">visibility</span>
-      {{ roleLabel }} — Lecture seule
-    </span>
   </div>
 </div>
 
 <!-- Statistics Cards -->
-<div class="grid-3">
+<div class="grid-3" *ngIf="role !== 'etat'">
   <div class="card stat-card">
     <div class="stat-icon">
       <span class="material-symbols-outlined">local_offer</span>
