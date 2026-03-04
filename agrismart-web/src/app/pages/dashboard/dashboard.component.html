@@ -143,8 +143,11 @@
     <span class="tag" [class.producteur-tag]="isProducteurView">{{ isProducteurView ? 'Suivi terrain en direct' : 'Statistiques en direct' }}</span>
   </div>
 
+  <div class="card" *ngIf="isViewerView && isViewerLoading">Chargement des indicateurs viewer...</div>
+  <div class="card" *ngIf="isViewerView && viewerLoadFailed">Impossible de charger les données marché. Affichage des indicateurs standards.</div>
+
   <div class="grid-4" [class.producteur-kpi-grid]="isProducteurView">
-    <app-kpi-card *ngFor="let kpi of roleConfig.kpis" [item]="kpi"></app-kpi-card>
+    <app-kpi-card *ngFor="let kpi of dashboardKpis" [item]="kpi"></app-kpi-card>
   </div>
 
   <div class="visual-grid section-gap" [class.producteur-visual]="isProducteurView">
@@ -210,6 +213,62 @@
           <div class="stat-value">{{ stat.value }}</div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="viewer-extra section-gap" *ngIf="isViewerView">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Offres récentes</div>
+          <div class="card-subtitle">Dernières publications du marché</div>
+        </div>
+        <a class="quick-link compact" routerLink="/app/market">
+          <span class="material-symbols-outlined">open_in_new</span>
+          <span>Voir marché</span>
+        </a>
+      </div>
+
+      <div class="viewer-list" *ngIf="recentOffers.length > 0; else noOffers">
+        <div class="viewer-row" *ngFor="let offer of recentOffers">
+          <div>
+            <div class="viewer-title">{{ offer.product || 'Produit' }}</div>
+            <div class="viewer-sub">{{ offer.quantity || 0 }} {{ offer.unit || 'kg' }} · {{ offer.price || 0 }} DT</div>
+          </div>
+          <div class="viewer-meta">
+            <span class="status-pill" [class]="offer.status || 'pending'">{{ offer.status || 'pending' }}</span>
+            <span class="viewer-date" *ngIf="offer.date">{{ offer.date | date:'dd/MM HH:mm' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noOffers>
+        <div class="empty-state">Aucune offre récente à afficher.</div>
+      </ng-template>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Mouvements de prix</div>
+          <div class="card-subtitle">Produits avec plus forte variation</div>
+        </div>
+        <span class="material-symbols-outlined">monitoring</span>
+      </div>
+
+      <div class="viewer-list" *ngIf="priceHighlights.length > 0; else noPrices">
+        <div class="viewer-row" *ngFor="let item of priceHighlights">
+          <div>
+            <div class="viewer-title">{{ item.label }}</div>
+            <div class="viewer-sub">{{ item.detail }}</div>
+          </div>
+          <span class="status-pill" [class]="item.tone">{{ item.tone }}</span>
+        </div>
+      </div>
+
+      <ng-template #noPrices>
+        <div class="empty-state">Aucune variation de prix disponible.</div>
+      </ng-template>
     </div>
   </section>
 

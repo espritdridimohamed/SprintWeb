@@ -399,6 +399,105 @@
   color: var(--accent-dark);
 }
 
+.quick-link.compact {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.viewer-extra {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.viewer-list {
+  display: grid;
+  gap: 10px;
+}
+
+.viewer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--card-border);
+  background: var(--card);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.viewer-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.viewer-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.viewer-meta {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
+.viewer-date {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+  border-radius: 999px;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  min-width: 74px;
+}
+
+.status-pill.pending,
+.status-pill.warning {
+  background: rgba(255, 176, 32, 0.12);
+  color: #d9820f;
+  border-color: rgba(255, 176, 32, 0.24);
+}
+
+.status-pill.validated,
+.status-pill.success {
+  background: rgba(90, 208, 90, 0.12);
+  color: #2f9d57;
+  border-color: rgba(90, 208, 90, 0.24);
+}
+
+.status-pill.sold,
+.status-pill.info {
+  background: rgba(96, 169, 255, 0.12);
+  color: #347ad4;
+  border-color: rgba(96, 169, 255, 0.24);
+}
+
+.status-pill.danger {
+  background: rgba(255, 99, 109, 0.12);
+  color: #c43e3e;
+  border-color: rgba(255, 99, 109, 0.24);
+}
+
+.empty-state {
+  border: 1px dashed var(--card-border);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--card);
+}
+
 @media (max-width: 1100px) {
   .visual-grid {
     grid-template-columns: 1fr;
@@ -411,6 +510,10 @@
 
 @media (max-width: 900px) {
   .dashboard-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .viewer-extra {
     grid-template-columns: 1fr;
   }
 

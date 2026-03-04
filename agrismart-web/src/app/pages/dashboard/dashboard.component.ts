@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import { RoleService } from '../../services/role.service';
 import { ROLE_CONFIGS } from '../../data/role-config';
-import { RoleKey } from '../../models/role.model';
+import { KpiItem, RoleKey } from '../../models/role.model';
 import { KpiCardComponent } from '../../shared/kpi-card/kpi-card.component';
-import { SectionCardComponent } from '../../shared/section-card/section-card.component';
+import { MarketService, Offer } from '../../services/market.service';
 
 /* ── Admin API types ── */
 interface DashboardUser {
@@ -20,6 +20,13 @@ interface DashboardUser {
 interface DashboardRole {
   id: string;
   name: string;
+}
+
+interface MarketPrice {
+  product?: string;
+  region?: string;
+  currentPrice?: number;
+  trend?: number;
 }
 
 /* ── Visual dashboard types ── */
@@ -221,22 +228,38 @@ const ROLE_VISUALS: Record<RoleKey, RoleVisualData> = {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, KpiCardComponent, SectionCardComponent],
+  imports: [CommonModule, RouterModule, KpiCardComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
   private readonly apiBaseUrl = 'http://localhost:8080/api';
+  private readonly msInDay = 24 * 60 * 60 * 1000;
 
   isLoading = false;
   users: DashboardUser[] = [];
   roles: DashboardRole[] = [];
 
-  constructor(public roleService: RoleService, private http: HttpClient) { }
+  isViewerLoading = false;
+  viewerLoadFailed = false;
+  viewerKpis: KpiItem[] = [...ROLE_CONFIGS.viewer.kpis];
+  viewerVisualData: RoleVisualData = ROLE_VISUALS.viewer;
+  recentOffers: Offer[] = [];
+  priceHighlights: Array<{ label: string; detail: string; tone: ChartTone }> = [];
+
+  constructor(
+    public roleService: RoleService,
+    private http: HttpClient,
+    private marketService: MarketService
+  ) { }
 
   ngOnInit(): void {
     if (this.isAdminView) {
       this.loadAdminSummary();
+    }
+
+    if (this.isViewerView) {
+      this.loadViewerSummary();
     }
   }
 
@@ -252,8 +275,19 @@ export class DashboardComponent implements OnInit {
     return this.roleService.role === 'producteur';
   }
 
+  get isViewerView(): boolean {
+    return this.roleService.role === 'viewer';
+  }
+
+  get dashboardKpis(): KpiItem[] {
+    return this.isViewerView ? this.viewerKpis : this.roleConfig.kpis;
+  }
+
   /* ── Visual data for all roles ── */
   get visualData(): RoleVisualData {
+    if (this.isViewerView) {
+      return this.viewerVisualData;
+    }
     return ROLE_VISUALS[this.roleService.role];
   }
 
@@ -334,5 +368,224 @@ export class DashboardComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  private loadViewerSummary(): void {
+    this.isViewerLoading = true;
+    this.viewerLoadFailed = false;
+
+    forkJoin({
+      offers: this.marketService.getAllOffers().pipe(catchError(() => of([] as Offer[]))),
+      prices: this.marketService.getPrices().pipe(catchError(() => of([] as MarketPrice[])))
+    }).subscribe({
+      next: ({ offers, prices }) => {
+        const normalizedPrices = (prices ?? []).map((price) => ({
+          product: price?.product,
+          region: price?.region,
+          currentPrice: Number(price?.currentPrice ?? 0),
+          trend: Number(price?.trend ?? 0)
+        }));
+
+        this.viewerKpis = this.buildViewerKpis(offers ?? [], normalizedPrices);
+        this.viewerVisualData = this.buildViewerVisualData(offers ?? [], normalizedPrices);
+        this.recentOffers = this.buildRecentOffers(offers ?? []);
+        this.priceHighlights = this.buildPriceHighlights(normalizedPrices);
+        this.isViewerLoading = false;
+      },
+      error: () => {
+        this.isViewerLoading = false;
+        this.viewerLoadFailed = true;
+      }
+    });
+  }
+
+  private buildViewerKpis(offers: Offer[], prices: MarketPrice[]): KpiItem[] {
+    const availableOffers = offers.filter((offer) => offer.status !== 'sold');
+    const uniqueProducts = new Set(
+      availableOffers
+        .map((offer) => (offer.product ?? '').trim())
+        .filter((product) => product.length > 0)
+    );
+    const uniqueSellers = new Set(
+      offers
+        .map((offer) => offer.ownerEmail || offer.producer || '')
+        .map((seller) => seller.trim())
+        .filter((seller) => seller.length > 0)
+    );
+    const strongPriceAlerts = prices.filter((price) => Math.abs(price.trend ?? 0) >= 5).length;
+
+    return [
+      {
+        label: 'Offres disponibles',
+        value: `${availableOffers.length}`,
+        trend: `${offers.filter((offer) => offer.status === 'validated').length} validées`,
+        tone: 'info',
+        icon: 'market',
+        route: '/app/market'
+      },
+      {
+        label: 'Produits suivis',
+        value: `${uniqueProducts.size}`,
+        trend: 'Catégories actives',
+        tone: 'brand',
+        icon: 'leaf',
+        route: '/app/market'
+      },
+      {
+        label: 'Vendeurs actifs',
+        value: `${uniqueSellers.size}`,
+        trend: 'Marché local',
+        tone: 'success',
+        icon: 'users',
+        route: '/app/market'
+      },
+      {
+        label: 'Alertes prix',
+        value: `${strongPriceAlerts}`,
+        trend: strongPriceAlerts > 0 ? 'Variations > 5%' : 'Marché stable',
+        tone: 'warning',
+        icon: 'alert',
+        route: '/app/market'
+      }
+    ];
+  }
+
+  private buildViewerVisualData(offers: Offer[], prices: MarketPrice[]): RoleVisualData {
+    const bars = this.buildWeeklyBars(offers);
+    const slices = this.buildProductSlices(offers);
+    const totalOffers = offers.length;
+    const validatedOffers = offers.filter((offer) => offer.status === 'validated' || offer.status === 'sold').length;
+    const validationRate = totalOffers > 0 ? Math.round((validatedOffers * 100) / totalOffers) : 0;
+    const avgPrice = this.computeAveragePrice(offers, prices);
+    const strongVariations = prices.filter((price) => Math.abs(price.trend ?? 0) >= 5).length;
+
+    return {
+      performanceTitle: 'Activité du marché (4 semaines)',
+      performanceSubtitle: 'Nouvelles offres publiées par semaine',
+      distributionTitle: 'Répartition des offres',
+      distributionSubtitle: 'Par catégorie de produit',
+      bars,
+      slices,
+      stats: [
+        { label: 'Offres validées', value: `${validationRate}%`, icon: 'verified', tone: 'success' },
+        { label: 'Prix moyen', value: `${avgPrice.toFixed(1)} DT`, icon: 'payments', tone: 'info' },
+        { label: 'Variations fortes', value: `${strongVariations}`, icon: 'warning', tone: 'warning' }
+      ]
+    };
+  }
+
+  private buildWeeklyBars(offers: Offer[]): VisualBar[] {
+    const weeklyCounts = [0, 0, 0, 0];
+    const now = Date.now();
+
+    for (const offer of offers) {
+      const offerDate = this.parseOfferDate(offer);
+      if (!offerDate) {
+        continue;
+      }
+
+      const diff = now - offerDate.getTime();
+      if (diff < 0 || diff >= 28 * this.msInDay) {
+        continue;
+      }
+
+      const ageWeek = Math.floor(diff / (7 * this.msInDay));
+      const bucketIndex = 3 - ageWeek;
+      if (bucketIndex >= 0 && bucketIndex < 4) {
+        weeklyCounts[bucketIndex] += 1;
+      }
+    }
+
+    return [
+      { label: 'Sem 1', score: weeklyCounts[0], valueLabel: `${weeklyCounts[0]} offres`, icon: 'storefront', tone: 'info' },
+      { label: 'Sem 2', score: weeklyCounts[1], valueLabel: `${weeklyCounts[1]} offres`, icon: 'storefront', tone: 'success' },
+      { label: 'Sem 3', score: weeklyCounts[2], valueLabel: `${weeklyCounts[2]} offres`, icon: 'storefront', tone: 'brand' },
+      { label: 'Sem 4', score: weeklyCounts[3], valueLabel: `${weeklyCounts[3]} offres`, icon: 'storefront', tone: 'warning' }
+    ];
+  }
+
+  private buildProductSlices(offers: Offer[]): VisualSlice[] {
+    const counters = new Map<string, number>();
+
+    for (const offer of offers) {
+      const product = (offer.product ?? 'Autres').trim() || 'Autres';
+      counters.set(product, (counters.get(product) ?? 0) + 1);
+    }
+
+    const entries = Array.from(counters.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4);
+
+    if (entries.length === 0) {
+      return ROLE_VISUALS.viewer.slices;
+    }
+
+    const total = entries.reduce((sum, [, count]) => sum + count, 0);
+    const tones: ChartTone[] = ['success', 'info', 'brand', 'warning'];
+    let remaining = 100;
+
+    return entries.map(([label, count], index) => {
+      const isLast = index === entries.length - 1;
+      const percent = isLast ? remaining : Math.max(1, Math.round((count * 100) / total));
+      remaining = Math.max(0, remaining - percent);
+      return {
+        label,
+        percent,
+        tone: tones[index % tones.length]
+      };
+    });
+  }
+
+  private buildRecentOffers(offers: Offer[]): Offer[] {
+    return [...offers]
+      .sort((left, right) => {
+        const leftTime = this.parseOfferDate(left)?.getTime() ?? 0;
+        const rightTime = this.parseOfferDate(right)?.getTime() ?? 0;
+        return rightTime - leftTime;
+      })
+      .slice(0, 5);
+  }
+
+  private buildPriceHighlights(prices: MarketPrice[]): Array<{ label: string; detail: string; tone: ChartTone }> {
+    return [...prices]
+      .sort((left, right) => Math.abs(right.trend ?? 0) - Math.abs(left.trend ?? 0))
+      .slice(0, 4)
+      .map((price) => {
+        const trend = price.trend ?? 0;
+        return {
+          label: price.product || 'Produit',
+          detail: `${price.region || 'Région'} · ${(price.currentPrice ?? 0).toFixed(2)} DT · ${trend >= 0 ? '+' : ''}${trend.toFixed(1)}%`,
+          tone: trend > 4 ? 'warning' : trend < -4 ? 'success' : 'info'
+        };
+      });
+  }
+
+  private computeAveragePrice(offers: Offer[], prices: MarketPrice[]): number {
+    const priceValues = prices
+      .map((price) => Number(price.currentPrice ?? 0))
+      .filter((value) => value > 0);
+
+    if (priceValues.length > 0) {
+      return priceValues.reduce((sum, value) => sum + value, 0) / priceValues.length;
+    }
+
+    const offerValues = offers
+      .map((offer) => Number(offer.price ?? 0))
+      .filter((value) => value > 0);
+
+    if (offerValues.length > 0) {
+      return offerValues.reduce((sum, value) => sum + value, 0) / offerValues.length;
+    }
+
+    return 0;
+  }
+
+  private parseOfferDate(offer: Offer): Date | null {
+    if (!offer.date) {
+      return null;
+    }
+
+    const parsedDate = offer.date instanceof Date ? offer.date : new Date(offer.date);
+    return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
   }
 }
